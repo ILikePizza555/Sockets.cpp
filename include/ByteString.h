@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include <cstddef>
 #include "Byte.h"
 
 namespace sockets {
