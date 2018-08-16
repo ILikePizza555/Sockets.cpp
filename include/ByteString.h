@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstddef>
+#include <memory>
 #include "Byte.h"
 
 namespace sockets {
@@ -9,17 +9,11 @@ namespace sockets {
      */
     class ByteString {
     private:
-        const byte* _data;
+        const std::shared_ptr<const byte[]> _data;
         const size_t _size;
     public:
         ByteString();
         ByteString(byte* data, size_t size);
-        ByteString(ByteString& other);
-        ByteString(ByteString&& other);
-        ~ByteString();
-
-        ByteString& operator=(const ByteString& other) const;
-        ByteString& operator=(const ByteString&& other) const;
 
         using const_iterator = const byte *;
         /**
