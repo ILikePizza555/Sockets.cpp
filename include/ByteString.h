@@ -15,7 +15,7 @@ namespace sockets {
     public:
         ByteString();
         ByteString(byte* data, size_t size);
-        ByteString(ByteString& other);
+        ByteString(const ByteString& other);
         ByteString(ByteString&& other);
         ~ByteString();
 
