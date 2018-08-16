@@ -90,7 +90,7 @@ namespace sockets {
 
     ByteString ByteString::replace(const byte* bytes, size_t bytes_length, size_t begin_pos) const
     {
-        if(begin_pos > _size) throw std::out_of_range("pos is larger than size");
+        if(begin_pos > _size) throw std::out_of_range("pos is larger than ByteString size");
 
         size_t new_size = _size + (bytes_length - _size + begin_pos );
         byte* data = new byte[new_size];
@@ -99,6 +99,30 @@ namespace sockets {
         std::copy(_data, _data + begin_pos, data);
         // Copy new data
         std::copy(bytes, bytes + bytes_length, data + begin_pos);
+
+        return ByteString(data, new_size);
+    }
+
+    ByteString ByteString::insert(const ByteString b, size_t pos) const
+    {
+        if(pos > _size) throw std::out_of_range("pos is larger than ByteString size");
+
+        return this->insert(b._data, b._size, pos);
+    }
+
+    ByteString ByteString::insert(const byte* bytes, size_t bytes_length, size_t pos) const
+    {
+        if(pos > _size) throw std::out_of_range("pos is larger than ByteString size");
+
+        size_t new_size = _size + bytes_length;
+        byte* data = new byte[new_size];
+
+        // Copy up to the insertion point
+        std::copy(_data, _data + pos + 1, data);
+        // Copy new data
+        std::copy(bytes, bytes + bytes_length, data + pos + 1);
+        // Copy the rest of the data
+        std::copy(_data + pos + 1, _data + _size, data + pos + 1 + bytes_length);
 
         return ByteString(data, new_size);
     }
