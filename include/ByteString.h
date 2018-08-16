@@ -41,26 +41,29 @@ namespace sockets {
 
         /**
          * Constructs a new ByteString by replacing the bytes beginning at begin_pos with the given data.
+         * If begin_pos == size, then replace functions like append.
+         * Throws std::out_of_range if begin_pos is larger than size.
          */
         ByteString replace(const ByteString b, size_t begin_pos) const;
         ByteString replace(const byte* bytes, size_t bytes_length, size_t begin_pos) const;
 
         /**
          * Constructs a new ByteString by inserting the bytes at the given position.
+         * If pos == size, then insert functions like append.
+         * Throws std::out_of_range is pos is larger than size.
          */
         ByteString insert(const ByteString b, size_t pos) const;
         ByteString insert(const byte* bytes, size_t bytes_length, size_t pos) const;
 
         /**
          * Constructs a new ByteString by copying the range of bytes between the given starting position and the end.
-         * Throws std::out_of_range if the index is less than 0 or larger than the ByteString.
+         * Throws std::out_of_range if the index is larger than the ByteString.
          */
         ByteString sub(size_t begin_pos) const;
         /**
-         * Constructs a new ByteString by copying the range of bytes between the given starting position and the given end position.
+         * Constructs a new ByteString by copying the range of bytes [begin_pos, end_pos)
          * 
-         * Throws std::out_of_range if begin_pos is less than 0 or greater than end_pos. 
-         * Throws std::out_of_range if end_pos is less than 0 or greater than the size of ByteString.
+         * Throws std::out_of_range if begin_pos is greater than end_pos, or if end_pos is greater than size.
          */
         ByteString sub(size_t begin_pos, size_t end_pos) const;
 
