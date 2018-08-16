@@ -15,11 +15,9 @@ namespace sockets {
         ByteString();
         ByteString(byte* data, size_t size);
         ByteString(ByteString& other);
-        ByteString(ByteString&& other);
         ~ByteString();
 
         ByteString& operator=(const ByteString& other) const;
-        ByteString& operator=(const ByteString&& other) const;
 
         using const_iterator = const byte *;
         /**
