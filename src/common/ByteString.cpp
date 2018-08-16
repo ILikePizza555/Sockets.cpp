@@ -55,4 +55,14 @@ namespace sockets {
             other._size = 0;
         }
     }
+
+    ByteString::const_iterator ByteString::cbegin() const
+    {
+        return _data;
+    }
+
+    ByteString::const_iterator ByteString::cend() const
+    {
+        return _data + _size;
+    }
 }
