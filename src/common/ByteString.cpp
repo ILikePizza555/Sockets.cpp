@@ -1,5 +1,6 @@
-#include <include/ByteString.h>
+#include <ByteString.h>
 #include <algorithm>
+#include <stdexcept>
 
 
 namespace sockets {
@@ -78,6 +79,26 @@ namespace sockets {
 
         std::copy(_data, _data + _size, data);
         std::copy(bytes, bytes + bytes_length, data + _size);
+
+        return ByteString(data, new_size);
+    }
+
+    ByteString ByteString::replace(const ByteString b, size_t begin_pos) const
+    {
+        return this->replace(b._data, b._size, begin_pos);
+    }
+
+    ByteString ByteString::replace(const byte* bytes, size_t bytes_length, size_t begin_pos) const
+    {
+        if(begin_pos > _size) throw std::out_of_range("pos is larger than size");
+
+        size_t new_size = _size + (bytes_length - _size + begin_pos );
+        byte* data = new byte[new_size];
+
+        //Copy the data that remains the same
+        std::copy(_data, _data + begin_pos, data);
+        // Copy new data
+        std::copy(bytes, bytes + bytes_length, data + begin_pos);
 
         return ByteString(data, new_size);
     }
