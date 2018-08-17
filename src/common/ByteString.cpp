@@ -6,7 +6,7 @@
 namespace sockets {
     ByteString::ByteString() : _data(nullptr), _size(0) {}
     ByteString::ByteString(byte* data, size_t size) : _data(data), _size(size) {}
-    ByteString::ByteString(const ByteString& other) : _data(new byte[other.size]), _size(other.size)
+    ByteString::ByteString(const ByteString& other) : _data(new byte[other._size]), _size(other._size)
     {
         std::copy(other.cbegin(), other.cend(), _data);
     }
@@ -26,8 +26,8 @@ namespace sockets {
             if (_size != other._size) 
             {
                 delete [] _data;
-                _data = new byte[other.size];
-                _size = other.size;
+                _data = new byte[other._size];
+                _size = other._size;
             }
             // Copy the data
             std::copy(other.cbegin(), other.cend(), _data);
@@ -55,6 +55,7 @@ namespace sockets {
             delete [] other._data;
             other._size = 0;
         }
+        return *this;
     }
 
     ByteString::const_iterator ByteString::cbegin() const
