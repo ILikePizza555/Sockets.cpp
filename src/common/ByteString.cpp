@@ -118,11 +118,11 @@ namespace sockets {
         byte* data = new byte[new_size];
 
         // Copy up to the insertion point
-        std::copy(_data, _data + pos + 1, data);
+        std::copy(_data, _data + pos, data);
         // Copy new data
-        std::copy(bytes, bytes + bytes_length, data + pos + 1);
+        std::copy(bytes, bytes + bytes_length, data + pos);
         // Copy the rest of the data
-        std::copy(_data + pos + 1, _data + _size, data + pos + 1 + bytes_length);
+        std::copy(_data + pos, _data + _size, data + pos + bytes_length);
 
         return ByteString(data, new_size);
     }
