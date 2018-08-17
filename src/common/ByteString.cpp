@@ -126,4 +126,24 @@ namespace sockets {
 
         return ByteString(data, new_size);
     }
+
+    ByteString ByteString::sub(size_t begin_pos) const
+    {
+        return sub(begin_pos, _size);
+    }
+
+    ByteString ByteString::sub(size_t begin_pos, size_t end_pos) const
+    {
+        if (begin_pos > end_pos)
+            throw std::out_of_range("Beginning index is larger than end index");
+        if (end_pos > _size)
+            throw std::out_of_range("End index is larger than ByteString size");
+        
+        size_t new_size = end_pos - begin_pos;
+        byte* data = new byte[new_size];
+
+        std::copy(_data + begin_pos, _data + end_pos, data);
+
+        return ByteString(data, new_size);
+    }
 }
