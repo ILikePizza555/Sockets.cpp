@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 project(socketscpp)
 
+set (CMAKE_CXX_STANDARD 14)
+
 add_library(socketscpp SHARED 
             src/common/ByteString.cpp)
 
