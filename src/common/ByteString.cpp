@@ -146,4 +146,15 @@ namespace sockets {
 
         return ByteString(data, new_size);
     }
+
+    byte ByteString::at(size_t pos) const
+    {
+        if (pos >= _size) throw std::out_of_range("Index 'pos' out of range.");
+        return *(_data + pos);
+    }
+
+    size_t ByteString::size() const
+    {
+        return _size;
+    }
 }
