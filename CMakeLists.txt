@@ -10,6 +10,6 @@ set_property(TARGET socketscpp PROPERTY PUBLIC_HEADER
             include/Byte.h
             include/ByteString.h)
 
-target_include_directories(socketscpp PRIVATE include)
+target_include_directories(socketscpp PUBLIC include)
 
 add_subdirectory(test)
