@@ -9,13 +9,7 @@ before_install:
 
 install: true
 
-jobs:
-    include:
-        - stage: compile
-          script:
-              - mkdir build
-              - cd build
-              - cmake -G "Unix Makefiles" ..
-              - make
-        - stage: test
-          script: ./test/unit_test
+script:
+    - cmake
+    - make
+    - ./test/unit_test
