@@ -1,8 +1,13 @@
 dist: trusty 
 sudo: required
 language: cpp
-install: make cmake gcc clang
 compiler: gcc
+
+before_install:
+    - sudo apt update -qq
+    - sudo apt install -qq cmake
+
+install: true
 
 jobs:
     include:
