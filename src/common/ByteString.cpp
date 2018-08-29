@@ -5,7 +5,10 @@
 
 namespace sockets {
     ByteString::ByteString() : _data(nullptr), _size(0) {}
-    ByteString::ByteString(byte* data, size_t size) : _data(data), _size(size) {}
+    ByteString::ByteString(byte* data, size_t size) : _data(new byte[size]), _size(size) 
+    {
+        std::copy(data, data + size, _data);
+    }
     ByteString::ByteString(const ByteString& other) : _data(new byte[other._size]), _size(other._size)
     {
         std::copy(other.cbegin(), other.cend(), _data);
@@ -13,11 +16,11 @@ namespace sockets {
     ByteString::ByteString(ByteString&& other) : _data(std::move(other._data)), _size(std::move(other._size)) {}
     ByteString::~ByteString() 
     {
-	    if(_data != nullptr)
-	    {
-            	delete [] _data;
-        	_data = nullptr;
-	    }
+        if(_data != nullptr)
+        {
+            delete [] _data;
+            _data = nullptr;
+        }
         _size = 0;
     }
 
@@ -142,7 +145,7 @@ namespace sockets {
             throw std::out_of_range("Beginning index is larger than end index");
         if (end_pos > _size)
             throw std::out_of_range("End index is larger than ByteString size");
-        
+
         size_t new_size = end_pos - begin_pos;
         byte* data = new byte[new_size];
 
