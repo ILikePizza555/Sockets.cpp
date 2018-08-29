@@ -13,7 +13,11 @@ namespace sockets {
     {
         std::copy(other.cbegin(), other.cend(), _data);
     }
-    ByteString::ByteString(ByteString&& other) : _data(std::move(other._data)), _size(std::move(other._size)) {}
+    ByteString::ByteString(ByteString&& other) : _data(other._data), _size(other._size) 
+    {
+        other._data = nullptr;
+        other._size = 0;
+    }
     ByteString::~ByteString() 
     {
         if(_data != nullptr)
