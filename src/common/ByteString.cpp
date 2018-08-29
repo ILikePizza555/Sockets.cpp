@@ -13,8 +13,11 @@ namespace sockets {
     ByteString::ByteString(ByteString&& other) : _data(std::move(other._data)), _size(std::move(other._size)) {}
     ByteString::~ByteString() 
     {
-        delete [] _data;
-        _data = nullptr;
+	    if(_data != nullptr)
+	    {
+            	delete [] _data;
+        	_data = nullptr;
+	    }
         _size = 0;
     }
 
