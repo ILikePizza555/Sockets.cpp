@@ -8,31 +8,24 @@ namespace sockets {
     //Constructs a new ByteString by copying data
     ByteString::ByteString(data_ptr& data, size_t size) : _data(new byte[size]), _size(size) 
     {
-        std::copy(data, data.get() + size, _data);
+        std::copy(data.get(), data.get() + size, _data.get());
     }
     //Constructs a new ByteString by moving data
-    ByteString::ByteString(data_ptr data, size_t size) : _data(std::move(data)), _size(size)
+    ByteString::ByteString(data_ptr&& data, size_t size) : _data(std::move(data)), _size(size)
     {
     }
     ByteString::ByteString(const ByteString& other) : _data(new byte[other._size]), _size(other._size)
     {
-        std::copy(other.cbegin(), other.cend(), _data);
+        std::copy(other.cbegin(), other.cend(), _data.get());
     }
-    ByteString::ByteString(ByteString&& other) : _data(other._data), _size(other._size) 
+    ByteString::ByteString(ByteString&& other) : _data(std::move(other._data)), _size(other._size) 
     {
-        other._data = nullptr;
-        other._size = 0;
     }
     ByteString::~ByteString() 
     {
-        if(_data != nullptr)
-        {
-            delete [] _data;
-            _data = nullptr;
-        }
-        _size = 0;
     }
 
+    // Copy assignment
     ByteString& ByteString::operator=(const ByteString& other)
     {
         if(this != &other) 
@@ -40,12 +33,11 @@ namespace sockets {
             // Reallocate memory if needed
             if (_size != other._size) 
             {
-                delete [] _data;
-                _data = new byte[other._size];
+                _data.reset(new byte[other._size]);
                 _size = other._size;
             }
             // Copy the data
-            std::copy(other.cbegin(), other.cend(), _data);
+            std::copy(other.cbegin(), other.cend(), _data.get());
         }
         return *this;
     }
@@ -54,20 +46,9 @@ namespace sockets {
     {
         if(this != &other) 
         {
-            // Free data if needed
-            if (_size > 0) 
-            {
-                delete [] _data;
-                _data = nullptr;
-                _size = 0;
-            }
-
-            // Copy objects here
-            _data = other._data;
+            _data = std::move(other._data);
+            
             _size = other._size;
-
-            // Free other's resources
-            delete [] other._data;
             other._size = 0;
         }
         return *this;
@@ -75,33 +56,33 @@ namespace sockets {
 
     ByteString::const_iterator ByteString::cbegin() const
     {
-        return _data;
+        return _data.get();
     }
 
     ByteString::const_iterator ByteString::cend() const
     {
-        return _data + _size;
+        return _data.get() + _size;
     }
 
     ByteString ByteString::append(const ByteString& b) const
     {
-        return this->append(b._data, b._size);
+        return this->append(b._data.get(), b._size);
     }
 
     ByteString ByteString::append(const byte* bytes, size_t bytes_length) const
     {
         size_t new_size = _size + bytes_length;
-        byte* data = new byte[new_size];
+        data_ptr data(new byte[new_size]);
 
-        std::copy(_data, _data + _size, data);
-        std::copy(bytes, bytes + bytes_length, data + _size);
+        std::copy(_data.get(), _data.get() + _size, data.get());
+        std::copy(bytes, bytes + bytes_length, data.get() + _size);
 
-        return ByteString(data, new_size);
+        return ByteString(std::move(data), new_size);
     }
 
     ByteString ByteString::replace(const ByteString b, size_t begin_pos) const
     {
-        return this->replace(b._data, b._size, begin_pos);
+        return this->replace(b._data.get(), b._size, begin_pos);
     }
 
     ByteString ByteString::replace(const byte* bytes, size_t bytes_length, size_t begin_pos) const
@@ -109,21 +90,21 @@ namespace sockets {
         if(begin_pos > _size) throw std::out_of_range("pos is larger than ByteString size");
 
         size_t new_size = _size + (bytes_length - _size + begin_pos );
-        byte* data = new byte[new_size];
+        data_ptr data(new byte[new_size]);
 
         //Copy the data that remains the same
-        std::copy(_data, _data + begin_pos, data);
+        std::copy(_data.get(), _data.get() + begin_pos, data.get());
         // Copy new data
-        std::copy(bytes, bytes + bytes_length, data + begin_pos);
+        std::copy(bytes, bytes + bytes_length, data.get() + begin_pos);
 
-        return ByteString(data, new_size);
+        return ByteString(std::move(data), new_size);
     }
 
     ByteString ByteString::insert(const ByteString b, size_t pos) const
     {
         if(pos > _size) throw std::out_of_range("pos is larger than ByteString size");
 
-        return this->insert(b._data, b._size, pos);
+        return this->insert(b._data.get(), b._size, pos);
     }
 
     ByteString ByteString::insert(const byte* bytes, size_t bytes_length, size_t pos) const
@@ -131,16 +112,16 @@ namespace sockets {
         if(pos > _size) throw std::out_of_range("pos is larger than ByteString size");
 
         size_t new_size = _size + bytes_length;
-        byte* data = new byte[new_size];
+        data_ptr data(new byte[new_size]);
 
         // Copy up to the insertion point
-        std::copy(_data, _data + pos, data);
+        std::copy(_data.get(), _data.get() + pos, data.get());
         // Copy new data
-        std::copy(bytes, bytes + bytes_length, data + pos);
+        std::copy(bytes, bytes + bytes_length, data.get() + pos);
         // Copy the rest of the data
-        std::copy(_data + pos, _data + _size, data + pos + bytes_length);
+        std::copy(_data.get() + pos, _data.get() + _size, data.get() + pos + bytes_length);
 
-        return ByteString(data, new_size);
+        return ByteString(std::move(data), new_size);
     }
 
     ByteString ByteString::sub(size_t begin_pos) const
@@ -156,17 +137,17 @@ namespace sockets {
             throw std::out_of_range("End index is larger than ByteString size");
 
         size_t new_size = end_pos - begin_pos;
-        byte* data = new byte[new_size];
+        data_ptr data(new byte[new_size]);
 
-        std::copy(_data + begin_pos, _data + end_pos, data);
+        std::copy(_data.get() + begin_pos, _data.get() + end_pos, data.get());
 
-        return ByteString(data, new_size);
+        return ByteString(std::move(data), new_size);
     }
 
     byte ByteString::at(size_t pos) const
     {
         if (pos >= _size) throw std::out_of_range("Index 'pos' out of range.");
-        return *(_data + pos);
+        return *(_data.get() + pos);
     }
 
     size_t ByteString::size() const
