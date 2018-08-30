@@ -5,9 +5,14 @@
 
 namespace sockets {
     ByteString::ByteString() : _data(nullptr), _size(0) {}
-    ByteString::ByteString(byte* data, size_t size) : _data(new byte[size]), _size(size) 
+    //Constructs a new ByteString by copying data
+    ByteString::ByteString(data_ptr& data, size_t size) : _data(new byte[size]), _size(size) 
     {
-        std::copy(data, data + size, _data);
+        std::copy(data, data.get() + size, _data);
+    }
+    //Constructs a new ByteString by moving data
+    ByteString::ByteString(data_ptr data, size_t size) : _data(std::move(data)), _size(size)
+    {
     }
     ByteString::ByteString(const ByteString& other) : _data(new byte[other._size]), _size(other._size)
     {
