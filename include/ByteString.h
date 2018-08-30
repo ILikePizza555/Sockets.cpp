@@ -5,7 +5,7 @@
 #include "Byte.h"
 
 namespace sockets {
-    using data_ptr = std::unique_ptr<byte[]>
+    using data_ptr = std::unique_ptr<byte[]>;
 
     /**
      * A ByteString is an immutable sequence of binary data.
