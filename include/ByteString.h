@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
 #include "Byte.h"
 
 namespace sockets {
@@ -10,11 +11,18 @@ namespace sockets {
      */
     class ByteString {
     private:
-        byte* _data;
+        std::unique_ptr<byte[]> _data;
         size_t _size;
     public:
         ByteString();
-        ByteString(byte* data, size_t size);
+        /**
+         * Constructs a new ByteString by copying the given data
+         */
+        ByteString(std::unique_ptr<byte[]>& data, size_t size);
+        /**
+         * Constructs a new ByteString by taking ownership of the data pointer
+         */
+        ByteString(std::unique_ptr<byte[]> data, size_t size);
         ByteString(const ByteString& other);
         ByteString(ByteString&& other);
         ~ByteString();
