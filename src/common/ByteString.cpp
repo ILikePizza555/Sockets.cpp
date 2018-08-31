@@ -24,6 +24,7 @@ namespace sockets {
     }
     ByteString::ByteString(ByteString&& other) : _data(std::move(other._data)), _size(other._size) 
     {
+        other._size = 0;
     }
     ByteString::~ByteString() 
     {
