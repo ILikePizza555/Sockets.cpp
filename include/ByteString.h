@@ -90,8 +90,8 @@ namespace sockets {
          */
         size_t size() const;
 
-        bool operator==(const ByteString& o);
-        bool operator!=(const ByteString& o);
+        bool operator==(const ByteString& o) const;
+        bool operator!=(const ByteString& o) const;
 
         friend std::ostream& operator<<(std::ostream& out, const ByteString& b);
     };

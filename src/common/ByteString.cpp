@@ -159,7 +159,7 @@ namespace sockets {
         return _size;
     }
 
-    bool ByteString::operator==(const ByteString& o)
+    bool ByteString::operator==(const ByteString& o) const
     {
         if(_size != o._size) return false;
 
@@ -179,7 +179,7 @@ namespace sockets {
         return true;
     }
 
-    bool ByteString::operator!=(const ByteString& o)
+    bool ByteString::operator!=(const ByteString& o) const
     {
         return !(*this == o);
     }
@@ -188,7 +188,7 @@ namespace sockets {
     {
         for(auto i = b.cbegin(); i != b.cend(); ++i)
         {
-            out << std::setw(2) << std::setfill('0') << std::hex << (int)*i;
+            out << std::setw(2) << std::setfill('0') << std::hex << int(*i) << " ";
         }
         return out;
     }
