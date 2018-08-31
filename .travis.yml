@@ -10,6 +10,6 @@ before_install:
 install: true
 
 script:
-    - cmake -G "Unix Makefiles"
+    - cmake -DCMAKE_VERBOSE_MAKEFILE=1 -G "Unix Makefiles"
     - make
     - ./test/unit_test
