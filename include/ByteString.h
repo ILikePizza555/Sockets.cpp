@@ -89,5 +89,10 @@ namespace sockets {
          * Returns the size of the ByteString
          */
         size_t size() const;
+
+        bool operator==(const ByteString& o);
+        bool operator!=(const ByteString& o);
+
+        friend std::ostream& operator<<(std::ostream& out, const ByteString& b);
     };
 }

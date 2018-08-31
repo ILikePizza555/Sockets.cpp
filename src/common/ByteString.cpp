@@ -1,7 +1,7 @@
 #include <ByteString.h>
 #include <algorithm>
 #include <stdexcept>
-
+#include <iomanip>
 
 namespace sockets {
     ByteString::ByteString() : _data(nullptr), _size(0) {}
@@ -157,5 +157,39 @@ namespace sockets {
     size_t ByteString::size() const
     {
         return _size;
+    }
+
+    bool ByteString::operator==(const ByteString& o)
+    {
+        if(_size != o._size) return false;
+
+        auto mine = cbegin();
+        auto mine_end = cend();
+
+        auto other = o.cbegin();
+        auto other_end = o.cend();
+
+        while(mine != mine_end && other != other_end)
+        {
+            if(*mine != *other) return false;
+            ++mine;
+            ++other;
+        }
+
+        return true;
+    }
+
+    bool ByteString::operator!=(const ByteString& o)
+    {
+        return !(*this == o);
+    }
+
+    std::ostream& operator<<(std::ostream& out, const ByteString& b)
+    {
+        for(auto i = b.cbegin(); i != b.cend(); ++i)
+        {
+            out << std::setw(2) << std::setfill('0') << std::hex << (int)*i;
+        }
+        return out;
     }
 }
