@@ -52,4 +52,9 @@ namespace sockets {
          */
         bool closed();
     };
+
+    /**
+     * Establishes a connection to the host.
+     */
+    Connection connect(const std::string& host, const std::string& port);
 }
