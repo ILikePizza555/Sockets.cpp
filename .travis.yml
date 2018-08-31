@@ -5,7 +5,8 @@ compiler: gcc
 
 matrix:
     include:
-        - os: linux
+        - name: "Linux GCC 5 Test"
+          os: linux
           addons:
               apt:
                   sources:
@@ -14,7 +15,8 @@ matrix:
                       - g++-5
           env:
               - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-        - os: linux
+        - name: "Linux GCC 6 Test"        
+          os: linux
           addons:
               apt:
                   sources:
