@@ -142,7 +142,7 @@ TEST_CASE("ByteStrings can perform immutable operations", "[ByteString]")
         REQUIRE(actual == expected);
     }
 
-    SECTION("ByteString::insert throws an exception if pos is larger than size");
+    SECTION("ByteString::insert throws an exception if pos is larger than size")
     {
         REQUIRE_THROWS(a.insert(b, 11037));
     }
