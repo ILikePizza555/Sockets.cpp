@@ -167,7 +167,7 @@ TEST_CASE("ByteStrings can perform immutable operations", "[ByteString]")
         const size_t e_index = 3;
 
         ByteString actual = a.sub(b_index, e_index);
-        ByteString expected{2, 3, 4};
+        ByteString expected{2, 3};
 
         REQUIRE(actual == expected);
     }
