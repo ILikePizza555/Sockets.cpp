@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <initializer_list>
 #include "Byte.h"
 
 namespace sockets {
@@ -17,6 +18,7 @@ namespace sockets {
         size_t _size;
     public:
         ByteString();
+        ByteString(std::initializer_list<byte> l);
         /**
          * Constructs a new ByteString by copying the given data
          */
@@ -24,7 +26,7 @@ namespace sockets {
         /**
          * Constructs a new ByteString by taking ownership of the data pointer
          */
-        ByteString(data_ptr data, size_t size);
+        ByteString(data_ptr&& data, size_t size);
         ByteString(const ByteString& other);
         ByteString(ByteString&& other);
         ~ByteString();

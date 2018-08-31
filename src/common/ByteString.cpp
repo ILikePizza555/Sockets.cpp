@@ -5,6 +5,10 @@
 
 namespace sockets {
     ByteString::ByteString() : _data(nullptr), _size(0) {}
+    ByteString::ByteString(std::initializer_list<byte> l) : _data(new byte[l.size()]), _size(l.size())
+    {
+        std::copy(l.begin(), l.end(), _data.get());
+    }
     //Constructs a new ByteString by copying data
     ByteString::ByteString(data_ptr& data, size_t size) : _data(new byte[size]), _size(size) 
     {

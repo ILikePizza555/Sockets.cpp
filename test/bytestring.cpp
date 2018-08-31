@@ -4,6 +4,8 @@
 
 TEST_CASE("ByteStrings can be constructed", "[ByteString]") 
 {
+    using sockets::byte;
+    using sockets::data_ptr;
     using sockets::ByteString;
 
     SECTION("Empty ByteString")
@@ -12,9 +14,23 @@ TEST_CASE("ByteStrings can be constructed", "[ByteString]")
         REQUIRE(b.size() == 0);
     }
 
-    SECTION("Bytestring from data")
+    SECTION("ByteString from list of bytes")
     {
-        unsigned char data[4] = {1, 2, 3, 4};
+        ByteString b{1, 2, 3, 4};
+
+        REQUIRE(b.at(0) == 1);
+        REQUIRE(b.at(1) == 2);
+        REQUIRE(b.at(2) == 3);
+        REQUIRE(b.at(3) == 4);
+    }
+
+    SECTION("Bytestring from copied data")
+    {
+        data_ptr data(new byte[4]);
+        data[0] = 0;
+        data[1] = 1;
+        data[2] = 2;
+        data[3] = 3;
         auto b = ByteString(data, 4);
 
         REQUIRE(b.size() == 4);
@@ -26,7 +42,11 @@ TEST_CASE("ByteStrings can be constructed", "[ByteString]")
 
     SECTION("Copy a Bytestring")
     {
-        unsigned char data[4] = {1, 2, 3, 4};
+        data_ptr data(new byte[4]);
+        data[0] = 1;
+        data[1] = 2;
+        data[2] = 3;
+        data[3] = 4;
         auto a = ByteString(data, 4);
         auto b = ByteString(a);
 
@@ -45,7 +65,11 @@ TEST_CASE("ByteStrings can be constructed", "[ByteString]")
 
     SECTION("Move a Bytestring")
     {
-        unsigned char data[4] = {1, 2, 3, 4};
+        data_ptr data(new byte[4]);
+        data[0] = 1;
+        data[1] = 2;
+        data[2] = 3;
+        data[3] = 4;
         auto a = ByteString(data, 4);
         auto b = ByteString(std::move(a));
 
