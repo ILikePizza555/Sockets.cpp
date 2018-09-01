@@ -24,31 +24,49 @@ namespace sockets {
         Connection(const Connection&) = delete;
         // Delete copy assignment operator
         Connection& operator==(const Connection&) = delete;
-
+        
         /**
-         * Reads all available bytes, up to n bytes if provided.
+         * Reads all available bytes into the given iterator. If n is provided, the method reads up to n bytes instead.
          */
-        ByteString read();
-        ByteString read(size_t n);
-
+        template<typename Iter> void read_into(Iter out);
+        template<typename Iter> void read_into(size_t n, Iter out);
+        
         /**
-         * Blocks until exactly n bytes are read.
+         * Reads out all available bytes. If n is provided, the methods reads up to n bytes instead.
          */
-        ByteString read_exactly(size_t n);
+        ByteString read_bytes();
+        ByteString read_bytes(size_t n);
 
         /**
-         * Blocks until the delimiter is read. Returns all read bytes
+         * Reads exactly n bytes into the given iterator. Blocks until n bytes are read.
          */
-        ByteString read_until(byte delim);
-        ByteString read_until(ByteString& delim);
+        template<typename Iter>
+        void read_exactly_into(size_t n, Iter out);
 
         /**
-         * Writes the bytes to the connection.
+         * Reads exactly n bytes. Blocks until n bytes are read.
          */
-        void write(ByteString bytes);
+        ByteString read_exactly_bytes(size_t n);
 
         /**
-         * Returns true if the connection has been closed. False if otherwise.
+         * Reads bytes into the iterator until the delimiter is reached. The delimiter will also be read into the iterator.
+         */
+        template<typename Iter>
+        void read_until_into(const ByteString& delim, Iter out);
+
+        /**
+         * Reads until the delimiter is reached. Outputs all bytes read, including the delimiter.
+         */
+        ByteString read_until_bytes(const ByteString& delim);
+
+        /**
+         * Writes bytes to the connection. Returns the number of bytes written.
+         */
+        template<typename Iter> size_t write(Iter begin, Iter end);
+        size_t write(const ByteString& data);
+
+        /**
+         * Returns true if closed. False if otherwise.
          */
         bool closed();
     };
