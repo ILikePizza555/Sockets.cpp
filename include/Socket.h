@@ -18,5 +18,13 @@ namespace sockets {
     typedef int sock_t;
     const static sock_t invalid_socket = -1;
     #endif
-    
-}
+
+    /**
+     * Calls any functions that the implementation might require before using sockets. (i.e WSASetup for windows)
+     */
+    void setup();
+
+    /**
+     * Calls any functions that the implementation might require after using sockets.
+     */
+    void teardown();
