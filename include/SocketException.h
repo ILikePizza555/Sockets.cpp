@@ -3,7 +3,6 @@
 #include <exception>
 #include <string>
 #include <sstream>
-#include <optional>
 #include "Socket.h"
 
 namespace sockets {
@@ -20,14 +19,14 @@ namespace sockets {
         std::stringstream ss;
     public:
         /** Throwing class name */
-        const std::optional<std::string> class_name;
+        const std::string class_name;
         /** Throwing function name */
         const std::string function_name;
 
         _Exception(std::string function_name);
         _Exception(std::string class_name, std::string function_name);
 
-        std::string full_name();
+        std::string full_name() const;
     }
 
     /**
