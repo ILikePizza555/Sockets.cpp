@@ -14,6 +14,7 @@ namespace sockets {
     private:
         sock_t _socket;
         size_t _bufferCapacity;
+        std::unique_ptr<byte[]> _buffer;
         bool _closed;
     public:
         Connection();
@@ -26,10 +27,17 @@ namespace sockets {
         Connection& operator==(const Connection&) = delete;
         
         /**
-         * Reads all available bytes into the given iterator. If n is provided, the method reads up to n bytes instead.
+         * Reads all available bytes into the given iterator. 
+         *
+         * If n is provided, the method reads up to n bytes instead. If n is larger than the buffer capacity, std::out_of_range is thrown.
+         * 
+         * If the connection is closed, a ClosedError is thrown.
+         * If the socket is invalid, a SocketError is thrown.
+         *
+         * Returns number of bytes read.
          */
-        template<typename Iter> void read_into(Iter out);
-        template<typename Iter> void read_into(size_t n, Iter out);
+        template<typename Iter> size_t read_into(Iter out);
+        template<typename Iter> size_t read_into(size_t n, Iter out);
         
         /**
          * Reads out all available bytes. If n is provided, the methods reads up to n bytes instead.
@@ -40,8 +48,7 @@ namespace sockets {
         /**
          * Reads exactly n bytes into the given iterator. Blocks until n bytes are read.
          */
-        template<typename Iter>
-        void read_exactly_into(size_t n, Iter out);
+        template<typename Iter> void read_exactly_into(size_t n, Iter out);
 
         /**
          * Reads exactly n bytes. Blocks until n bytes are read.
@@ -50,9 +57,9 @@ namespace sockets {
 
         /**
          * Reads bytes into the iterator until the delimiter is reached. The delimiter will also be read into the iterator.
+         * Returns the number of bytes read.
          */
-        template<typename Iter>
-        void read_until_into(const ByteString& delim, Iter out);
+        template<typename Iter> size_t read_until_into(const ByteString& delim, Iter out);
 
         /**
          * Reads until the delimiter is reached. Outputs all bytes read, including the delimiter.
