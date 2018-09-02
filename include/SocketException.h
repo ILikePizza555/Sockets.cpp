@@ -2,7 +2,6 @@
 
 #include <exception>
 #include <string>
-#include <sstream>
 #include "Socket.h"
 
 namespace sockets {
@@ -15,8 +14,6 @@ namespace sockets {
 
     class _Exception : public std::exception
     {
-    protected:
-        std::stringstream ss;
     public:
         /** Throwing class name */
         const std::string class_name;
@@ -27,7 +24,7 @@ namespace sockets {
         _Exception(std::string class_name, std::string function_name);
 
         std::string full_name() const;
-    }
+    };
 
     /**
      * Thrown when an operation is attempted on an invalid socket
@@ -38,7 +35,7 @@ namespace sockets {
         InvalidSocketError(std::string class_name, std::string function_name);
         
         virtual const char* what() const noexcept;
-    }
+    };
 
     class ClosedError : public _Exception 
     {
@@ -46,7 +43,7 @@ namespace sockets {
         ClosedError(std::string class_name, std::string function);
         
         virtual const char* what() const noexcept;
-    }
+    };
 
     class SocketError : public _Exception
     {
@@ -58,5 +55,5 @@ namespace sockets {
         SocketError(std::string function_name, std::string message, int error_code);
 
         virtual const char* what() const noexcept;
-    }
+    };
 }
