@@ -28,3 +28,4 @@ namespace sockets {
      * Calls any functions that the implementation might require after using sockets.
      */
     void teardown();
+}
