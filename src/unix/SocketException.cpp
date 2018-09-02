@@ -2,7 +2,7 @@
 #include <errno.h>
 #include <string.h>
 
-namespace socket {
+namespace sockets {
     int get_error_code() 
     {
         return errno;

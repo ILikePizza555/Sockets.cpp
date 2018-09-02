@@ -17,7 +17,7 @@ set(IMPL_COMMON src/common/ByteString.cpp src/common/SocketException.cpp)
 
 # Unix-Specific implementation files
 # These are the implementations for *nix systems
-set(IMPL_UNIX src/unix/Connection.cpp)
+set(IMPL_UNIX src/unix/Connection.cpp src/unix/SocketException.cpp)
 
 # Windows-Specific implementation files
 # These are the implementations for windows systems
