@@ -70,12 +70,41 @@ namespace sockets {
 
         while(bytes_read < n)
         {
-            size_t read_amt = std::max(_bufferCapacity, n - bytes_read);
+            size_t read_amt = std::min(_bufferCapacity, n - bytes_read);
 
             ssize_t bytes = recv(_socket, _buffer.get(), read_amt, 0);
             if (bytes == -1) throw SocketError("Connection", "read_exactly_into", "error on recv()", get_error_code());
             
+            //write_out should increment the iterator as it writes, therefore we don't do it here
             write_out(_buffer, bytes, out);
         }
+    }
+
+    ByteString Connection::read_exactly_bytes(size_t n)
+    {
+        check_connection_state("read_exactly_bytes", _socket, _closed);
+
+        // Make a single allocation here to pass to bytestring
+        auto buf = std::make_unique<byte[]>(n);
+        // Cursor to hold the location of the next position to write to in the buffer
+        byte* cursor = buf.get();
+        // Count of bytes read from the socket/written to the buffer
+        size_t bytes_read = 0;
+
+        while(bytes_read < n)
+        {
+            // Calculate the number of bytes left to read to pass to recv
+            size_t read_amt = n - bytes_read;
+
+            // Read into the buffer
+            ssize_t bytes = recv(_socket, cursor, read_amt, 0);
+            if (bytes == -1) throw SocketError("Connection", "read_exactly_bytes", "error on recv()", get_error_code());
+
+            // Update the values
+            cursor += static_cast<size_t>(bytes);
+            bytes_read += static_cast<size_t>(bytes);
+        }
+
+        return ByteString(std::move(buf), n);
     }
 }
