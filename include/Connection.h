@@ -40,13 +40,22 @@ namespace sockets {
         template<typename Iter> size_t read_into(size_t n, Iter out);
         
         /**
-         * Reads out all available bytes. If n is provided, the methods reads up to n bytes instead.
+         * Reads up to n bytes. If no n is provided, the largest possible value will be used.
+         *
+         * If n is larger than _bufferCapacity, a std::out_of_range exception is throw.
+         * If the connection is closed, a ClosedError is thrown
+         * If the socket is invalid a SocketError is thrown.
+         *
+         * Returns a ByteString containing the bytes read.
          */
         ByteString read_bytes();
         ByteString read_bytes(size_t n);
 
         /**
          * Reads exactly n bytes into the given iterator. Blocks until n bytes are read.
+         *
+         * If the connection is closed, a ClosedError is thrown.
+         * If the socket is invalid, a SocketError is thrown.
          */
         template<typename Iter> void read_exactly_into(size_t n, Iter out);
 
