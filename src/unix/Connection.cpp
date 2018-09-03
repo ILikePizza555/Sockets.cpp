@@ -20,8 +20,19 @@ namespace sockets {
     template<typename Iter> size_t Connection::read_into(size_t n, Iter out)
     {
         if(n > _bufferCapacity) throw std::out_of_range("n cannot be larger than bufferCapacity");
-        if(_closed) throw ClosedError("connection has been closed");
+        if(_closed) throw ClosedError("Connection", "read_into");
+        if(_socket == invalid_socket) throw SocketError("Connection", "read_into", "invalid socket", EBADF);
 
-        size_t bytes = recv(_socket)
+        ssize_t bytes = recv(_socket, _buffer.get(), _bufferCapacity, 0); // TODO: Add an option for flags
+        if (bytes == -1) throw SocketError("Connection", "read_into", "error on recv()", get_error_code());
+
+        //Write out the buffer
+        for(size_t i = 0; i < static_cast<size_t>(bytes); ++i)
+        {
+            *out = _buffer[i];
+            ++out;
+        }
+
+        return bytes;
     }
 }
