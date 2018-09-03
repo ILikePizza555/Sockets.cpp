@@ -23,7 +23,7 @@ namespace sockets {
         if(_closed) throw ClosedError("Connection", "read_into");
         if(_socket == invalid_socket) throw SocketError("Connection", "read_into", "invalid socket", EBADF);
 
-        ssize_t bytes = recv(_socket, _buffer.get(), _bufferCapacity, 0); // TODO: Add an option for flags
+        ssize_t bytes = recv(_socket, _buffer.get(), n, 0); // TODO: Add an option for flags
         if (bytes == -1) throw SocketError("Connection", "read_into", "error on recv()", get_error_code());
 
         //Write out the buffer
@@ -34,5 +34,18 @@ namespace sockets {
         }
 
         return bytes;
+    }
+
+    ByteString Connection::read_bytes() { return read_bytes(_bufferCapacity); }
+    ByteString Connection::read_bytes(size_t n)
+    {
+        if(n > _bufferCapacity) throw std::out_of_range("n cannot be larger than bufferCapacity");
+        if(_closed) throw ClosedError("Connection", "read_into");
+        if(_socket == invalid_socket) throw SocketError("Connection", "read_into", "invalid socket", EBADF);
+
+        ssize_t bytes = recv(_socket, _buffer.get(), n, 0);
+        if (bytes == -1) throw SocketError("Connection", "read_into", "error on recv()", get_error_code());
+
+        return ByteString(_buffer, static_cast<size_t>(bytes));
     }
 }
