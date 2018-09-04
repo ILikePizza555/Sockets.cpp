@@ -143,4 +143,17 @@ namespace sockets {
             }
         }
     }
+
+    ByteString Connection::read_until_bytes(const ByteString& delim)
+    {
+        check_connection_state("read_until_bytes", _socket, _closed);
+
+        while(true)
+        {
+            ssize_t bytes = recv(_socket, buff.get(), buff_capacity, 0);
+            if (bytes == -1) throw SocketError("Connection", "read_until_bytes", "error on recv()", get_error_code());
+
+            
+        }
+    }
 }
