@@ -25,6 +25,21 @@ namespace sockets {
         if(socket == invalid_socket) throw SocketError("Connection", function_name, "invalid socket", EBADF);
     }
 
+    /**
+     * Helper function that checks to see if the last delim.size() bytes in the buffer match delim.
+     */
+    bool check_delimiter(const std::unique_ptr<byte[]>& buffer, size_t last, const ByteString& delim)
+    {
+        if(last < delim.size()) return false;
+
+        size_t buffer_index = last - delim.size();
+        for(size_t j = 0; j < delim.size(); ++j, ++buffer_index)
+        {
+            if (buffer[buffer_index] != delim.at(j)) return false;
+        }
+        return true;
+    }
+
     Connection::Connection() : _socket(invalid_socket), _bufferCapacity(0), _buffer(nullptr), _closed(true) {}
     Connection::Connection(sock_t socket, size_t bufferCapacity) : _socket(socket), _bufferCapacity(bufferCapacity), _buffer(std::make_unique<byte[]>(bufferCapacity)) ,_closed(false) {}
     Connection::~Connection()
@@ -106,5 +121,26 @@ namespace sockets {
         }
 
         return ByteString(std::move(buf), n);
+    }
+
+    template<typename Iter> size_t Connection::read_until_into(const ByteString& delim, Iter out)
+    {
+        if(delim.size() > _bufferCapacity) throw std::out_of_range("delim.size() is larger than buffer capacity");
+        check_connection_state("read_until_into", _socket, _closed);
+
+        while(true)
+        {
+            ssize_t bytes = recv(_socket, _buffer.get(), _bufferCapacity, 0);
+            if (bytes == -1) throw SocketError("Connection", "read_until_into", "error on recv()", get_error_code());
+
+            // Iterate over the buffer to write to the iterator, while checking for a delimiter
+            for (size_t i = 0; i < _bufferCapacity; ++i)
+            {
+                *out = _buffer[i];
+                ++out;
+
+                if (check_delimiter(_buffer, i, delim)) return bytes;
+            }
+        }
     }
 }
