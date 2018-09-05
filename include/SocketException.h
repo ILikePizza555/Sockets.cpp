@@ -2,7 +2,7 @@
 
 #include <exception>
 #include <string>
-#include "Socket.h"
+#include "sockets.h"
 
 namespace sockets {
     

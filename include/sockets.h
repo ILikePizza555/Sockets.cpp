@@ -12,7 +12,7 @@ namespace sockets {
     #ifdef _WIN32
     // Windows-specific
     typedef SOCKET sock_t;
-    const static sock_t invalid_socket = INVALID_SOCKET
+    const static sock_t invalid_socket = INVALID_SOCKET;
     #else
     //Unix
     typedef int sock_t;

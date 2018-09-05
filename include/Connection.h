@@ -2,7 +2,7 @@
 
 #include "Byte.h"
 #include "ByteString.h"
-#include "Socket.h"
+#include "sockets.h"
 
 namespace sockets {
     /**
