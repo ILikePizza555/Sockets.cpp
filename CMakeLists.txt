@@ -8,7 +8,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 
 # Library Header Files
 # This should be set to all files in include/
-set(INCLUDE_FILES include/Byte.h include/ByteString.h include/Connection.h include/ServerSocket.h include/sockets.h include/SocketException.h)
+set(INCLUDE_FILES include/Byte.h include/ByteString.h include/Connection.h include/ServerSocket.h include/sockets.h
+        include/SocketException.h include/Socket.h)
 
 # Common Implementation Files
 # These are all implementations that are common across platforms
@@ -21,7 +22,7 @@ set(IMPL_UNIX src/unix/Connection.cpp src/unix/SocketException.cpp)
 
 # Windows-Specific implementation files
 # These are the implementations for windows systems
-set(IMPL_WIN32)
+set(IMPL_WIN32 src/win32/SocketException.cpp)
 
 # Create a shared library
 if(UNIX)
