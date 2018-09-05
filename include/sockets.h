@@ -9,8 +9,8 @@
 #endif
 
 namespace sockets {
+    // Define the socket type
     #ifdef _WIN32
-    // Windows-specific
     typedef SOCKET sock_t;
     const static sock_t invalid_socket = INVALID_SOCKET;
     #else
@@ -18,6 +18,31 @@ namespace sockets {
     typedef int sock_t;
     const static sock_t invalid_socket = -1;
     #endif
+
+    /**
+     * Define the supported address families
+     */
+    enum  sock_addr_family : int {
+        INET = AF_INET,
+        INET6 = AF_INET
+    };
+
+    /**
+     * Define the supported socket types
+     */
+    enum sock_type : int {
+        STREAM = SOCK_STREAM,
+        DATAGRAM = SOCK_DGRAM,
+        RAW = SOCK_RAW
+    };
+
+    /**
+     * Define the supported socket protocols
+     */
+     enum sock_proto : int {
+         TCP = IPPROTO_TCP,
+         UDP = IPPROTO_UDP
+     };
 
     /**
      * Calls any functions that the implementation might require before using sockets. (i.e WSASetup for windows)
