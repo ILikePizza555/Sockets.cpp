@@ -19,6 +19,15 @@ namespace sockets {
     const static sock_t invalid_socket = -1;
     #endif
 
+    // Define address types
+    #ifdef _WIN32
+    typedef sockaddr sockaddr_t;
+    typedef int sockaddr_len_t;
+    #else
+    typedef sockaddr sockaddr_t;
+    typedef socklen_t sockaddr_len_t;
+    #endif
+
     /**
      * Define the supported address families
      */
