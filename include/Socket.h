@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <ws2tcpip.h>
 #include "sockets.h"
 
 namespace sockets {
@@ -17,16 +18,17 @@ namespace sockets {
     {
         sock_t socket;
 
+        Socket(sock_t socket);
         Socket(sock_addr_family, sock_type, sock_proto);
 
-        int
-        accept(sockaddr_t address, sockaddr_len_t address_length);
+        Socket
+        accept(sockaddr_t* address, sockaddr_len_t* address_length);
 
         int
-        bind(const sockaddr_t address, sockaddr_len_t address_length);
+        bind(const sockaddr_t* address, sockaddr_len_t address_length);
 
         int
-        connect(const sockaddr_t address, sockaddr_len_t address_length);
+        connect(const sockaddr_t* address, sockaddr_len_t address_length);
 
         int
         getpeername(sockaddr_t *address_out, sockaddr_len_t *address_length_out);
@@ -38,16 +40,16 @@ namespace sockets {
         listen(int backlog);
 
         ssize_t
-        recvfrom(void *buffer, size_t length, int flags, sockaddr_t *address, sockaddr_len_t *address_len);
+        recvfrom(sock_buff_t buffer, s_sock_buff_t length, int flags, sockaddr_t *address, sockaddr_len_t *address_len);
 
         ssize_t
-        recv(int socket, void *buffer, size_t length, int flags);
+        recv(sock_buff_t buffer, s_sock_buff_t length, int flags);
 
         ssize_t
-        sendto(const void *buffer, size_t length, int flags, const sockaddr_t *address, socklen_t address_len);
+        sendto(const sock_buff_t buffer, s_sock_buff_t length, int flags, const sockaddr_t *address, socklen_t address_len);
 
         ssize_t
-        send(const void *buffer, size_t length, int flags);
+        send(const sock_buff_t buffer, s_sock_buff_t length, int flags);
 
         int
         close();
