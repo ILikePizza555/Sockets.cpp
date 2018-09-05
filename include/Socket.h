@@ -32,7 +32,7 @@ namespace sockets {
         getpeername(sockaddr_t *address_out, sockaddr_len_t *address_length_out);
 
         int
-        getsockname(sockaddr_t *vaddress_out, sockaddr_len_t * address_length_out);
+        getsockname(sockaddr_t *vaddress_out, sockaddr_len_t *address_length_out);
 
         int
         listen(int backlog);
