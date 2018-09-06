@@ -4,69 +4,86 @@
 #include <Connection.h>
 #include <SocketException.h>
 
+/**
+ * Helper function that checks the state of a Connection and throws an error if it's invalid.
+ * @param function_name
+ * @param socket
+ * @param closed
+ */
+void
+check_connection_state(const std::string &function_name, sockets::Socket &socket, bool closed)
+{
+    if (closed) throw sockets::ClosedError("Connection", function_name);
+    if (socket.socket == sockets::invalid_socket)
+        throw sockets::SocketError("Connection", function_name, "invalid socket", EBADF);
+}
+
+/**
+ * Helper functions that checks if the last bytes in the buffer are equivalent to delim
+ * @param buffer
+ * @param last_index The index of the last element in the buffer.
+ * @param delim
+ * @return
+ */
+bool
+check_delimiter(const Buffer<byte>& buffer, size_t last_index, const ByteString &delim)
+{
+    if (last_index < delim.size()) return false;
+
+    size_t buffer_index = last_index - delim.size();
+    for (size_t j = 0; j < delim.size(); ++j, ++buffer_index)
+    {
+        if (buffer[buffer_index] != delim.at(j)) return false;
+    }
+    return true;
+}
+
+/**
+ * Helper function that creates a ByteString from a Buffer.
+ *
+ * Because allocating memory takes less time than copying, we "convert" the buffer to a ByteString by moving the data
+ * pointer. Then we allocate new memory for the buffer.
+ *
+ * @param buffer
+ * @return
+ */
+ByteString
+flush_buffer(Buffer<byte>& buffer)
+{
+    auto old_capacity = buffer.capacity();
+    auto rv = buffer.to_bytestring();
+
+    buffer.resize(old_capacity);
+
+    return rv;
+}
+
 namespace sockets {
-    /**
-     * Helper function that writes the buffer to the iterator
-     */
-    template<typename Iter>
-    void
-    write_out(std::unique_ptr<byte[]> &buffer, size_t size, Iter &out)
-    {
-        for (size_t i = 0; i < size; ++i)
-        {
-            *out = buffer[i];
-            ++out;
-        }
-    }
 
-    void
-    check_connection_state(const std::string &function_name, sock_t &socket, bool closed)
-    {
-        if (closed) throw sockets::ClosedError("Connection", function_name);
-        if (socket == invalid_socket) throw sockets::SocketError("Connection", function_name, "invalid socket", EBADF);
-    }
-
-    /**
-     * Helper function that checks to see if the last delim.size() bytes in the buffer match delim.
-     */
-    bool
-    check_delimiter(const std::unique_ptr<byte[]> &buffer, size_t last, const ByteString &delim)
-    {
-        if (last < delim.size()) return false;
-
-        size_t buffer_index = last - delim.size();
-        for (size_t j = 0; j < delim.size(); ++j, ++buffer_index)
-        {
-            if (buffer[buffer_index] != delim.at(j)) return false;
-        }
-        return true;
-    }
-
-    Connection::Connection() : _socket(invalid_socket), _bufferCapacity(0), _buffer(nullptr), _closed(true)
+    Connection::Connection() : _socket(invalid_socket), _buffer(0), _closed(true)
     {}
 
-    Connection::Connection(Socket socket, size_t bufferCapacity) : _socket(socket), _bufferCapacity(bufferCapacity),
-                                                                   _buffer(std::make_unique<byte[]>(bufferCapacity)),
+    Connection::Connection(Socket socket, size_t bufferCapacity) : _socket(socket),
+                                                                   _buffer(bufferCapacity),
                                                                    _closed(false)
     {}
 
     Connection::~Connection()
     {
         _socket.close();
-        _buffer.release();
         _closed = true;
     }
 
     template<typename Iter>
     size_t
     Connection::read_into(Iter out)
-    { return read_into(_bufferCapacity, out); }
+    { return read_into(_buffer.capacity(), out); }
 
     template<typename Iter>
     size_t
     Connection::read_into(size_t n, Iter out)
     {
-        if (n > _bufferCapacity) throw std::out_of_range("n cannot be larger than bufferCapacity");
+        if (n > _buffer.capacity()) throw std::out_of_range("n cannot be larger than buffer.capacity()");
         check_connection_state(__func__, _socket, _closed);
 
         ssize_t bytes = _socket.recv(_buffer.get(), n, 0); // TODO: Add an option for flags
@@ -80,18 +97,18 @@ namespace sockets {
 
     ByteString
     Connection::read_bytes()
-    { return read_bytes(_bufferCapacity); }
+    { return read_bytes(_buffer.capacity()); }
 
     ByteString
     Connection::read_bytes(size_t n)
     {
-        if (n > _bufferCapacity) throw std::out_of_range("n cannot be larger than bufferCapacity");
+        if (n > _buffer.capacity()) throw std::out_of_range("n cannot be larger than buffer.capacity()");
         check_connection_state(__func__, _socket, _closed);
 
         ssize_t bytes = _socket.recv(_buffer.get(), n, 0);
         if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
-        return ByteString(_buffer, static_cast<size_t>(bytes));
+        return flush_buffer(_buffer);
     }
 
     template<typename Iter>
@@ -104,7 +121,7 @@ namespace sockets {
 
         while (bytes_read < n)
         {
-            size_t read_amt = std::min(_bufferCapacity, n - bytes_read);
+            size_t read_amt = std::min(_buffer.capacity(), n - bytes_read);
 
             ssize_t bytes = _socket.recv(_buffer.get(), read_amt, 0);
             if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
@@ -121,9 +138,9 @@ namespace sockets {
         check_connection_state(__func__, _socket, _closed);
 
         // Make a single allocation here to pass to bytestring
-        auto buf = std::make_unique<byte[]>(n);
+        auto buf = Buffer<byte>(n);
         // Cursor to hold the location of the next position to write to in the buffer
-        byte *cursor = buf.get();
+        byte *cursor = buf.begin();
         // Count of bytes read from the socket/written to the buffer
         size_t bytes_read = 0;
 
@@ -141,23 +158,23 @@ namespace sockets {
             bytes_read += static_cast<size_t>(bytes);
         }
 
-        return ByteString(std::move(buf), n);
+        return buf.to_bytestring();
     }
 
     template<typename Iter>
     size_t
     Connection::read_until_into(const ByteString &delim, Iter out)
     {
-        if (delim.size() > _bufferCapacity) throw std::out_of_range("delim.size() is larger than buffer capacity");
+        if (delim.size() > _buffer.capacity()) throw std::out_of_range("delim.size() is larger than buffer capacity");
         check_connection_state(__func__, _socket, _closed);
 
         while (true)
         {
-            ssize_t bytes = _socket.recv(_buffer.get(), _bufferCapacity, 0);
+            ssize_t bytes = _socket.recv(_buffer.get(), _buffer.capacity(), 0);
             if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
             // Iterate over the buffer to write to the iterator, while checking for a delimiter
-            for (size_t i = 0; i < _bufferCapacity; ++i)
+            for (size_t i = 0; i < _buffer.capacity(); ++i)
             {
                 *out = _buffer[i];
                 ++out;
@@ -172,12 +189,41 @@ namespace sockets {
     {
         check_connection_state(__func__, _socket, _closed);
 
-        while (true)
+        // Store the old capacity to restore later
+        auto old_capacity = _buffer.capacity();
+
+        // Index to keep track of where the end of the field buffer is
+        size_t bytes_read = 0;
+
+        bool stop = false;
+        while (!stop)
         {
-            ssize_t bytes = _socket.recv(buff.get(), buff_capacity, 0);
+            // On each iteration we create a buffer with a capacity of the remaining space in the field buffer
+            Buffer<byte> loop_buff(_buffer.capacity() - bytes_read);
+
+            ssize_t bytes = _socket.recv(loop_buff.get(), loop_buff.capacity(), 0);
             if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
+            // Copy from the loop buffer to the real buffer, while checking for a delimiter
+            for(size_t i = 0; i < loop_buff.capacity(); ++i)
+            {
+                _buffer[bytes_read] = loop_buff[i];
+                ++bytes_read;
 
+                if(check_delimiter(_buffer, bytes_read, delim))
+                {
+                    stop = true;
+                    break;
+                }
+            }
+
+            // Resize the real buffer if it's full
+            if(bytes_read == _buffer.capacity())
+                _buffer.resize(_buffer.capacity() + bytes);
         }
+
+        auto rv = _buffer.to_bytestring();
+        _buffer.resize(old_capacity);
+        return rv;
     }
 }

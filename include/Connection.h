@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Buffer.h"
 #include "Byte.h"
 #include "ByteString.h"
 #include "Socket.h"
@@ -14,8 +15,7 @@ namespace sockets {
     {
     private:
         Socket _socket;
-        size_t _bufferCapacity;
-        std::unique_ptr<byte[]> _buffer;
+        Buffer<byte> _buffer;
         bool _closed;
     public:
         Connection();
