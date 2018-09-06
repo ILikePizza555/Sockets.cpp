@@ -14,7 +14,7 @@ set(INCLUDE_FILES include/Byte.h include/ByteString.h include/Connection.h inclu
 # Common Implementation Files
 # These are all implementations that are common across platforms
 
-set(IMPL_COMMON src/common/ByteString.cpp src/common/SocketException.cpp src/common/Socket.cpp src/common/Connection.cpp)
+set(IMPL_COMMON src/common/ByteString.cpp src/common/SocketException.cpp src/common/Socket.cpp src/common/Connection.cpp src/common/Buffer.cpp)
 
 # Unix-Specific implementation files
 # These are the implementations for *nix systems
