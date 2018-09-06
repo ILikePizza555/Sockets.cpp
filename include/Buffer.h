@@ -15,7 +15,7 @@
 template<typename T>
 struct Buffer
 {
-    std::unique_ptr<T> buffer_ptr = nullptr;
+    std::unique_ptr<T[]> buffer_ptr = nullptr;
     size_t capacity = 0;
 
     /**
