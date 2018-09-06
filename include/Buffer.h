@@ -72,6 +72,9 @@ public:
     T&
     operator[](size_t index);
 
+    const T&
+    operator[](size_t index) const;
+
     bool
     operator==(const Buffer& other) const;
 };

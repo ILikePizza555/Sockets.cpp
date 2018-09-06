@@ -60,6 +60,13 @@ Buffer<T>::operator[](size_t index)
     return buffer_ptr[index];
 }
 
+template<typename T>
+const T&
+Buffer<T>::operator[](size_t index) const
+{
+    if(index >= _capacity) throw std::out_of_range("index out of range");
+    return buffer_ptr[index];
+}
 
 template<typename T>
 bool
