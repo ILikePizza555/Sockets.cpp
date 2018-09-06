@@ -88,7 +88,8 @@ Buffer<T>::resize(size_t new_capacity)
 {
     std::unique_ptr<T[]> new_buffer = std::make_unique<T[]>(new_capacity);
 
-    std::copy(buffer_ptr.get(), buffer_ptr.get() + std::min(_capacity, new_capacity), new_buffer.get());
+    if(buffer_ptr != nullptr)
+        std::copy(buffer_ptr.get(), buffer_ptr.get() + std::min(_capacity, new_capacity), new_buffer.get());
 
     buffer_ptr = new_buffer;
     _capacity = new_capacity;
@@ -106,7 +107,10 @@ ByteString
 Buffer<T>::to_bytestring()
 {
     ByteString rv(std::move(buffer_ptr), _capacity);
+
     _capacity = 0;
+    buffer_ptr = nullptr;
+
     return rv;
 }
 

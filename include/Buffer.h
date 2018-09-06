@@ -66,6 +66,10 @@ public:
     std::unique_ptr<T[]>&
     get();
 
+    /**
+     * Converts the buffer to a ByteString. This operation clears the buffer.
+     * @return
+     */
     ByteString
     to_bytestring();
 
