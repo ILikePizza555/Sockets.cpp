@@ -34,4 +34,10 @@ struct Buffer
      */
     template<typename Iter> size_t
     write(Iter out);
+
+    T&
+    operator[](size_t index);
+
+    bool
+    operator==(const Buffer& other) const;
 };
