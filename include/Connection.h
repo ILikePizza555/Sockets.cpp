@@ -2,7 +2,7 @@
 
 #include "Byte.h"
 #include "ByteString.h"
-#include "sockets.h"
+#include "Socket.h"
 
 namespace sockets {
     /**
@@ -13,14 +13,14 @@ namespace sockets {
     class Connection
     {
     private:
-        sock_t _socket;
+        Socket _socket;
         size_t _bufferCapacity;
         std::unique_ptr<byte[]> _buffer;
         bool _closed;
     public:
         Connection();
 
-        Connection(sock_t socket, size_t bufferCapacity);
+        Connection(Socket socket, size_t bufferCapacity);
 
         ~Connection();
 
@@ -110,10 +110,4 @@ namespace sockets {
         bool
         closed();
     };
-
-    /**
-     * Establishes a connection to the host.
-     */
-    Connection
-    connect(const std::string &host, const std::string &port);
 }
