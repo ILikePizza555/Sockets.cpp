@@ -16,9 +16,18 @@ namespace sockets {
      */
     struct Socket
     {
-        sock_t socket;
+        sock_t socket = invalid_socket;
 
+        Socket() = default;
+
+        /**
+         * Constructs a Socket by copying the handler
+         */
         Socket(sock_t socket);
+
+        /**
+         * Constructs a Socket by passing the given parameters to the internal method for creating sockets.
+         */
         Socket(sock_addr_family, sock_type, sock_proto);
 
         Socket
