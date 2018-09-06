@@ -10,7 +10,7 @@ size_t
 Buffer<T>::read(Iter in, Iter end)
 {
     size_t i;
-    for(i = 0; i < capacity; ++i)
+    for(i = 0; i < _capacity; ++i)
     {
         if (in == end) return i;
 
@@ -27,7 +27,7 @@ size_t
 Buffer<T>::write(Iter out)
 {
     size_t i;
-    for(i = 0; i < capacity; ++i)
+    for(i = 0; i < _capacity; ++i)
     {
         *out = buffer_ptr[i];
         ++out;
@@ -39,7 +39,7 @@ template<typename T>
 T &
 Buffer<T>::operator[](size_t index)
 {
-    if(index >= capacity) throw std::out_of_range("index out of range");
+    if(index >= _capacity) throw std::out_of_range("index out of range");
     return buffer_ptr[index];
 }
 
@@ -48,13 +48,32 @@ template<typename T>
 bool
 Buffer<T>::operator==(const Buffer &other) const
 {
-    if(other.capacity != capacity) return false;
+    if(other._capacity != _capacity) return false;
 
-    for(size_t i = 0; i < capacity; ++i)
+    for(size_t i = 0; i < _capacity; ++i)
     {
         if(other[i] != operator[](i)) return false;
     }
 
     return true;
+}
+
+template<typename T>
+void
+Buffer<T>::resize(size_t new_capacity)
+{
+    std::unique_ptr<T[]> new_buffer = std::make_unique<T[]>(new_capacity);
+
+    std::copy(buffer_ptr.get(), buffer_ptr.get() + std::min(_capacity, new_capacity), new_buffer.get());
+
+    buffer_ptr = new_buffer;
+    _capacity = new_capacity;
+}
+
+template<typename T>
+size_t
+Buffer<T>::capacity()
+{
+    return _capacity;
 }
 

@@ -13,11 +13,13 @@
  */
 
 template<typename T>
-struct Buffer
+class Buffer
 {
+private:
     std::unique_ptr<T[]> buffer_ptr = nullptr;
-    size_t capacity = 0;
+    size_t _capacity = 0;
 
+public:
     /**
      * Reads data from the iterator into the buffer.
      * @tparam Iter
@@ -34,6 +36,16 @@ struct Buffer
      */
     template<typename Iter> size_t
     write(Iter out);
+
+    /**
+     * Resizes the Buffer. If new_capacity is smaller than current capacity, the data will be truncated.
+     * @param new_capacity
+     */
+    void
+    resize(size_t new_capacity);
+
+    size_t
+    capacity();
 
     T&
     operator[](size_t index);
