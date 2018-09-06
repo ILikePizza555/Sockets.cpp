@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <ws2tcpip.h>
+#include <memory>
 #include "sockets.h"
 
 namespace sockets {
@@ -43,7 +43,7 @@ namespace sockets {
         getpeername(sockaddr_t *address_out, sockaddr_len_t *address_length_out);
 
         int
-        getsockname(sockaddr_t *vaddress_out, sockaddr_len_t *address_length_out);
+        getsockname(sockaddr_t *address_out, sockaddr_len_t *address_length_out);
 
         int
         listen(int backlog);
@@ -61,16 +61,25 @@ namespace sockets {
         recv(byte* buffer, size_t length, int flags);
 
         ssize_t
-        sendto(sock_buff_t buffer, s_sock_buff_t length, int flags, const sockaddr_t *address, socklen_t address_len);
+        recv(std::unique_ptr<byte>& buffer, size_t length, int flags);
 
         ssize_t
-        sendto(byte* buffer, size_t length, int flags, const sockaddr_t* address, socklen_t address_len);
+        sendto(sock_buff_t buffer, s_sock_buff_t length, int flags, const sockaddr_t *address, sockaddr_len_t address_len);
+
+        ssize_t
+        sendto(byte* buffer, size_t length, int flags, const sockaddr_t* address, sockaddr_len_t address_len);
+
+        ssize_t
+        sendto(std::unique_ptr<byte>&, size_t length, int flags, const sockaddr_t* address, sockaddr_len_t address_len);
 
         ssize_t
         send(sock_buff_t buffer, s_sock_buff_t length, int flags);
 
         ssize_t
         send(byte* buffer, size_t length, int flags);
+
+        ssize_t
+        send(std::unique_ptr<byte>&, size_t length, int flags);
 
         int
         close();

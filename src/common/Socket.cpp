@@ -90,15 +90,24 @@ sockets::Socket::recv(byte *buffer, size_t length, int flags)
 }
 
 ssize_t
+sockets::Socket::recv(std::unique_ptr<byte>& buffer, size_t length, int flags)
+{
+    return ::recv(socket,
+                  reinterpret_cast<sock_buff_t>(buffer.get()),
+                  static_cast<s_sock_buff_t>(length),
+                  flags);
+}
+
+ssize_t
 sockets::Socket::sendto(const sockets::sock_buff_t buffer, sockets::s_sock_buff_t length, int flags,
-                        const sockets::sockaddr_t *address, socklen_t address_len)
+                        const sockets::sockaddr_t *address, sockaddr_len_t address_len)
 {
     return ::sendto(socket, buffer, length, flags, address, address_len);
 }
 
 ssize_t
 sockets::Socket::sendto(byte *buffer, size_t length, int flags, const sockets::sockaddr_t *address,
-                        socklen_t address_len)
+                        sockaddr_len_t address_len)
 {
     return ::sendto(socket,
             reinterpret_cast<sock_buff_t>(buffer),
@@ -106,6 +115,15 @@ sockets::Socket::sendto(byte *buffer, size_t length, int flags, const sockets::s
             flags, address, address_len);
 }
 
+ssize_t
+sockets::Socket::sendto(std::unique_ptr<byte>& buffer, size_t length, int flags, const sockaddr_t* address,
+                        sockaddr_len_t address_len)
+{
+    return ::sendto(socket,
+                    reinterpret_cast<sock_buff_t>(buffer.get()),
+                    static_cast<s_sock_buff_t>(length),
+                    flags, address, address_len);
+}
 ssize_t
 sockets::Socket::send(const sockets::sock_buff_t buffer, sockets::s_sock_buff_t length, int flags)
 {
@@ -116,6 +134,12 @@ ssize_t
 sockets::Socket::send(byte *buffer, size_t length, int flags)
 {
     return ::send(socket, reinterpret_cast<sock_buff_t>(buffer), static_cast<s_sock_buff_t>(length), flags);
+}
+
+ssize_t
+sockets::Socket::send(std::unique_ptr<byte>& buffer, size_t length, int flags)
+{
+    return ::send(socket, reinterpret_cast<sock_buff_t>(buffer.get()), static_cast<s_sock_buff_t>(length), flags);
 }
 
 int
