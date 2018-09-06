@@ -5,6 +5,23 @@
 #include <Buffer.h>
 
 template<typename T>
+Buffer<T>::Buffer(size_t capacity) : buffer_ptr(std::make_unique<T[]>(capacity)), _capacity(capacity)
+{
+}
+
+template<typename T>
+T* Buffer<T>::begin()
+{
+    return buffer_ptr.get();
+}
+
+template<typename T>
+T* Buffer<T>::end()
+{
+    return buffer_ptr.get() + _capacity;
+}
+
+template<typename T>
 template<typename Iter>
 size_t
 Buffer<T>::read(Iter in, Iter end)

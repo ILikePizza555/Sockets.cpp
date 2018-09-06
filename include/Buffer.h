@@ -20,6 +20,20 @@ private:
     size_t _capacity = 0;
 
 public:
+    Buffer(size_t capacity);
+
+    /**
+     * @return An iterator to the beginning of the buffer.
+     */
+    T*
+    begin();
+
+    /**
+     * @return An iterator to the end of the buffer.
+     */
+    T*
+    end();
+
     /**
      * Reads data from the iterator into the buffer.
      * @tparam Iter
