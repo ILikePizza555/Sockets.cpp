@@ -1,5 +1,3 @@
 #pragma once
 
-namespace sockets {
-    using byte = unsigned char;
-}
+using byte = unsigned char;
