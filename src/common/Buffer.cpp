@@ -22,9 +22,23 @@ T* Buffer<T>::end()
 }
 
 template<typename T>
+const T*
+Buffer<T>::cbegin() const
+{
+    return buffer_ptr.get();
+}
+
+template<typename T>
+const T*
+Buffer<T>::cend() const
+{
+    return buffer_ptr.get();
+}
+
+template<typename T>
 template<typename Iter>
 size_t
-Buffer<T>::read(Iter in, Iter end)
+Buffer<T>::write(Iter in, Iter end)
 {
     size_t i;
     for(i = 0; i < _capacity; ++i)
@@ -41,7 +55,7 @@ Buffer<T>::read(Iter in, Iter end)
 template<typename T>
 template<typename Iter>
 size_t
-Buffer<T>::write(Iter out)
+Buffer<T>::read(Iter out) const
 {
     size_t i;
     for(i = 0; i < _capacity; ++i)
@@ -97,7 +111,7 @@ Buffer<T>::resize(size_t new_capacity)
 
 template<typename T>
 size_t
-Buffer<T>::capacity()
+Buffer<T>::capacity() const
 {
     return _capacity;
 }
@@ -116,7 +130,7 @@ Buffer<T>::to_bytestring()
 
 template <typename T>
 std::unique_ptr<T[]>&
-Buffer<T>::get()
+Buffer<T>::get() const
 {
     return buffer_ptr;
 }

@@ -11,7 +11,7 @@
 /**
  * "Helper struct" that consists of a pointer to data and the size.
  *
- * This class exists solely to assist with the implementation of other classes, and is not part of the API.
+ * This class exists solely to assist with the implementation of other classes.
  */
 
 template<typename T>
@@ -22,7 +22,7 @@ private:
     size_t _capacity = 0;
 
 public:
-    Buffer(size_t capacity);
+    explicit Buffer(size_t capacity);
 
     /**
      * @return An iterator to the beginning of the buffer.
@@ -37,21 +37,36 @@ public:
     end();
 
     /**
-     * Reads data from the iterator into the buffer.
-     * @tparam Iter
-     * @return Number of items read
+     * @return A constant iterator to the beginning of the buffer.
      */
-    template<typename Iter> size_t
-    read(Iter in, Iter end);
+     const T*
+     cbegin() const;
+
+     /**
+      * @return A constant iterator to the end of the buffer.
+      */
+      const T*
+      cend() const;
 
     /**
-     * Writes the buffer data out to the iterator
+     * Writes data from the iterator to the buffer.
+     *
+     * If more data is provided than fits the buffer capacity, write() will return before the iterator reaches end.
+     *
      * @tparam Iter
-     * @param out
      * @return Number of items written
      */
     template<typename Iter> size_t
-    write(Iter out);
+    write(Iter in, Iter end);
+
+    /**
+     * Reads the buffer data out to the iterator
+     * @tparam Iter
+     * @param out
+     * @return Number of items read
+     */
+    template<typename Iter> size_t
+    read(Iter out) const;
 
     /**
      * Resizes the Buffer. If new_capacity is smaller than current capacity, the data will be truncated.
@@ -61,14 +76,14 @@ public:
     resize(size_t new_capacity);
 
     size_t
-    capacity();
+    capacity() const;
 
     std::unique_ptr<T[]>&
-    get();
+    get() const;
 
     /**
      * Converts the buffer to a ByteString. This operation clears the buffer.
-     * @return
+     * @return A ByteString containing the buffer's data.
      */
     ByteString
     to_bytestring();
