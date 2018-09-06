@@ -46,10 +46,10 @@ namespace sockets {
         recv(sock_buff_t buffer, s_sock_buff_t length, int flags);
 
         ssize_t
-        sendto(const sock_buff_t buffer, s_sock_buff_t length, int flags, const sockaddr_t *address, socklen_t address_len);
+        sendto(sock_buff_t buffer, s_sock_buff_t length, int flags, const sockaddr_t *address, socklen_t address_len);
 
         ssize_t
-        send(const sock_buff_t buffer, s_sock_buff_t length, int flags);
+        send(sock_buff_t buffer, s_sock_buff_t length, int flags);
 
         int
         close();
