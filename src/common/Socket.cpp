@@ -52,6 +52,19 @@ sockets::Socket::listen(int backlog)
 }
 
 ssize_t
+sockets::Socket::recvfrom(byte *buffer,
+                          size_t length,
+                          int flags,
+                          sockets::sockaddr_t *address,
+                          sockets::sockaddr_len_t *address_len)
+{
+    return ::recvfrom(socket,
+            reinterpret_cast<sock_buff_t>(buffer),
+            static_cast<s_sock_buff_t>(length),
+            flags, address, address_len);
+}
+
+ssize_t
 sockets::Socket::recvfrom(sockets::sock_buff_t buffer,
                           sockets::s_sock_buff_t length,
                           int flags,
@@ -68,6 +81,15 @@ sockets::Socket::recv(sockets::sock_buff_t buffer, sockets::s_sock_buff_t length
 }
 
 ssize_t
+sockets::Socket::recv(byte *buffer, size_t length, int flags)
+{
+    return ::recv(socket,
+            reinterpret_cast<sock_buff_t>(buffer),
+            static_cast<s_sock_buff_t>(length),
+            flags);
+}
+
+ssize_t
 sockets::Socket::sendto(const sockets::sock_buff_t buffer, sockets::s_sock_buff_t length, int flags,
                         const sockets::sockaddr_t *address, socklen_t address_len)
 {
@@ -75,9 +97,25 @@ sockets::Socket::sendto(const sockets::sock_buff_t buffer, sockets::s_sock_buff_
 }
 
 ssize_t
+sockets::Socket::sendto(byte *buffer, size_t length, int flags, const sockets::sockaddr_t *address,
+                        socklen_t address_len)
+{
+    return ::sendto(socket,
+            reinterpret_cast<sock_buff_t>(buffer),
+            static_cast<s_sock_buff_t>(length),
+            flags, address, address_len);
+}
+
+ssize_t
 sockets::Socket::send(const sockets::sock_buff_t buffer, sockets::s_sock_buff_t length, int flags)
 {
     return ::send(socket, buffer, length, flags);
+}
+
+ssize_t
+sockets::Socket::send(byte *buffer, size_t length, int flags)
+{
+    return ::send(socket, reinterpret_cast<sock_buff_t>(buffer), static_cast<s_sock_buff_t>(length), flags);
 }
 
 int

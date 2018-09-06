@@ -52,13 +52,25 @@ namespace sockets {
         recvfrom(sock_buff_t buffer, s_sock_buff_t length, int flags, sockaddr_t *address, sockaddr_len_t *address_len);
 
         ssize_t
+        recvfrom(byte* buffer, size_t length, int flags, sockaddr_t* address, sockaddr_len_t* address_len);
+
+        ssize_t
         recv(sock_buff_t buffer, s_sock_buff_t length, int flags);
+
+        ssize_t
+        recv(byte* buffer, size_t length, int flags);
 
         ssize_t
         sendto(sock_buff_t buffer, s_sock_buff_t length, int flags, const sockaddr_t *address, socklen_t address_len);
 
         ssize_t
+        sendto(byte* buffer, size_t length, int flags, const sockaddr_t* address, socklen_t address_len);
+
+        ssize_t
         send(sock_buff_t buffer, s_sock_buff_t length, int flags);
+
+        ssize_t
+        send(byte* buffer, size_t length, int flags);
 
         int
         close();
