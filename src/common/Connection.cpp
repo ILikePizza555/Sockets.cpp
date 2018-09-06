@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <Connection.h>
+#include <SocketException.h>
 
 namespace sockets {
     /**
@@ -21,8 +22,8 @@ namespace sockets {
     void
     check_connection_state(const std::string &function_name, sock_t &socket, bool closed)
     {
-        if (closed) throw ClosedError("Connection", function_name);
-        if (socket == invalid_socket) throw SocketError("Connection", function_name, "invalid socket", EBADF);
+        if (closed) throw sockets::ClosedError("Connection", function_name);
+        if (socket == invalid_socket) throw sockets::SocketError("Connection", function_name, "invalid socket", EBADF);
     }
 
     /**
@@ -51,7 +52,7 @@ namespace sockets {
 
     Connection::~Connection()
     {
-        close(_socket);
+        _socket.close();
         _buffer.release();
         _closed = true;
     }
@@ -66,15 +67,15 @@ namespace sockets {
     Connection::read_into(size_t n, Iter out)
     {
         if (n > _bufferCapacity) throw std::out_of_range("n cannot be larger than bufferCapacity");
-        check_connection_state("read_into", _socket, _closed);
+        check_connection_state(__func__, _socket, _closed);
 
-        ssize_t bytes = recv(_socket, _buffer.get(), n, 0); // TODO: Add an option for flags
-        if (bytes == -1) throw SocketError("Connection", "read_into", "error on recv()", get_error_code());
+        ssize_t bytes = _socket.recv(_buffer.get(), n, 0); // TODO: Add an option for flags
+        if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
         //Write out the buffer
         write_out(_buffer, static_cast<size_t>(bytes), out);
 
-        return bytes;
+        return static_cast<size_t>(bytes);
     }
 
     ByteString
@@ -85,10 +86,10 @@ namespace sockets {
     Connection::read_bytes(size_t n)
     {
         if (n > _bufferCapacity) throw std::out_of_range("n cannot be larger than bufferCapacity");
-        check_connection_state("read_bytes", _socket, _closed);
+        check_connection_state(__func__, _socket, _closed);
 
-        ssize_t bytes = recv(_socket, _buffer.get(), n, 0);
-        if (bytes == -1) throw SocketError("Connection", "read_into", "error on recv()", get_error_code());
+        ssize_t bytes = _socket.recv(_buffer.get(), n, 0);
+        if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
         return ByteString(_buffer, static_cast<size_t>(bytes));
     }
@@ -97,7 +98,7 @@ namespace sockets {
     void
     Connection::read_exactly_into(size_t n, Iter out)
     {
-        check_connection_state("read_exactly_into", _socket, _closed);
+        check_connection_state(__func__, _socket, _closed);
 
         size_t bytes_read = 0;
 
@@ -105,18 +106,19 @@ namespace sockets {
         {
             size_t read_amt = std::min(_bufferCapacity, n - bytes_read);
 
-            ssize_t bytes = recv(_socket, _buffer.get(), read_amt, 0);
-            if (bytes == -1) throw SocketError("Connection", "read_exactly_into", "error on recv()", get_error_code());
+            ssize_t bytes = _socket.recv(_buffer.get(), read_amt, 0);
+            if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
             //write_out should increment the iterator as it writes, therefore we don't do it here
-            write_out(_buffer, bytes, out);
+            write_out(_buffer, static_cast<size_t>(bytes), out);
+            bytes_read += bytes;
         }
     }
 
     ByteString
     Connection::read_exactly_bytes(size_t n)
     {
-        check_connection_state("read_exactly_bytes", _socket, _closed);
+        check_connection_state(__func__, _socket, _closed);
 
         // Make a single allocation here to pass to bytestring
         auto buf = std::make_unique<byte[]>(n);
@@ -131,8 +133,8 @@ namespace sockets {
             size_t read_amt = n - bytes_read;
 
             // Read into the buffer
-            ssize_t bytes = recv(_socket, cursor, read_amt, 0);
-            if (bytes == -1) throw SocketError("Connection", "read_exactly_bytes", "error on recv()", get_error_code());
+            ssize_t bytes = _socket.recv(cursor, read_amt, 0);
+            if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
             // Update the values
             cursor += static_cast<size_t>(bytes);
@@ -147,12 +149,12 @@ namespace sockets {
     Connection::read_until_into(const ByteString &delim, Iter out)
     {
         if (delim.size() > _bufferCapacity) throw std::out_of_range("delim.size() is larger than buffer capacity");
-        check_connection_state("read_until_into", _socket, _closed);
+        check_connection_state(__func__, _socket, _closed);
 
         while (true)
         {
-            ssize_t bytes = recv(_socket, _buffer.get(), _bufferCapacity, 0);
-            if (bytes == -1) throw SocketError("Connection", "read_until_into", "error on recv()", get_error_code());
+            ssize_t bytes = _socket.recv(_buffer.get(), _bufferCapacity, 0);
+            if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
             // Iterate over the buffer to write to the iterator, while checking for a delimiter
             for (size_t i = 0; i < _bufferCapacity; ++i)
@@ -160,7 +162,7 @@ namespace sockets {
                 *out = _buffer[i];
                 ++out;
 
-                if (check_delimiter(_buffer, i, delim)) return bytes;
+                if (check_delimiter(_buffer, i, delim)) return static_cast<size_t>(bytes);
             }
         }
     }
@@ -168,12 +170,12 @@ namespace sockets {
     ByteString
     Connection::read_until_bytes(const ByteString &delim)
     {
-        check_connection_state("read_until_bytes", _socket, _closed);
+        check_connection_state(__func__, _socket, _closed);
 
         while (true)
         {
-            ssize_t bytes = recv(_socket, buff.get(), buff_capacity, 0);
-            if (bytes == -1) throw SocketError("Connection", "read_until_bytes", "error on recv()", get_error_code());
+            ssize_t bytes = _socket.recv(buff.get(), buff_capacity, 0);
+            if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
 
         }
