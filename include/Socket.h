@@ -61,7 +61,7 @@ namespace sockets {
         recv(byte* buffer, size_t length, int flags);
 
         ssize_t
-        recv(std::unique_ptr<byte>& buffer, size_t length, int flags);
+        recv(std::unique_ptr<byte[]> &buffer, size_t length, int flags);
 
         ssize_t
         sendto(sock_buff_t buffer, s_sock_buff_t length, int flags, const sockaddr_t *address, sockaddr_len_t address_len);
@@ -70,7 +70,8 @@ namespace sockets {
         sendto(byte* buffer, size_t length, int flags, const sockaddr_t* address, sockaddr_len_t address_len);
 
         ssize_t
-        sendto(std::unique_ptr<byte>&, size_t length, int flags, const sockaddr_t* address, sockaddr_len_t address_len);
+        sendto(std::unique_ptr<byte[]> &, size_t length, int flags, const sockaddr_t *address,
+               sockaddr_len_t address_len);
 
         ssize_t
         send(sock_buff_t buffer, s_sock_buff_t length, int flags);
@@ -79,7 +80,7 @@ namespace sockets {
         send(byte* buffer, size_t length, int flags);
 
         ssize_t
-        send(std::unique_ptr<byte>&, size_t length, int flags);
+        send(std::unique_ptr<byte[]> &, size_t length, int flags);
 
         int
         close();

@@ -90,7 +90,7 @@ sockets::Socket::recv(byte *buffer, size_t length, int flags)
 }
 
 ssize_t
-sockets::Socket::recv(std::unique_ptr<byte>& buffer, size_t length, int flags)
+sockets::Socket::recv(std::unique_ptr<byte[]> &buffer, size_t length, int flags)
 {
     return ::recv(socket,
                   reinterpret_cast<sock_buff_t>(buffer.get()),
@@ -116,7 +116,7 @@ sockets::Socket::sendto(byte *buffer, size_t length, int flags, const sockets::s
 }
 
 ssize_t
-sockets::Socket::sendto(std::unique_ptr<byte>& buffer, size_t length, int flags, const sockaddr_t* address,
+sockets::Socket::sendto(std::unique_ptr<byte[]> &buffer, size_t length, int flags, const sockaddr_t *address,
                         sockaddr_len_t address_len)
 {
     return ::sendto(socket,
@@ -137,7 +137,7 @@ sockets::Socket::send(byte *buffer, size_t length, int flags)
 }
 
 ssize_t
-sockets::Socket::send(std::unique_ptr<byte>& buffer, size_t length, int flags)
+sockets::Socket::send(std::unique_ptr<byte[]> &buffer, size_t length, int flags)
 {
     return ::send(socket, reinterpret_cast<sock_buff_t>(buffer.get()), static_cast<s_sock_buff_t>(length), flags);
 }
