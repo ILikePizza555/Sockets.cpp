@@ -95,7 +95,8 @@ Buffer<T>::capacity()
 }
 
 template<typename T>
-Buffer<T>::operator ByteString()
+ByteString
+Buffer<T>::to_bytestring()
 {
     ByteString rv(std::move(buffer_ptr), _capacity);
     _capacity = 0;

@@ -66,11 +66,12 @@ public:
     std::unique_ptr<T[]>&
     get();
 
+    ByteString
+    to_bytestring();
+
     T&
     operator[](size_t index);
 
     bool
     operator==(const Buffer& other) const;
-
-    explicit operator ByteString();
 };
