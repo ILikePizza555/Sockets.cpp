@@ -94,3 +94,17 @@ Buffer<T>::capacity()
     return _capacity;
 }
 
+template<typename T>
+Buffer<T>::operator ByteString()
+{
+    ByteString rv(std::move(buffer_ptr), _capacity);
+    _capacity = 0;
+    return rv;
+}
+
+template <typename T>
+std::unique_ptr<T[]>&
+Buffer<T>::get()
+{
+    return buffer_ptr;
+}

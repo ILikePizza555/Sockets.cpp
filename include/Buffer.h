@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "Buffer.h"
+#include "ByteString.h"
 #include <memory>
 
 /**
@@ -61,9 +63,14 @@ public:
     size_t
     capacity();
 
+    std::unique_ptr<T[]>&
+    get();
+
     T&
     operator[](size_t index);
 
     bool
     operator==(const Buffer& other) const;
+
+    explicit operator ByteString();
 };
