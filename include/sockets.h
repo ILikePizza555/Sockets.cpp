@@ -24,20 +24,22 @@ namespace sockets {
 
     // Define address types
 #ifdef _WIN32
-    typedef sockaddr sockaddr_t;
-    typedef int sockaddr_len_t;
+    typedef sockaddr i_addr_t;
+    typedef int i_addr_len_t;
 #else
-    typedef sockaddr sockaddr_t;
-    typedef socklen_t sockaddr_len_t;
+    typedef sockaddr i_addr_t;
+    typedef socklen_t i_sockaddr_len_t;
 #endif
 
     // Define buffer types
 #ifdef _WIN32
-    typedef char* sock_buff_t;
-    typedef int s_sock_buff_t;
+    typedef char* i_buff_t;
+    typedef const char* i_cbuff_t;
+    typedef int i_buff_len_t;
 #else
-    typedef void* sock_buff_t;
-    typedef size_t s_sock_buff_t;
+    typedef void* i_buff_t;
+    typedef const void* i_cbuff_t;
+    typedef size_t i_buff_len_t;
 #endif
 
     /**
