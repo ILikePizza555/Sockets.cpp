@@ -31,31 +31,31 @@ namespace sockets {
         Socket(sock_addr_family, sock_type, sock_proto);
 
         Socket
-        accept(sockaddr_t* address, sockaddr_len_t* address_length);
+        accept(i_addr_ptr address, i_addr_len_t* address_length);
 
         int
-        bind(const sockaddr_t* address, sockaddr_len_t address_length);
+        bind(i_addr_cptr address, i_addr_len_t address_length);
 
         int
-        connect(const sockaddr_t* address, sockaddr_len_t address_length);
+        connect(i_addr_cptr address, i_addr_len_t address_length);
 
         int
-        getpeername(sockaddr_t *address_out, sockaddr_len_t *address_length_out);
+        getpeername(i_addr_ptr address_out, i_addr_len_t* address_length_out);
 
         int
-        getsockname(sockaddr_t *address_out, sockaddr_len_t *address_length_out);
+        getsockname(i_addr_ptr address_out, i_addr_len_t* address_length_out);
 
         int
         listen(int backlog);
 
         ssize_t
-        recvfrom(sock_buff_t buffer, s_sock_buff_t length, int flags, sockaddr_t *address, sockaddr_len_t *address_len);
+        recvfrom(i_buff_t buffer, i_buff_len_t length, int flags, i_addr_ptr address, i_addr_len_t *address_len);
 
         ssize_t
-        recvfrom(byte* buffer, size_t length, int flags, sockaddr_t* address, sockaddr_len_t* address_len);
+        recvfrom(byte* buffer, size_t length, int flags, i_addr_ptr address, i_addr_len_t* address_len);
 
         ssize_t
-        recv(sock_buff_t buffer, s_sock_buff_t length, int flags);
+        recv(i_buff_t buffer, i_buff_len_t length, int flags);
 
         ssize_t
         recv(byte* buffer, size_t length, int flags);
@@ -64,20 +64,19 @@ namespace sockets {
         recv(std::unique_ptr<byte[]> &buffer, size_t length, int flags);
 
         ssize_t
-        sendto(sock_buff_t buffer, s_sock_buff_t length, int flags, const sockaddr_t *address, sockaddr_len_t address_len);
+        sendto(i_cbuff_t buffer, i_buff_len_t length, int flags, i_addr_cptr address, i_addr_len_t address_len);
 
         ssize_t
-        sendto(byte* buffer, size_t length, int flags, const sockaddr_t* address, sockaddr_len_t address_len);
+        sendto(byte* buffer, size_t length, int flags, i_addr_cptr address, i_addr_len_t address_len);
 
         ssize_t
-        sendto(std::unique_ptr<byte[]> &, size_t length, int flags, const sockaddr_t *address,
-               sockaddr_len_t address_len);
+        sendto(std::unique_ptr<byte[]> &, size_t length, int flags, i_addr_cptr address, i_addr_len_t address_len);
 
         ssize_t
-        send(sock_buff_t buffer, s_sock_buff_t length, int flags);
+        send(i_cbuff_t buffer, i_buff_len_t length, int flags);
 
         ssize_t
-        send(byte* buffer, size_t length, int flags);
+        send(const byte* buffer, size_t length, int flags);
 
         ssize_t
         send(std::unique_ptr<byte[]> &, size_t length, int flags);
