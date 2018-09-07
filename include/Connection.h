@@ -5,6 +5,10 @@
 #include "ByteString.h"
 #include "Socket.h"
 
+#ifndef DEFAULT_BUFFER_CAPACITY
+#define DEFAULT_BUFFER_CAPACITY 1400
+#endif
+
 namespace sockets {
     /**
      * Represents a connection between a client and a server.
@@ -20,7 +24,7 @@ namespace sockets {
     public:
         Connection();
 
-        Connection(Socket socket, size_t bufferCapacity);
+        Connection(Socket socket, size_t buffer_capacity = DEFAULT_BUFFER_CAPACITY);
 
         ~Connection();
 

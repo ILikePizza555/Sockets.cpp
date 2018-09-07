@@ -63,8 +63,8 @@ namespace sockets {
     Connection::Connection() : _socket(invalid_socket), _buffer(0), _closed(true)
     {}
 
-    Connection::Connection(Socket socket, size_t bufferCapacity) : _socket(socket),
-                                                                   _buffer(bufferCapacity),
+    Connection::Connection(Socket socket, size_t buffer_capacity) : _socket(socket),
+                                                                   _buffer(buffer_capacity),
                                                                    _closed(false)
     {}
 
@@ -139,7 +139,7 @@ namespace sockets {
 
         // Make a single allocation here to pass to bytestring
         auto buf = Buffer<byte>(n);
-        // Cursor to hold the location of the next position to write to in the buffer
+        // Cursor to hold the location of the next position to read to in the buffer
         byte *cursor = buf.begin();
         // Count of bytes read from the socket/written to the buffer
         size_t bytes_read = 0;
@@ -173,7 +173,7 @@ namespace sockets {
             ssize_t bytes = _socket.recv(_buffer.get(), _buffer.capacity(), 0);
             if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
-            // Iterate over the buffer to write to the iterator, while checking for a delimiter
+            // Iterate over the buffer to read to the iterator, while checking for a delimiter
             for (size_t i = 0; i < _buffer.capacity(); ++i)
             {
                 *out = _buffer[i];
@@ -233,7 +233,7 @@ namespace sockets {
     {
         check_connection_state(__func__, _socket, _closed);
 
-        _buffer.read(begin, end);
+        _buffer.write(begin, end);
 
         ssize_t bytes = _socket.send(_buffer.get(), _buffer.capacity(), 0);
         if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code());
@@ -246,7 +246,7 @@ namespace sockets {
     {
         check_connection_state(__func__, _socket, _closed);
 
-        ssize_t bytes = _socket.send(data.cbegin(), data.size(), 0;
+        ssize_t bytes = _socket.send(data.cbegin(), data.size(), 0);
         if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code()));
 
         return static_cast<size_t>(bytes);
