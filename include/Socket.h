@@ -79,7 +79,7 @@ namespace sockets {
         send(const byte* buffer, size_t length, int flags);
 
         ssize_t
-        send(std::unique_ptr<byte[]> &, size_t length, int flags);
+        send(const std::unique_ptr<byte[]> &, size_t length, int flags);
 
         int
         close();

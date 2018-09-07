@@ -137,7 +137,7 @@ sockets::Socket::send(const byte *buffer, size_t length, int flags)
 }
 
 ssize_t
-sockets::Socket::send(std::unique_ptr<byte[]> &buffer, size_t length, int flags)
+sockets::Socket::send(const std::unique_ptr<byte[]> &buffer, size_t length, int flags)
 {
     return ::send(socket, reinterpret_cast<i_cbuff_t>(buffer.get()), static_cast<i_buff_len_t>(length), flags);
 }
