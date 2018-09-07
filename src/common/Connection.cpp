@@ -247,7 +247,7 @@ namespace sockets {
         check_connection_state(__func__, _socket, _closed);
 
         ssize_t bytes = _socket.send(data.cbegin(), data.size(), 0);
-        if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code()));
+        if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code());
 
         return static_cast<size_t>(bytes);
     }
