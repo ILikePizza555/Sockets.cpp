@@ -95,5 +95,5 @@ public:
     operator[](size_t index) const;
 
     bool
-    operator==(const Buffer& other) const;
+    operator==(const Buffer<T>& other) const;
 };

@@ -84,7 +84,7 @@ Buffer<T>::operator[](size_t index) const
 
 template<typename T>
 bool
-Buffer<T>::operator==(const Buffer &other) const
+Buffer<T>::operator==(const Buffer<T> &other) const
 {
     if(other._capacity != _capacity) return false;
 
