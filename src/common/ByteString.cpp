@@ -1,4 +1,5 @@
 #include <ByteString.h>
+#include <iomanip>
 
 ByteString::ByteString() : _data(nullptr), _size(0)
 {}
