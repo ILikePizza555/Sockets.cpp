@@ -15,7 +15,7 @@
 template<typename T>
 class Buffer
 {
-private:
+protected:
     std::unique_ptr<T[]> buffer_ptr = nullptr;
     size_t _capacity = 0;
 
