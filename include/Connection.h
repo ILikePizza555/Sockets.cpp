@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Buffer.h"
 #include "Byte.h"
+#include "ByteBuffer.h"
 #include "ByteString.h"
 #include "Socket.h"
 
@@ -19,7 +19,7 @@ namespace sockets {
     {
     private:
         Socket _socket;
-        Buffer<byte> _buffer;
+        ByteBuffer _buffer;
         bool _closed;
     public:
         Connection();
