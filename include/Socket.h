@@ -30,58 +30,58 @@ namespace sockets {
          */
         Socket(sock_addr_family, sock_type, sock_proto);
 
-        Socket
+        virtual Socket
         accept(i_addr_ptr address, i_addr_len_t* address_length);
 
-        int
+        virtual int
         bind(i_addr_cptr address, i_addr_len_t address_length);
 
-        int
+        virtual int
         connect(i_addr_cptr address, i_addr_len_t address_length);
 
-        int
+        virtual int
         getpeername(i_addr_ptr address_out, i_addr_len_t* address_length_out);
 
-        int
+        virtual int
         getsockname(i_addr_ptr address_out, i_addr_len_t* address_length_out);
 
-        int
+        virtual int
         listen(int backlog);
 
-        ssize_t
+        virtual ssize_t
         recvfrom(i_buff_t buffer, i_buff_len_t length, int flags, i_addr_ptr address, i_addr_len_t *address_len);
 
-        ssize_t
+        virtual ssize_t
         recvfrom(byte* buffer, size_t length, int flags, i_addr_ptr address, i_addr_len_t* address_len);
 
-        ssize_t
+        virtual ssize_t
         recv(i_buff_t buffer, i_buff_len_t length, int flags);
 
-        ssize_t
+        virtual ssize_t
         recv(byte* buffer, size_t length, int flags);
 
-        ssize_t
+        virtual ssize_t
         recv(std::unique_ptr<byte[]> &buffer, size_t length, int flags);
 
-        ssize_t
+        virtual ssize_t
         sendto(i_cbuff_t buffer, i_buff_len_t length, int flags, i_addr_cptr address, i_addr_len_t address_len);
 
-        ssize_t
+        virtual ssize_t
         sendto(byte* buffer, size_t length, int flags, i_addr_cptr address, i_addr_len_t address_len);
 
-        ssize_t
+        virtual ssize_t
         sendto(std::unique_ptr<byte[]> &, size_t length, int flags, i_addr_cptr address, i_addr_len_t address_len);
 
-        ssize_t
+        virtual ssize_t
         send(i_cbuff_t buffer, i_buff_len_t length, int flags);
 
-        ssize_t
+        virtual ssize_t
         send(const byte* buffer, size_t length, int flags);
 
-        ssize_t
+        virtual ssize_t
         send(const std::unique_ptr<byte[]> &, size_t length, int flags);
 
-        int
+        virtual int
         close();
     };
 }
