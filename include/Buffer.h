@@ -111,7 +111,7 @@ public:
         if(buffer_ptr != nullptr)
             std::copy(buffer_ptr.get(), buffer_ptr.get() + std::min(_capacity, new_capacity), new_buffer.get());
 
-        buffer_ptr = new_buffer;
+        buffer_ptr = std::move(new_buffer);
         _capacity = new_capacity;
     }
 
@@ -120,6 +120,12 @@ public:
     capacity() const
     {
         return _capacity;
+    }
+
+    std::unique_ptr<T[]>&
+    get()
+    {
+        return buffer_ptr;
     }
 
     std::unique_ptr<T[]>&

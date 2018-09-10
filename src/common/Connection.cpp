@@ -38,26 +38,6 @@ check_delimiter(const Buffer<byte>& buffer, size_t last_index, const ByteString 
     return true;
 }
 
-/**
- * Helper function that creates a ByteString from a Buffer.
- *
- * Because allocating memory takes less time than copying, we "convert" the buffer to a ByteString by moving the data
- * pointer. Then we allocate new memory for the buffer.
- *
- * @param buffer
- * @return
- */
-ByteString
-flush_buffer(Buffer<byte>& buffer)
-{
-    auto old_capacity = buffer.capacity();
-    auto rv = buffer.to_bytestring();
-
-    buffer.resize(old_capacity);
-
-    return rv;
-}
-
 namespace sockets {
 
     Connection::Connection() : _socket(invalid_socket), _buffer(0), _closed(true)
@@ -108,7 +88,7 @@ namespace sockets {
         ssize_t bytes = _socket.recv(_buffer.get(), n, 0);
         if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
-        return flush_buffer(_buffer);
+        return _buffer.to_bytestring();
     }
 
     template<typename Iter>
@@ -138,7 +118,7 @@ namespace sockets {
         check_connection_state(__func__, _socket, _closed);
 
         // Make a single allocation here to pass to bytestring
-        auto buf = Buffer<byte>(n);
+        auto buf = ByteBuffer(n);
         // Cursor to hold the location of the next position to read to in the buffer
         byte *cursor = buf.begin();
         // Count of bytes read from the socket/written to the buffer
