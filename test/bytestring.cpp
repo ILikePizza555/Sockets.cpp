@@ -4,10 +4,6 @@
 
 TEST_CASE("ByteStrings can be constructed", "[ByteString]") 
 {
-    using sockets::byte;
-    using sockets::data_ptr;
-    using sockets::ByteString;
-
     SECTION("Empty ByteString")
     {
         auto b = ByteString();
@@ -85,8 +81,6 @@ TEST_CASE("ByteStrings can be constructed", "[ByteString]")
 
 TEST_CASE("ByteStrings can perform immutable operations", "[ByteString]")
 {
-    using sockets::ByteString;
-
     ByteString a{1, 2, 3, 4};
     ByteString b{5, 6, 7, 8};
 
