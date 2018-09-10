@@ -33,7 +33,7 @@ namespace sockets {
 
         // Delete copy assignment operator
         Connection &
-        operator==(const Connection &) = delete;
+        operator=(const Connection &) = delete;
 
         /**
          * Reads all available bytes into the given iterator. 
