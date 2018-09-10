@@ -2,6 +2,7 @@
 // Created by avris on 9/5/2018.
 //
 
+#include <winsock2.h>
 #include <Socket.h>
 #include <SocketException.h>
 
@@ -145,9 +146,5 @@ sockets::Socket::send(const std::unique_ptr<byte[]> &buffer, size_t length, int 
 int
 sockets::Socket::close()
 {
-#ifdef _WIN32
     return closesocket(socket);
-#else
-    return ::close(socket);
-#endif
 }

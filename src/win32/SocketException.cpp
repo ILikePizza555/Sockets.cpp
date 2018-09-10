@@ -14,11 +14,11 @@ std::string sockets::get_error_message(int code)
 {
     char* message = nullptr;
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                  NULL,
+                  nullptr,
                   static_cast<DWORD>(code),
                   0,
                   (LPTSTR) &message,
                   0,
-                  NULL);
+                  nullptr);
     return std::string(message);
 }

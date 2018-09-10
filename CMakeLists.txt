@@ -14,7 +14,7 @@ set(INCLUDE_FILES include/Byte.h include/ByteString.h include/Connection.h inclu
 # Common Implementation Files
 # These are all implementations that are common across platforms
 
-set(IMPL_COMMON src/common/ByteString.cpp src/common/SocketException.cpp src/common/Socket.cpp src/common/Connection.cpp src/common/ByteBuffer.cpp)
+set(IMPL_COMMON src/common/ByteString.cpp src/common/SocketException.cpp src/common/Connection.cpp src/common/ByteBuffer.cpp)
 
 # Unix-Specific implementation files
 # These are the implementations for *nix systems
@@ -22,7 +22,7 @@ set(IMPL_UNIX src/unix/SocketException.cpp)
 
 # Windows-Specific implementation files
 # These are the implementations for windows systems
-set(IMPL_WIN32 src/win32/SocketException.cpp)
+set(IMPL_WIN32 src/win32/SocketException.cpp src/win32/Socket.cpp)
 
 # Create a shared library
 if(UNIX)
@@ -35,6 +35,7 @@ if(WIN32)
     message(STATUS "Build for Win32 has been selected")
     message(STATUS "Files are: " ${IMPL_COMMON} " " ${IMPL_WIN32})
     add_library(socketscpp SHARED ${IMPL_COMMON} ${IMPL_WIN32})
+    target_link_libraries(socketscpp wsock32 ws2_32)
 endif()
 
 # Export the header files
