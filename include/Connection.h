@@ -41,32 +41,32 @@ namespace sockets {
      * An alternative implementation of Socket can be specified using the template parameter.
      */
     template<typename T = Socket>
-    class Connection
+    class Connection_c
     {
     private:
         T _socket;
         ByteBuffer _buffer;
         bool _closed;
     public:
-        Connection() : _socket(invalid_socket), _buffer(0), _closed(true) {}
+        Connection_c() : _socket(invalid_socket), _buffer(0), _closed(true) {}
 
-        explicit Connection(T socket, size_t buffer_capacity = DEFAULT_BUFFER_CAPACITY) : _socket(socket),
+        explicit Connection_c(T socket, size_t buffer_capacity = DEFAULT_BUFFER_CAPACITY) : _socket(socket),
                                                                                  _buffer(buffer_capacity),
                                                                                  _closed(false)
         {}
 
-        ~Connection()
+        ~Connection_c()
         {
             _socket.close();
             _closed = true;
         }
 
         // Delete the copy constructor
-        Connection(const Connection &) = delete;
+        Connection_c(const Connection_c &) = delete;
 
         // Delete copy assignment operator
-        Connection &
-        operator=(const Connection &) = delete;
+        Connection_c &
+        operator=(const Connection_c &) = delete;
 
         /**
          * Reads all available bytes into the given iterator. 
@@ -91,7 +91,7 @@ namespace sockets {
             check_connection_state(__func__, _socket, _closed);
 
             ssize_t bytes = _socket.recv(_buffer.get(), n, 0); // TODO: Add an option for flags
-            if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+            if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
 
             //Write out the buffer
             write_out(_buffer, static_cast<size_t>(bytes), out);
@@ -119,7 +119,7 @@ namespace sockets {
             check_connection_state(__func__, _socket, _closed);
 
             ssize_t bytes = _socket.recv(_buffer.get(), n, 0);
-            if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+            if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
 
             return _buffer.to_bytestring();
         }
@@ -143,7 +143,7 @@ namespace sockets {
                 size_t read_amt = std::min(_buffer.capacity(), n - bytes_read);
 
                 ssize_t bytes = _socket.recv(_buffer.get(), read_amt, 0);
-                if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+                if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
 
                 //write_out should increment the iterator as it writes, therefore we don't do it here
                 write_out(_buffer, static_cast<size_t>(bytes), out);
@@ -173,7 +173,7 @@ namespace sockets {
 
                 // Read into the buffer
                 ssize_t bytes = _socket.recv(cursor, read_amt, 0);
-                if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+                if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
 
                 // Update the values
                 cursor += static_cast<size_t>(bytes);
@@ -197,7 +197,7 @@ namespace sockets {
             while (true)
             {
                 ssize_t bytes = _socket.recv(_buffer.get(), _buffer.capacity(), 0);
-                if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+                if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
 
                 // Iterate over the buffer to read to the iterator, while checking for a delimiter
                 for (size_t i = 0; i < _buffer.capacity(); ++i)
@@ -231,7 +231,7 @@ namespace sockets {
                 Buffer<byte> loop_buff(_buffer.capacity() - bytes_read);
 
                 ssize_t bytes = _socket.recv(loop_buff.get(), loop_buff.capacity(), 0);
-                if (bytes == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+                if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
 
                 // Copy from the loop buffer to the real buffer, while checking for a delimiter
                 for(size_t i = 0; i < loop_buff.capacity(); ++i)
@@ -268,7 +268,7 @@ namespace sockets {
             _buffer.write(begin, end);
 
             ssize_t bytes = _socket.send(_buffer.get(), _buffer.capacity(), 0);
-            if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code());
+            if(bytes == -1) throw SocketError("Connection_c", __func__, "error on send()", get_error_code());
 
             return static_cast<size_t>(bytes);
         }
@@ -279,7 +279,7 @@ namespace sockets {
             check_connection_state(__func__, _socket, _closed);
 
             ssize_t bytes = _socket.send(data.cbegin(), data.size(), 0);
-            if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code());
+            if(bytes == -1) throw SocketError("Connection_c", __func__, "error on send()", get_error_code());
 
             return static_cast<size_t>(bytes);
         }
@@ -293,4 +293,6 @@ namespace sockets {
             return _closed;
         }
     };
+
+    using Connection = Connection_c<>;
 }

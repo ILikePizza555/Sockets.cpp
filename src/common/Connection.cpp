@@ -11,9 +11,9 @@ namespace sockets {
         void
         check_connection_state(const std::string &function_name, sockets::Socket &socket, bool closed)
         {
-            if (closed) throw sockets::ClosedError("Connection", function_name);
+            if (closed) throw sockets::ClosedError("Connection_c", function_name);
             if (socket.socket == sockets::invalid_socket)
-                throw sockets::SocketError("Connection", function_name, "invalid socket", EBADF);
+                throw sockets::SocketError("Connection_c", function_name, "invalid socket", EBADF);
         }
 
         bool
