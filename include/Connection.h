@@ -69,20 +69,30 @@ namespace sockets {
         operator=(const Connection_c &) = delete;
 
         /**
-         * Reads all available bytes into the given iterator. 
+         * Attempts to fill the internal buffer with data, then writes it out to the iterator.
          *
-         * If n is provided, the method reads up to n bytes instead. If n is larger than the buffer capacity, std::out_of_range is thrown.
-         * 
-         * If the connection is closed, a ClosedError is thrown.
-         * If the socket is invalid, a SocketError is thrown.
+         * This method will read from the network only once.
+         * Throws std::out_of_range if n is larger than the buffer capacity
          *
-         * Returns number of bytes read.
+         * @tparam Iter The type of the iterator to read out too.
+         * @param out The iterator to write data out too.
+         * @return The number of bytes written.
          */
         template<typename Iter>
         size_t
         read_into(Iter out)
         { return read_into(_buffer.capacity(), out); }
 
+        /**
+         * Attempts to read up to n bytes to the internal buffer, then writes it out to the iterator.
+         *
+         * This method will read from the network only once.
+         *
+         * @tparam Iter The type of the iterator to read out too.
+         * @param n Number of bytes to read.
+         * @param out The iterator to write data out too.
+         * @return The number of bytes read.
+         */
         template<typename Iter>
         size_t
         read_into(size_t n, Iter out)
@@ -100,18 +110,21 @@ namespace sockets {
         }
 
         /**
-         * Reads up to n bytes. If no n is provided, the largest possible value will be used.
-         *
-         * If n is larger than _bufferCapacity, a std::out_of_range exception is throw.
-         * If the connection is closed, a ClosedError is thrown
-         * If the socket is invalid a SocketError is thrown.
-         *
-         * Returns a ByteString containing the bytes read.
+         * Reads bytes from the network.
+         * @return A ByteString object with the data read
          */
         ByteString
         read_bytes()
         { return read_bytes(_buffer.capacity()); }
 
+        /**
+         * Reads up to n bytes from the network.
+         *
+         * Throws std::out_of_range if n is greater than the buffer capacity.
+         *
+         * @param n The amount of bytes to read.
+         * @return A ByteString with the data read.
+         */
         ByteString
         read_bytes(size_t n)
         {
@@ -125,10 +138,12 @@ namespace sockets {
         }
 
         /**
-         * Reads exactly n bytes into the given iterator. Blocks until n bytes are read.
+         * Reads exactly n bytes from the network, and writes them to the iterator. This method blocks until
+         * n bytes are read.
          *
-         * If the connection is closed, a ClosedError is thrown.
-         * If the socket is invalid, a SocketError is thrown.
+         * @tparam Iter The type of the OutputIterator
+         * @param n The number of bytes to read.
+         * @param out The OutputIterator to write to.
          */
         template<typename Iter>
         void
@@ -152,7 +167,9 @@ namespace sockets {
         }
 
         /**
-         * Reads exactly n bytes. Blocks until n bytes are read.
+         * Reads exactly n bytes from the network. This method blocks until n bytes are read.
+         *
+         * @returns A ByteString of size n containing the data read.
          */
         ByteString
         read_exactly_bytes(size_t n)
@@ -185,7 +202,8 @@ namespace sockets {
 
         /**
          * Reads bytes into the iterator until the delimiter is reached. The delimiter will also be read into the iterator.
-         * Returns the number of bytes read.
+         *
+         * @returns The number of bytes read.
          */
         template<typename Iter>
         size_t
@@ -212,6 +230,8 @@ namespace sockets {
 
         /**
          * Reads until the delimiter is reached. Outputs all bytes read, including the delimiter.
+         *
+         * @returns A ByteString containing all the data read.
          */
         ByteString
         read_until_bytes(const ByteString &delim)
@@ -257,7 +277,9 @@ namespace sockets {
         }
 
         /**
-         * Writes bytes to the connection. Returns the number of bytes written.
+         * Writes bytes to the connection.
+         *
+         * @return The number of bytes written.
          */
         template<typename Iter>
         size_t
