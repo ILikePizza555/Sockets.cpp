@@ -1,6 +1,6 @@
 project(unit_test)
 
-add_executable(unit_test main.cpp bytestring_test.cpp connection_test.cpp)
+add_executable(unit_test main.cpp connection_test.cpp)
 
 target_link_libraries(unit_test PRIVATE socketscpp)
 
