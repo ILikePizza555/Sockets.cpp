@@ -75,10 +75,10 @@ namespace sockets {
     }
 
     ssize_t
-    Socket::recv(std::unique_ptr<byte[]> &buffer, size_t length, int flags)
+    Socket::recv(byte* buffer, size_t length, int flags)
     {
         return ::recv(socket,
-                      reinterpret_cast<i_buff_t>(buffer.get()),
+                      reinterpret_cast<i_buff_t>(buffer),
                       static_cast<i_buff_len_t>(length),
                       flags);
     }
@@ -93,11 +93,11 @@ namespace sockets {
     }
 
     ssize_t
-    Socket::sendto(std::unique_ptr<byte[]> &buffer, size_t length, int flags, sockets::i_addr_cptr address,
+    Socket::sendto(const byte* buffer, size_t length, int flags, sockets::i_addr_cptr address,
                             sockets::i_addr_len_t address_len)
     {
         return ::sendto(socket,
-                        reinterpret_cast<i_cbuff_t>(buffer.get()),
+                        reinterpret_cast<i_cbuff_t>(buffer),
                         static_cast<i_buff_len_t>(length),
                         flags, address, address_len);
     }
@@ -112,9 +112,9 @@ namespace sockets {
     }
 
     ssize_t
-    Socket::send(const std::unique_ptr<byte[]> &buffer, size_t length, int flags)
+    Socket::send(const byte* buffer, size_t length, int flags)
     {
-        return ::send(socket, reinterpret_cast<i_cbuff_t>(buffer.get()), static_cast<i_buff_len_t>(length), flags);
+        return ::send(socket, reinterpret_cast<i_cbuff_t>(buffer), static_cast<i_buff_len_t>(length), flags);
     }
 
     int

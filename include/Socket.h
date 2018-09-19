@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <memory>
 #include "Byte.h"
 #include "sockets.h"
 
@@ -56,19 +55,19 @@ namespace sockets {
         recv(ByteBuffer& buffer, size_t amount, int flags);
 
         ssize_t
-        recv(std::unique_ptr<byte[]> &buffer, size_t length, int flags);
+        recv(byte* buffer, size_t length, int flags);
 
         ssize_t
         sendto(const ByteBuffer& buffer, int flags, i_addr_cptr address, i_addr_len_t address_len);
 
         ssize_t
-        sendto(std::unique_ptr<byte[]> &, size_t length, int flags, i_addr_cptr address, i_addr_len_t address_len);
+        sendto(const byte*, size_t length, int flags, i_addr_cptr address, i_addr_len_t address_len);
 
         ssize_t
         send(const ByteBuffer& buffer, int flags);
 
         ssize_t
-        send(const std::unique_ptr<byte[]> &, size_t length, int flags);
+        send(const byte*, size_t length, int flags);
 
         int
         close();
