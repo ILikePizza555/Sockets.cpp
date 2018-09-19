@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Byte.h"
-#include "ByteBuffer.h"
-#include "ByteString.h"
 #include "Socket.h"
 #include "SocketException.h"
 
@@ -29,8 +27,19 @@ namespace sockets {
          * @param delim
          * @return
          */
+        template<size_t delim_size>
         bool
-        check_delimiter(const Buffer<byte>& buffer, size_t last_index, const ByteString &delim);
+        check_delimiter(const ByteBuffer& buffer, size_t last_index, const ByteString<delim_size>& delim)
+        {
+            if (last_index < delim.size()) return false;
+
+            size_t buffer_index = last_index - delim.size();
+            for (size_t j = 0; j < delim.size(); ++j, ++buffer_index)
+            {
+                if (buffer[buffer_index] != delim[j]) return false;
+            }
+            return true;
+        }
     }
 
     /**
@@ -41,163 +50,87 @@ namespace sockets {
      * An alternative implementation of Socket can be specified using the template parameter.
      */
     template<typename T = Socket>
-    class Connection_c
+    class Connection
     {
     private:
         T _socket;
         ByteBuffer _buffer;
         bool _closed;
     public:
-        Connection_c() : _socket(invalid_socket), _buffer(0), _closed(true) {}
+        Connection() : _socket(invalid_socket), _buffer(), _closed(true) {}
 
-        explicit Connection_c(T socket, size_t buffer_capacity = DEFAULT_BUFFER_CAPACITY) : _socket(socket),
-                                                                                 _buffer(buffer_capacity),
-                                                                                 _closed(false)
+        explicit Connection(T socket) : _socket(socket), _buffer(), _closed(false)
         {}
 
-        ~Connection_c()
+        ~Connection()
         {
             _socket.close();
             _closed = true;
         }
 
         // Delete the copy constructor
-        Connection_c(const Connection_c &) = delete;
+        Connection(const Connection &) = delete;
 
         // Delete copy assignment operator
-        Connection_c &
-        operator=(const Connection_c &) = delete;
-
-        /**
-         * Attempts to fill the internal buffer with data, then writes it out to the iterator.
-         *
-         * This method will read from the network only once.
-         * Throws std::out_of_range if n is larger than the buffer capacity
-         *
-         * @tparam Iter The type of the iterator to read out too.
-         * @param out The iterator to write data out too.
-         * @return The number of bytes written.
-         */
-        template<typename Iter>
-        size_t
-        read_into(Iter out)
-        { return read_into(_buffer.capacity(), out); }
-
-        /**
-         * Attempts to read up to n bytes to the internal buffer, then writes it out to the iterator.
-         *
-         * This method will read from the network only once.
-         *
-         * @tparam Iter The type of the iterator to read out too.
-         * @param n Number of bytes to read.
-         * @param out The iterator to write data out too.
-         * @return The number of bytes read.
-         */
-        template<typename Iter>
-        size_t
-        read_into(size_t n, Iter out)
-        {
-            if (n > _buffer.capacity()) throw std::out_of_range("n cannot be larger than buffer.capacity()");
-            check_connection_state(__func__, _socket, _closed);
-
-            ssize_t bytes = _socket.recv(_buffer.get(), n, 0); // TODO: Add an option for flags
-            if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
-
-            //Write out the buffer
-            write_out(_buffer, static_cast<size_t>(bytes), out);
-
-            return static_cast<size_t>(bytes);
-        }
-
-        /**
-         * Reads bytes from the network.
-         * @return A ByteString object with the data read
-         */
-        ByteString
-        read_bytes()
-        { return read_bytes(_buffer.capacity()); }
+        Connection &
+        operator=(const Connection &) = delete;
 
         /**
          * Reads up to n bytes from the network.
          *
-         * Throws std::out_of_range if n is greater than the buffer capacity.
-         *
-         * @param n The amount of bytes to read.
-         * @return A ByteString with the data read.
+         * @param n Number of bytes to read.
+         * @return A reference to a ByteBuffer containing the data received
          */
-        ByteString
-        read_bytes(size_t n)
+        ByteBuffer&
+        read(size_t n)
         {
-            if (n > _buffer.capacity()) throw std::out_of_range("n cannot be larger than buffer.capacity()");
             check_connection_state(__func__, _socket, _closed);
 
-            ssize_t bytes = _socket.recv(_buffer.get(), n, 0);
-            if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
+            // Check if the buffer needs to be cleared
+            if(!_buffer.empty()) _buffer.clear();
+            // Ensure that the buffer has the capacity for n bytes
+            _buffer.reserve(n);
 
-            return _buffer.to_bytestring();
+            ssize_t bytes_read = _socket.recv(_buffer, n, 0);
+            if (bytes_read == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+
+            return _buffer;
         }
 
         /**
-         * Reads exactly n bytes from the network, and writes them to the iterator. This method blocks until
-         * n bytes are read.
+         * Reads exactly n bytes from the network, and returns the result as a reference to a ByteBuffer.
+         * This method blocks until n bytes are read.
          *
-         * @tparam Iter The type of the OutputIterator
          * @param n The number of bytes to read.
-         * @param out The OutputIterator to write to.
+         * @return A reference to a ByteBuffer containing the data received.
          */
-        template<typename Iter>
-        void
-        read_exactly_into(size_t n, Iter out)
+        ByteBuffer&
+        read_exactly(size_t n)
         {
             check_connection_state(__func__, _socket, _closed);
 
+            // Check if the buffer needs to be cleared
+            if(!_buffer.empty()) _buffer.clear();
+            // Ensure that the buffer has the capacity for n bytes
+            _buffer.reserve(n);
+
+            // Total bytes read
             size_t bytes_read = 0;
+            // Cursor pointing to the position last written to in the buffer
+            byte* cursor = _buffer.data();
 
             while (bytes_read < n)
             {
-                size_t read_amt = std::min(_buffer.capacity(), n - bytes_read);
+                ssize_t bytes_received = _socket.recv(cursor, n - bytes_read, 0);
+                if (bytes_received == -1)
+                    throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
 
-                ssize_t bytes = _socket.recv(_buffer.get(), read_amt, 0);
-                if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
-
-                //write_out should increment the iterator as it writes, therefore we don't do it here
-                write_out(_buffer, static_cast<size_t>(bytes), out);
-                bytes_read += bytes;
-            }
-        }
-
-        /**
-         * Reads exactly n bytes from the network. This method blocks until n bytes are read.
-         *
-         * @returns A ByteString of size n containing the data read.
-         */
-        ByteString
-        read_exactly_bytes(size_t n)
-        {
-            check_connection_state(__func__, _socket, _closed);
-
-            // Make a single allocation here to pass to bytestring
-            auto buf = ByteBuffer(n);
-            // Cursor to hold the location of the next position to read to in the buffer
-            byte *cursor = buf.begin();
-            // Count of bytes read from the socket/written to the buffer
-            size_t bytes_read = 0;
-
-            while (bytes_read < n)
-            {
-                // Calculate the number of bytes left to read to pass to recv
-                size_t read_amt = n - bytes_read;
-
-                // Read into the buffer
-                ssize_t bytes = _socket.recv(cursor, read_amt, 0);
-                if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
-
-                // Update the values
-                cursor += static_cast<size_t>(bytes);
-                bytes_read += static_cast<size_t>(bytes);
+                // Update the counter and offset the cursor
+                bytes_read += bytes_received;
+                cursor += bytes_received;
             }
 
-            return buf.to_bytestring();
+            return _buffer;
         }
 
         /**
@@ -316,5 +249,5 @@ namespace sockets {
         }
     };
 
-    using Connection = Connection_c<>;
+
 }
