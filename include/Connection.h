@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include "Byte.h"
 #include "Socket.h"
 #include "SocketException.h"
@@ -19,27 +20,6 @@ namespace sockets {
          */
         void
         check_connection_state(const std::string &function_name, sockets::Socket &socket, bool closed);
-
-        /**
-         * Helper functions that checks if the last bytes in the buffer are equivalent to delim
-         * @param buffer
-         * @param last_index The index of the last element in the buffer.
-         * @param delim
-         * @return
-         */
-        template<size_t delim_size>
-        bool
-        check_delimiter(const ByteBuffer& buffer, size_t last_index, const ByteString<delim_size>& delim)
-        {
-            if (last_index < delim.size()) return false;
-
-            size_t buffer_index = last_index - delim.size();
-            for (size_t j = 0; j < delim.size(); ++j, ++buffer_index)
-            {
-                if (buffer[buffer_index] != delim[j]) return false;
-            }
-            return true;
-        }
     }
 
     /**
@@ -57,9 +37,9 @@ namespace sockets {
         ByteBuffer _buffer;
         bool _closed;
     public:
-        Connection() : _socket(invalid_socket), _buffer(), _closed(true) {}
+        Connection() : _socket(invalid_socket), _buffer(DEFAULT_BUFFER_CAPACITY), _closed(true) {}
 
-        explicit Connection(T socket) : _socket(socket), _buffer(), _closed(false)
+        explicit Connection(T socket) : _socket(socket), _buffer(DEFAULT_BUFFER_CAPACITY), _closed(false)
         {}
 
         ~Connection()
@@ -86,7 +66,7 @@ namespace sockets {
         {
             check_connection_state(__func__, _socket, _closed);
 
-            // Check if the buffer needs to be cleared
+            // Check if the buffer needs to be cleared. This is to prevent accidentally returning old data.
             if(!_buffer.empty()) _buffer.clear();
             // Ensure that the buffer has the capacity for n bytes
             _buffer.reserve(n);
@@ -123,7 +103,7 @@ namespace sockets {
             {
                 ssize_t bytes_received = _socket.recv(cursor, n - bytes_read, 0);
                 if (bytes_received == -1)
-                    throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
+                    throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
                 // Update the counter and offset the cursor
                 bytes_read += bytes_received;
@@ -134,79 +114,51 @@ namespace sockets {
         }
 
         /**
-         * Reads bytes into the iterator until the delimiter is reached. The delimiter will also be read into the iterator.
+         * Reads bytes from the network until a delimiter is reached, then returns all bytes read up to the end of the
+         * delimiter. Bytes read after the delimiter are discarded.
          *
-         * @returns The number of bytes read.
+         * @tparam delim_size Size of the delimiter
+         * @param delim The delimiter
+         * @return A reference to a ByteBuffer containing the data recieved.
          */
-        template<typename Iter>
-        size_t
-        read_until_into(const ByteString &delim, Iter out)
-        {
-            if (delim.size() > _buffer.capacity()) throw std::out_of_range("delim.size() is larger than buffer capacity");
-            check_connection_state(__func__, _socket, _closed);
-
-            while (true)
-            {
-                ssize_t bytes = _socket.recv(_buffer.get(), _buffer.capacity(), 0);
-                if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
-
-                // Iterate over the buffer to read to the iterator, while checking for a delimiter
-                for (size_t i = 0; i < _buffer.capacity(); ++i)
-                {
-                    *out = _buffer[i];
-                    ++out;
-
-                    if (check_delimiter(_buffer, i, delim)) return static_cast<size_t>(bytes);
-                }
-            }
-        }
-
-        /**
-         * Reads until the delimiter is reached. Outputs all bytes read, including the delimiter.
-         *
-         * @returns A ByteString containing all the data read.
-         */
-        ByteString
-        read_until_bytes(const ByteString &delim)
+        template<size_t delim_size>
+        ByteBuffer&
+        read_until(const ByteString<delim_size>& delim)
         {
             check_connection_state(__func__, _socket, _closed);
 
-            // Store the old capacity to restore later
-            auto old_capacity = _buffer.capacity();
+            // Check if the buffer needs to be cleared
+            if(!_buffer.empty()) _buffer.clear();
 
-            // Index to keep track of where the end of the field buffer is
-            size_t bytes_read = 0;
-
-            bool stop = false;
-            while (!stop)
+            while(true)
             {
-                // On each iteration we create a buffer with a capacity of the remaining space in the field buffer
-                Buffer<byte> loop_buff(_buffer.capacity() - bytes_read);
+                // Index indicating the beginning of the range of data received this iteration
+                size_t range_begin = _buffer.size();
 
-                ssize_t bytes = _socket.recv(loop_buff.get(), loop_buff.capacity(), 0);
-                if (bytes == -1) throw SocketError("Connection_c", __func__, "error on recv()", get_error_code());
+                byte* cursor = _buffer.data() + _buffer.size();
 
-                // Copy from the loop buffer to the real buffer, while checking for a delimiter
-                for(size_t i = 0; i < loop_buff.capacity(); ++i)
+                // Read into the unused part of the buffer
+                ssize_t bytes_received = _socket.recv(cursor, _buffer.capacity() - _buffer.size(), 0);
+                if(bytes_received == -1)
+                    throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+
+                // Search for a delimiter in the received bytes
+                auto needle = std::search(_buffer.begin() + range_begin, _buffer.end(), delim.begin(), delim.end());
+                if(needle == _buffer.end()) // Delimiter was not found.
                 {
-                    _buffer[bytes_read] = loop_buff[i];
-                    ++bytes_read;
+                    // Expand the buffer if needed
+                    if(_buffer.size() == _buffer.capacity()) _buffer.reserve(_buffer.capacity() * 2);
 
-                    if(check_delimiter(_buffer, bytes_read, delim))
-                    {
-                        stop = true;
-                        break;
-                    }
+                    continue;
                 }
+                else // Delimiter was found
+                {
+                    // Clear the bytes after the delimiter
+                    _buffer.erase(needle + delim_size, _buffer.cend());
 
-                // Resize the real buffer if it's full
-                if(bytes_read == _buffer.capacity())
-                    _buffer.resize(_buffer.capacity() + bytes);
+                    return _buffer;
+                }
             }
-
-            auto rv = _buffer.to_bytestring();
-            _buffer.resize(old_capacity);
-            return rv;
         }
 
         /**
@@ -238,6 +190,8 @@ namespace sockets {
 
             return static_cast<size_t>(bytes);
         }
+
+        //TODO: getpeername()
 
         /**
          * Returns true if closed. False if otherwise.
