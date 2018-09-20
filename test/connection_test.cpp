@@ -4,45 +4,42 @@
 #include "catch.hpp"
 
 #include <algorithm>
-#include <Socket.h>
 #include <Connection.h>
-#include <numeric>
 
 /**
- * Mocks the recv() function of the Socket class.
+ * Outputs the number 10 on calls to recv(). If n > than amount, amount is respected. Ignore all other functions.
  */
-template<size_t amount>
-class ReceiveMockSocket : public sockets::Socket
+template <size_t n>
+struct ReceiveSocketStub
 {
-public:
-    explicit ReceiveMockSocket() { socket = 1; }
-
     ssize_t
-    recv(sockets::i_buff_t buffer, sockets::i_buff_len_t length, int flags) final
+    recv(ByteBuffer& b, size_t amount, int flags)
     {
-        size_t read_amt = std::min(amount, static_cast<size_t>(length));
-        std::iota(buffer, buffer + read_amt, 0);
-        return read_amt;
+        auto write_amt = std::min(amount, n);
+        for(size_t i = 0; i < write_amt; ++i)
+            b[i] = 10;
+        return write_amt;
     }
 
     ssize_t
-    recv(byte* buffer, size_t length, int flags) final
+    recv(byte* b, size_t amount, int flags)
     {
-        size_t read_amt = std::min(amount, length);
-        std::iota(buffer, buffer + read_amt, 0);
-        return read_amt;
+        auto write_amt = std::min(amount, n);
+        for(size_t i = 0; i < write_amt; ++i)
+            *(b + i) = 10;
+        return write_amt;
     }
 
     ssize_t
-    recv(std::unique_ptr<byte[]> &buffer, size_t length, int flags) final
+    send(const ByteBuffer& buffer, int flags)
     {
-        return recv(buffer.get(), length, flags);
+        return 0;
     }
+
+    ssize_t
+    send(const byte*, size_t length, int flags)
+    {
+        return 0;
+    }
+
 };
-
-TEST_CASE("Connection::read_into()", "[Connection]")
-{
-    using sockets::Connection;
-
-    Connection test_connection(ReceiveMockSocket<128>(), 128);
-}
