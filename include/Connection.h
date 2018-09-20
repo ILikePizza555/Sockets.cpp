@@ -174,19 +174,20 @@ namespace sockets {
 
             _buffer.write(begin, end);
 
-            ssize_t bytes = _socket.send(_buffer.get(), _buffer.capacity(), 0);
-            if(bytes == -1) throw SocketError("Connection_c", __func__, "error on send()", get_error_code());
+            ssize_t bytes = _socket.send(_buffer, _buffer.capacity(), 0);
+            if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code());
 
             return static_cast<size_t>(bytes);
         }
 
+        template<size_t data_size>
         size_t
-        write(const ByteString &data)
+        write(const ByteString<data_size> &data)
         {
             check_connection_state(__func__, _socket, _closed);
 
-            ssize_t bytes = _socket.send(data.cbegin(), data.size(), 0);
-            if(bytes == -1) throw SocketError("Connection_c", __func__, "error on send()", get_error_code());
+            ssize_t bytes = _socket.send(data.data(), data.size(), 0);
+            if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code());
 
             return static_cast<size_t>(bytes);
         }
