@@ -172,8 +172,6 @@ namespace sockets {
         {
             check_connection_state(__func__, _socket, _closed);
 
-            _buffer.write(begin, end);
-
             ssize_t bytes = _socket.send(_buffer, _buffer.capacity(), 0);
             if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code());
 
