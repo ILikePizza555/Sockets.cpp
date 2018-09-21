@@ -72,6 +72,8 @@ public:
     const size_t n;
     const ByteString<delim_size> delim;
 
+    DelimiterSocketStub(size_t n, ByteString<delim_size> delim) : n(n), delim(delim) {}
+
     ssize_t
     recv(ByteBuffer& b, size_t amount, int flags)
     {
@@ -206,5 +208,36 @@ TEST_CASE("Connection::read_until()", "[Connection]")
 {
     using sockets::Connection;
 
+    SECTION("delimiter of size 1")
+    {
+        static const ByteString<1> DELIMITER{'\n'};
 
+        DelimiterSocketStub<DELIMITER.size()> stub{2, DELIMITER};
+        Connection<DelimiterSocketStub<DELIMITER.size()>> conn(stub);
+
+        ByteBuffer& buf = conn.read_until(DELIMITER);
+        REQUIRE(buf.back() == DELIMITER[0]);
+    }
+
+    SECTION("delimiter of size 4")
+    {
+        static const ByteString<4> DELIMITER{1, 2, 3, '\n'};
+
+        DelimiterSocketStub<DELIMITER.size()> stub{2, DELIMITER};
+        Connection<DelimiterSocketStub<DELIMITER.size()>> conn(stub);
+
+        ByteBuffer& buf = conn.read_until(DELIMITER);
+        REQUIRE(std::equal(buf.end() - DELIMITER.size(), buf.end(), DELIMITER.begin(), DELIMITER.end()));
+    }
+
+    SECTION("read_until() deletes excess bytes")
+    {
+        static const ByteString<8> DELIMITER{'1', '2', '\n', '3', '4', 5, 6, 7};
+
+        DelimiterSocketStub<8> stub{1, DELIMITER};
+        Connection<DelimiterSocketStub<8>> conn(stub);
+
+        ByteBuffer& buf = conn.read_until<1>({'\n'});
+        REQUIRE(buf.back() == '\n');
+    }
 }
