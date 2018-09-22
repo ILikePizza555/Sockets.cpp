@@ -12,13 +12,13 @@
 struct ReceiveSocketStub
 {
     const size_t n;
+    const sockets::sock_t socket = 1;
 
     ssize_t
     recv(ByteBuffer& b, size_t amount, int flags)
     {
         auto write_amt = std::min(amount, n);
-        for(size_t i = 0; i < write_amt; ++i)
-            b[i] = 10;
+        std::generate(b.begin(), b.begin() + write_amt, [](){return 10;});
         return write_amt;
     }
 
@@ -26,8 +26,7 @@ struct ReceiveSocketStub
     recv(byte* b, size_t amount, int flags)
     {
         auto write_amt = std::min(amount, n);
-        for(size_t i = 0; i < write_amt; ++i)
-            *(b + i) = 10;
+        std::generate(b, b + write_amt, [](){return 10;});
         return write_amt;
     }
 
@@ -42,6 +41,10 @@ struct ReceiveSocketStub
     {
         return 0;
     }
+
+    void
+    close()
+    {}
 
     static bool is_data_correct(const ByteBuffer& buf)
     {
@@ -54,10 +57,13 @@ struct ReceiveSocketStub
  */
 struct FailureSocketStub
 {
+    const sockets::sock_t socket = 1;
+
     ssize_t recv(ByteBuffer& b, size_t amount, int flags) { return -1; }
     ssize_t recv(byte* b, size_t amount, int flags) { return -1; }
     ssize_t send(const ByteBuffer& buffer, int flags) { return -1; }
     ssize_t send(const byte*, size_t length, int flags) { return -1; }
+    void close() {}
 };
 
 /**
@@ -69,13 +75,15 @@ struct DelimiterSocketStub
 private:
     size_t c = 0;
 public:
+    const sockets::sock_t socket = 1;
     const size_t n;
     const ByteString<delim_size> delim;
 
-    DelimiterSocketStub(size_t n, ByteString<delim_size> delim) : n(n), delim(delim) {}
+    DelimiterSocketStub(size_t n, ByteString<delim_size> delim) : n(n), delim(delim)
+    {}
 
     ssize_t
-    recv(ByteBuffer& b, size_t amount, int flags)
+    recv(ByteBuffer &b, size_t amount, int flags)
     {
         if (c >= n)
         {
@@ -84,7 +92,7 @@ public:
         }
 
         auto write_amt = std::min(amount, n);
-        for(size_t i = 0; i < write_amt; ++i)
+        for (size_t i = 0; i < write_amt; ++i)
             b[i] = 10;
 
         c++; //Ayy lmao
@@ -93,16 +101,16 @@ public:
     }
 
     ssize_t
-    recv(byte* b, size_t amount, int flags)
+    recv(byte *b, size_t amount, int flags)
     {
         if (c >= n)
         {
-            std::copy(delim.cbegin(), delim.cend(), b.begin());
+            std::copy(delim.cbegin(), delim.cend(), b);
             return delim_size;
         }
 
         auto write_amt = std::min(amount, n);
-        for(size_t i = 0; i < write_amt; ++i)
+        for (size_t i = 0; i < write_amt; ++i)
             b[i] = 10;
 
         c++; //Ayy lmao
@@ -111,16 +119,20 @@ public:
     }
 
     ssize_t
-    send(const ByteBuffer& buffer, int flags)
+    send(const ByteBuffer &buffer, int flags)
     {
         return 0;
     }
 
     ssize_t
-    send(const byte*, size_t length, int flags)
+    send(const byte *, size_t length, int flags)
     {
         return 0;
     }
+
+    void
+    close()
+    {};
 };
 
 TEST_CASE("Connection::read()", "[Connection]")
