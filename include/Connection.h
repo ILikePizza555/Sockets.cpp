@@ -77,7 +77,7 @@ namespace sockets {
             // Ensure that the buffer has the capacity for n bytes
             _buffer.reserve(n);
 
-            ssize_t bytes_read = _socket.recv(_buffer, n, 0);
+            ssize_t bytes_read = _socket.recv(_buffer, n);
             if (bytes_read == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
             return _buffer;
@@ -100,20 +100,11 @@ namespace sockets {
             // Ensure that the buffer has the capacity for n bytes
             _buffer.reserve(n);
 
-            // Total bytes read
-            size_t bytes_read = 0;
-            // Cursor pointing to the position last written to in the buffer
-            byte* cursor = _buffer.data();
-
-            while (bytes_read < n)
+            while (_buffer.size() < n)
             {
-                ssize_t bytes_received = _socket.recv(cursor, n - bytes_read, 0);
+                ssize_t bytes_received = _socket.recv(_buffer, n - _buffer.size(), _buffer.size());
                 if (bytes_received == -1)
                     throw SocketError("Connection", __func__, "error on recv()", get_error_code());
-
-                // Update the counter and offset the cursor
-                bytes_read += bytes_received;
-                cursor += bytes_received;
             }
 
             return _buffer;
@@ -136,28 +127,17 @@ namespace sockets {
             // Check if the buffer needs to be cleared
             if(!_buffer.empty()) _buffer.clear();
 
+            ssize_t bytes_received = 0;
+
             while(true)
             {
-                // Index indicating the beginning of the range of data received this iteration
-                size_t range_begin = _buffer.size();
-
-                byte* cursor = _buffer.data() + _buffer.size();
-
-                // Read into the unused part of the buffer
-                ssize_t bytes_received = _socket.recv(cursor, _buffer.capacity() - _buffer.size(), 0);
+                bytes_received = _socket.recv(_buffer, DEFAULT_BUFFER_CAPACITY, _buffer.size());
                 if(bytes_received == -1)
                     throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
                 // Search for a delimiter in the received bytes
-                auto needle = std::search(_buffer.begin() + range_begin, _buffer.end(), delim.begin(), delim.end());
-                if(needle == _buffer.end()) // Delimiter was not found.
-                {
-                    // Expand the buffer if needed
-                    if(_buffer.size() == _buffer.capacity()) _buffer.reserve(_buffer.capacity() * 2);
-
-                    continue;
-                }
-                else // Delimiter was found
+                auto needle = std::search(_buffer.begin() + _buffer.size(), _buffer.end(), delim.begin(), delim.end());
+                if(needle != _buffer.end()) // Delimiter was not found.
                 {
                     // Clear the bytes after the delimiter
                     _buffer.erase(needle + delim_size, _buffer.cend());
