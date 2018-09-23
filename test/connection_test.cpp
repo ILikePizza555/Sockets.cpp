@@ -7,7 +7,7 @@
 #include <Connection.h>
 
 /**
- * Outputs the number 10 on calls to recv(). If n > than amount, amount is respected. Ignore all other functions.
+ * Outputs the number 2 on calls to recv(). If n > than amount, amount is respected. Ignore all other functions.
  */
 struct ReceiveSocketStub
 {
@@ -15,19 +15,15 @@ struct ReceiveSocketStub
     const sockets::sock_t socket = 1;
 
     ssize_t
-    recv(ByteBuffer& b, size_t amount, int flags)
+    recv(ByteBuffer& b, size_t amount, size_t offset = 0, int flags = 0)
     {
-        auto write_amt = std::min(amount, n);
-        std::generate(b.begin(), b.begin() + write_amt, [](){return 10;});
-        return write_amt;
-    }
+        ssize_t size = std::min(amount, n);
+        auto begin_pos = b.begin() + offset;
+        auto end_pos = b.begin() + offset + size;
 
-    ssize_t
-    recv(byte* b, size_t amount, int flags)
-    {
-        auto write_amt = std::min(amount, n);
-        std::generate(b, b + write_amt, [](){return 10;});
-        return write_amt;
+        std::generate(begin_pos, end_pos, [](){return 2;});
+
+        return size;
     }
 
     ssize_t
@@ -59,15 +55,14 @@ struct FailureSocketStub
 {
     const sockets::sock_t socket = 1;
 
-    ssize_t recv(ByteBuffer& b, size_t amount, int flags) { return -1; }
-    ssize_t recv(byte* b, size_t amount, int flags) { return -1; }
+    ssize_t recv(ByteBuffer& b, size_t amount, size_t offset = 0, int flags = 0) { return -1; }
     ssize_t send(const ByteBuffer& buffer, int flags) { return -1; }
     ssize_t send(const byte*, size_t length, int flags) { return -1; }
     void close() {}
 };
 
 /**
- * Outputs the number 10 until n calls have been made. Then outputs delim.
+ * Outputs the number 2 amount times until n calls have been made. Then outputs delim.
  */
 template<size_t delim_size>
 struct DelimiterSocketStub
@@ -83,39 +78,21 @@ public:
     {}
 
     ssize_t
-    recv(ByteBuffer &b, size_t amount, int flags)
+    recv(ByteBuffer &b, size_t amount, size_t offset = 0, int flags = 0)
     {
         if (c >= n)
         {
-            std::copy(delim.cbegin(), delim.cend(), b.begin());
+            std::copy(delim.cbegin(), delim.cend(), b.begin() + offset);
             return delim_size;
         }
 
-        auto write_amt = std::min(amount, n);
-        for (size_t i = 0; i < write_amt; ++i)
-            b[i] = 10;
+        auto begin_pos = b.begin() + offset;
+        auto end_pos = b.begin() + offset + amount;
+        std::generate(begin_pos, end_pos, [](){return 2;});
 
         c++; //Ayy lmao
 
-        return write_amt;
-    }
-
-    ssize_t
-    recv(byte *b, size_t amount, int flags)
-    {
-        if (c >= n)
-        {
-            std::copy(delim.cbegin(), delim.cend(), b);
-            return delim_size;
-        }
-
-        auto write_amt = std::min(amount, n);
-        for (size_t i = 0; i < write_amt; ++i)
-            b[i] = 10;
-
-        c++; //Ayy lmao
-
-        return write_amt;
+        return amount;
     }
 
     ssize_t
