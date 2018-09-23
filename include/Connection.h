@@ -43,9 +43,9 @@ namespace sockets {
         ByteBuffer _buffer;
         bool _closed;
     public:
-        Connection() : _socket(invalid_socket), _buffer(DEFAULT_BUFFER_CAPACITY), _closed(true) {}
+        Connection() : _socket(invalid_socket), _buffer(), _closed(true) {}
 
-        explicit Connection(T socket) : _socket(socket), _buffer(DEFAULT_BUFFER_CAPACITY), _closed(false)
+        explicit Connection(T socket) : _socket(socket), _buffer(), _closed(false)
         {}
 
         ~Connection()
