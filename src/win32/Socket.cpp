@@ -66,12 +66,21 @@ namespace sockets {
     }
 
     ssize_t
-    Socket::recv(ByteBuffer& buffer, size_t amount, int flags)
+    Socket::recv(ByteBuffer& buffer, size_t amount, size_t offset, int flags)
     {
-        return ::recv(socket,
-                reinterpret_cast<i_buff_t>(buffer.data()),
-                static_cast<i_buff_len_t>(amount),
-                flags);
+        // Resize the buffer to the maximum ammount
+        buffer.resize(amount + offset);
+
+        // Read
+        ssize_t result = ::recv(socket,
+                                reinterpret_cast<i_buff_t>(buffer.data() + offset),
+                                static_cast<i_buff_len_t>(amount),
+                                flags);
+
+        // Resize to the read amount. This correctly sets size() on the buffer.
+        if(result >= 0)
+            buffer.resize(static_cast<size_t>(result) + offset);
+        return result;
     }
 
     ssize_t

@@ -51,8 +51,18 @@ namespace sockets {
         ssize_t
         recvfrom(ByteBuffer& buffer, size_t amount, int flags, i_addr_ptr address, i_addr_len_t* address_len);
 
+        /**
+         * Receives bytes into the ByteBuffer. Resizes the buffer to the appropriate size.
+         *
+         * @param buffer The buffer to write too.
+         * @param amount The maximum amount of bytes to read.
+         * @param offset The index in the buffer to start writing at.
+         * @param flags Flags to pass to the system.
+         *
+         * @return The number of bytes read, or -1 if there has been an error.
+         */
         ssize_t
-        recv(ByteBuffer& buffer, size_t amount, int flags);
+        recv(ByteBuffer& buffer, size_t amount, size_t offset = 0, int flags = 0);
 
         ssize_t
         recv(byte* buffer, size_t length, int flags);
