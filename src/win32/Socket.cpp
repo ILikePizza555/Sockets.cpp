@@ -84,15 +84,6 @@ namespace sockets {
     }
 
     ssize_t
-    Socket::recv(byte* buffer, size_t length, int flags)
-    {
-        return ::recv(socket,
-                      reinterpret_cast<i_buff_t>(buffer),
-                      static_cast<i_buff_len_t>(length),
-                      flags);
-    }
-
-    ssize_t
     Socket::sendto(const ByteBuffer& buffer, int flags, i_addr_cptr address, i_addr_len_t address_len)
     {
         return ::sendto(socket,
