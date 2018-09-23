@@ -127,16 +127,14 @@ namespace sockets {
             // Check if the buffer needs to be cleared
             if(!_buffer.empty()) _buffer.clear();
 
-            ssize_t bytes_received = 0;
-
             while(true)
             {
-                bytes_received = _socket.recv(_buffer, DEFAULT_BUFFER_CAPACITY, _buffer.size());
+                ssize_t bytes_received = _socket.recv(_buffer, DEFAULT_BUFFER_CAPACITY, _buffer.size());
                 if(bytes_received == -1)
                     throw SocketError("Connection", __func__, "error on recv()", get_error_code());
 
                 // Search for a delimiter in the received bytes
-                auto needle = std::search(_buffer.begin() + _buffer.size(), _buffer.end(), delim.begin(), delim.end());
+                auto needle = std::search(_buffer.begin() + bytes_received, _buffer.end(), delim.begin(), delim.end());
                 if(needle != _buffer.end()) // Delimiter was not found.
                 {
                     // Clear the bytes after the delimiter
