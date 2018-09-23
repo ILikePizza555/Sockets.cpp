@@ -23,7 +23,7 @@ namespace sockets {
         /**
          * Constructs a Socket by copying the handler
          */
-        Socket(sock_t socket);
+        explicit Socket(sock_t socket);
 
         /**
          * Constructs a Socket by passing the given parameters to the internal method for creating sockets.
