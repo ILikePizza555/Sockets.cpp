@@ -18,10 +18,9 @@ struct ReceiveSocketStub
     recv(ByteBuffer& b, size_t amount, size_t offset = 0, int flags = 0)
     {
         ssize_t size = std::min(amount, n);
-        auto begin_pos = b.begin() + offset;
-        auto end_pos = b.begin() + offset + size;
+        b.resize(static_cast<size_t>(size) + offset);
 
-        std::generate(begin_pos, end_pos, [](){return 2;});
+        std::generate(b.begin() + offset, b.end(), [](){return 2;});
 
         return size;
     }
@@ -44,7 +43,7 @@ struct ReceiveSocketStub
 
     static bool is_data_correct(const ByteBuffer& buf)
     {
-        return std::all_of(buf.cbegin(), buf.cend(), [](byte b){return b == 10;});
+        return std::all_of(buf.cbegin(), buf.cend(), [](byte b){return b == 2;});
     }
 };
 
@@ -82,13 +81,13 @@ public:
     {
         if (c >= n)
         {
+            b.resize(delim_size + offset);
             std::copy(delim.cbegin(), delim.cend(), b.begin() + offset);
             return delim_size;
         }
 
-        auto begin_pos = b.begin() + offset;
-        auto end_pos = b.begin() + offset + amount;
-        std::generate(begin_pos, end_pos, [](){return 2;});
+        b.resize(amount + offset);
+        std::generate(b.begin() + offset, b.end(), [](){return 2;});
 
         c++; //Ayy lmao
 
