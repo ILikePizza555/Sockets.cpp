@@ -32,7 +32,7 @@ namespace sockets {
     typedef sockaddr i_addr_t;
     typedef sockaddr* i_addr_ptr;
     typedef const sockaddr* i_addr_cptr;
-    typedef socklen_t i_sockaddr_len_t;
+    typedef socklen_t i_addr_len_t;
 #endif
 
     // Define buffer types
