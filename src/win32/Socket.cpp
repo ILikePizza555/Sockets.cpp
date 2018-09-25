@@ -21,7 +21,7 @@ namespace sockets {
     Socket
     Socket::accept(sockets::i_addr_ptr address, sockets::i_addr_len_t *address_length)
     {
-        return ::accept(socket, address, address_length);
+        return Socket(::accept(socket, address, address_length));
     }
 
     int
