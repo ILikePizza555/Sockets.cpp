@@ -65,4 +65,16 @@ namespace sockets {
         virtual const char *
         what() const noexcept;
     };
+
+    class AddressInfoError : public std::exception
+    {
+    public:
+        std::string function_name;
+        const int error_value;
+
+        AddressInfoError(std::string function_name, int error_value);
+
+        virtual const char *
+        what() const noexcept;
+    };
 }

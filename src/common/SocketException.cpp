@@ -34,4 +34,14 @@ namespace sockets {
         ss << full_name() << ": " << message << ": " << error_code << ": " << get_error_message(error_code);
         return ss.str().c_str();
     }
+
+    AddressInfoError::AddressInfoError(std::string function_name, int error_value) : function_name(function_name), error_value(error_value)
+    {}
+    const char* AddressInfoError::what() const noexcept
+    {
+        std::stringstream ss;
+        // TODO: gai_strerror() and WSAGetLastError on Windows
+        ss << function_name << ": getaddrinfo: " << error_value;
+        return ss.str().c_str();
+    }
 }
