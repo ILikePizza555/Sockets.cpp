@@ -52,7 +52,7 @@ namespace sockets {
     enum sock_addr_family : int
     {
         INET = AF_INET,
-        INET6 = AF_INET
+        INET6 = AF_INET6
     };
 
     /**
