@@ -28,7 +28,7 @@ namespace sockets {
         /**
          * Constructs a Socket by passing the given parameters to the internal method for creating sockets.
          */
-        Socket(sock_addr_family, sock_type, sock_proto);
+        Socket(ip_family, sock_type, sock_proto);
 
         Socket
         accept(i_addr_ptr address, i_addr_len_t* address_length);

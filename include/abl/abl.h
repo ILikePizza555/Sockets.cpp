@@ -38,7 +38,7 @@ namespace sockets {
     /**
      * Define the supported address families
      */
-    enum sock_addr_family : int
+    enum ip_family : int
     {
         INET = AF_INET,
         INET6 = AF_INET6
