@@ -35,17 +35,6 @@ namespace sockets {
     typedef socklen_t i_addr_len_t;
 #endif
 
-    // Define buffer types
-#ifdef _WIN32
-    typedef char* i_buff_t;
-    typedef const char* i_cbuff_t;
-    typedef int i_buff_len_t;
-#else
-    typedef void* i_buff_t;
-    typedef const void* i_cbuff_t;
-    typedef size_t i_buff_len_t;
-#endif
-
     /**
      * Define the supported address families
      */
