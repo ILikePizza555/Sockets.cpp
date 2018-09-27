@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 
 # Library Header Files
 # This should be set to all files in include/
-set(INCLUDE_FILES include/Byte.h include/Connection.h include/ServerSocket.h include/abl/sockets.h
+set(INCLUDE_FILES include/Byte.h include/Connection.h include/ServerSocket.h include/abl/abl.h
         include/SocketException.h include/abl/Socket.h include/Byte.h)
 
 # Common Implementation Files
