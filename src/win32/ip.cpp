@@ -8,6 +8,21 @@
 #include <ws2ipdef.h>
 #include <in6addr.h>
 
+sockaddr* sockets::addr_t::as_sockaddr()
+{
+    return reinterpret_cast<sockaddr*>(addr_ptr.get());
+}
+
+sockaddr_in* sockets::addr_t::as_sockaddr4()
+{
+    return reinterpret_cast<sockaddr_in*>(addr_ptr.get());
+}
+
+sockaddr_in6* sockets::addr_t::as_sockaddr6()
+{
+    return reinterpret_cast<sockaddr_in6*>(addr_ptr.get());
+}
+
 bool sockets::addr_t::is_loopback()
 {
     if(this->addr_ptr->ss_family == ip_family::INET)

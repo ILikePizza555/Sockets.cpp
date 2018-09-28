@@ -23,6 +23,15 @@ namespace sockets {
             return addr_t{std::make_unique<sockaddr_storage>(), sizeof(sockaddr_storage)};
         }
 
+        sockaddr*
+        as_sockaddr();
+
+        sockaddr_in*
+        as_sockaddr4();
+
+        sockaddr_in6*
+        as_sockaddr6();
+
         /**
          * Tests if the address is a loopback address.
          * @return

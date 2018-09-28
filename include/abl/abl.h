@@ -3,7 +3,7 @@
 #ifdef _WIN32
 //Windows Headers
 #include <winsock2.h>
-
+#include <Ws2tcpip.h>
 #else
 //Unix Headers
 #include <sys/socket.h>
