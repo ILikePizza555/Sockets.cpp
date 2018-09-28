@@ -2,7 +2,7 @@
 // Created by avris on 9/5/2018.
 //
 
-#include <SocketException.h>
+#include <Error.h>
 #include <winbase.h>
 
 int sockets::get_error_code()

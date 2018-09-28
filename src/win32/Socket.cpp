@@ -4,7 +4,7 @@
 
 #include <winsock2.h>
 #include <abl/Socket.h>
-#include <SocketException.h>
+#include <Error.h>
 
 namespace sockets {
     Socket::Socket(sockets::sock_t socket) : socket(socket)

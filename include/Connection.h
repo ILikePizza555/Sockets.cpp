@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "Byte.h"
 #include "abl/Socket.h"
-#include "SocketException.h"
+#include "Error.h"
 
 #ifndef DEFAULT_BUFFER_CAPACITY
 #define DEFAULT_BUFFER_CAPACITY 1400

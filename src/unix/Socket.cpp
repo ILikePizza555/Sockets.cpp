@@ -3,7 +3,7 @@
 //
 
 #include <abl/Socket.h>
-#include <SocketException.h>
+#include <Error.h>
 #include <unistd.h>
 
 namespace sockets {

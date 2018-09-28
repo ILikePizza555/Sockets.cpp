@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <Connection.h>
-#include <SocketException.h>
+#include <Error.h>
 
 
 namespace sockets {

@@ -1,6 +1,6 @@
 #include <utility>
 
-#include <SocketException.h>
+#include <Error.h>
 #include <sstream>
 
 namespace sockets {

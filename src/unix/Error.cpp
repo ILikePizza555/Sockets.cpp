@@ -1,4 +1,4 @@
-#include <SocketException.h>
+#include <Error.h>
 #include <errno.h>
 #include <string.h>
 
