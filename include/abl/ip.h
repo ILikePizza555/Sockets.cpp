@@ -5,6 +5,7 @@
 #pragma once
 
 #include "abl.h"
+#include <memory>
 
 namespace sockets {
     struct addr_t
