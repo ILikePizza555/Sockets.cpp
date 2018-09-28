@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #ifdef _WIN32
 //Windows Headers
 #include <winsock2.h>
@@ -21,20 +22,6 @@ namespace sockets {
     typedef int sock_t;
     const static sock_t invalid_socket = -1;
 #endif
-
-    // Define address types
-#ifdef _WIN32
-    typedef sockaddr i_addr_t;
-    typedef sockaddr* i_addr_ptr;
-    typedef const sockaddr* i_addr_cptr;
-    typedef int i_addr_len_t;
-#else
-    typedef sockaddr i_addr_t;
-    typedef sockaddr* i_addr_ptr;
-    typedef const sockaddr* i_addr_cptr;
-    typedef socklen_t i_addr_len_t;
-#endif
-
     /**
      * Define the supported address families
      */
