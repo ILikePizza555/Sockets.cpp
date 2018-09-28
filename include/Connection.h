@@ -24,7 +24,7 @@ namespace sockets {
         {
             if (closed) throw sockets::ClosedError("Connection", function_name);
             if (socket.socket == sockets::invalid_socket)
-                throw sockets::SocketError("Connection", function_name, "invalid socket", EBADF);
+                throw sockets::InvalidSocketError("Connection", function_name);
         }
     }
 
@@ -78,7 +78,7 @@ namespace sockets {
             _buffer.reserve(n);
 
             ssize_t bytes_read = _socket.recv(_buffer, n);
-            if (bytes_read == -1) throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+            if (bytes_read == -1) throw MethodError(__func__, "recv", get_error_code(), get_error_message);
 
             return _buffer;
         }
@@ -104,7 +104,7 @@ namespace sockets {
             {
                 ssize_t bytes_received = _socket.recv(_buffer, n - _buffer.size(), _buffer.size());
                 if (bytes_received == -1)
-                    throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+                    throw MethodError(__func__, "recv", get_error_code(), get_error_message);
             }
 
             return _buffer;
@@ -131,7 +131,7 @@ namespace sockets {
             {
                 ssize_t bytes_received = _socket.recv(_buffer, DEFAULT_BUFFER_CAPACITY, _buffer.size());
                 if(bytes_received == -1)
-                    throw SocketError("Connection", __func__, "error on recv()", get_error_code());
+                    throw MethodError( __func__, "rev", get_error_code(), get_error_message);
 
                 // Search for a delimiter in the received bytes
                 auto needle = std::search(_buffer.begin() + bytes_received, _buffer.end(), delim.begin(), delim.end());
@@ -157,7 +157,7 @@ namespace sockets {
             check_connection_state(__func__, _socket, _closed);
 
             ssize_t bytes = _socket.send(_buffer, _buffer.capacity(), 0);
-            if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code());
+            if(bytes == -1) throw MethodError(__func__, "send", get_error_code(), get_error_message);
 
             return static_cast<size_t>(bytes);
         }
@@ -169,7 +169,7 @@ namespace sockets {
             check_connection_state(__func__, _socket, _closed);
 
             ssize_t bytes = _socket.send(data.data(), data.size(), 0);
-            if(bytes == -1) throw SocketError("Connection", __func__, "error on send()", get_error_code());
+            if(bytes == -1) throw MethodErrorError(__func__, "send", get_error_code(), get_error_message);
 
             return static_cast<size_t>(bytes);
         }
