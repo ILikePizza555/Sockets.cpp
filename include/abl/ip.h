@@ -13,11 +13,11 @@ namespace sockets {
         std::unique_ptr<sockaddr> addr_ptr = nullptr;
 
         /**
-         * Tests if the address is a local address.
+         * Tests if the address is a loopback address.
          * @return
          */
         bool
-        is_local();
+        is_loopback();
 
         /**
          * Returns the textual representation of the address.
