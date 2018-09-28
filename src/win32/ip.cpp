@@ -10,13 +10,13 @@
 
 bool sockets::addr_t::is_loopback()
 {
-    if(this->addr_ptr->sa_family == ip_family::INET)
+    if(this->addr_ptr->ss_family == ip_family::INET)
     {
         auto* a = reinterpret_cast<const sockaddr_in*>(this->addr_ptr.get());
         return (a->sin_addr.S_un.S_addr & 0xFF000000) == 0x7F000000;
     }
 
-    if(this->addr_ptr->sa_family == ip_family::INET6)
+    if(this->addr_ptr->ss_family == ip_family::INET6)
     {
         auto* a = reinterpret_cast<const sockaddr_in6*>(this->addr_ptr.get());
         auto& ip_bytes = a->sin6_addr.u.Word;
@@ -34,7 +34,7 @@ std::string sockets::addr_t::name()
     static unsigned long size = 40;
     char* rv = new char[size];
 
-    int result = WSAAddressToStringA(this->addr_ptr.get(), this->length, nullptr, rv, &size);
+    int result = WSAAddressToStringA(reinterpret_cast<sockaddr*>(this->addr_ptr.get()), this->length, nullptr, rv, &size);
     if(result != 0)
         throw MethodError("addr_t::name", "WSAAddressToStringA", WSAGetLastError(), get_error_message);
 

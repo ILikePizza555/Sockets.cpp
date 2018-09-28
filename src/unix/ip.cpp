@@ -7,14 +7,14 @@
 
 bool sockets::addr_t::is_loopback()
 {
-    if(this->addr_ptr->sa_family == ip_family::INET)
+    if(this->addr_ptr->ss_family == ip_family::INET)
     {
         auto* a = reinterpret_cast<const sockaddr_in*>(this->addr_ptr.get());
         uint32_t addr = a->sin_addr.s_addr;
         return (addr & 0xFF000000) == 0x7F000000;
     }
 
-    if(this->addr_ptr->sa_family == ip_family::INET6)
+    if(this->addr_ptr->ss_family == ip_family::INET6)
     {
         auto* a = reinterpret_cast<const sockaddr_in6*>(this->addr_ptr.get());
         auto& addr = a->sin6_addr.s6_addr;
@@ -33,7 +33,7 @@ std::string sockets::addr_t::name()
     const static socklen_t size = 40;
     char* buf = new char[size];
 
-    const char* result = inet_ntop(this->addr_ptr->sa_family, this->addr_ptr.get(), buf, size);
+    const char* result = inet_ntop(this->addr_ptr->ss_family, this->addr_ptr.get(), buf, size);
     if(result == nullptr)
         throw MethodError("addr_t::name", "inet_ntop", errno, get_error_message);
 

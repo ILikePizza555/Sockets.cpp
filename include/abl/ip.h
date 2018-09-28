@@ -10,7 +10,7 @@ namespace sockets {
     struct addr_t
     {
         socklen_t length = 0;
-        std::unique_ptr<sockaddr> addr_ptr = nullptr;
+        std::unique_ptr<sockaddr_storage> addr_ptr = nullptr;
 
         /**
          * Tests if the address is a loopback address.
