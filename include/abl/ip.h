@@ -9,8 +9,18 @@
 namespace sockets {
     struct addr_t
     {
-        socklen_t length = 0;
         std::unique_ptr<sockaddr_storage> addr_ptr = nullptr;
+        socklen_t length = 0;
+
+        /**
+         * Constructs a new addr_t to use as a buffer.
+         * @return An addr_t structure
+         */
+        static addr_t
+        new_buffer()
+        {
+            return addr_t{std::make_unique<sockaddr_storage>(), sizeof(sockaddr_storage)};
+        }
 
         /**
          * Tests if the address is a loopback address.
