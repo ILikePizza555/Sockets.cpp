@@ -3,6 +3,7 @@
 #include <exception>
 #include <functional>
 #include <string>
+#include <sstream>
 #include "abl/abl.h"
 
 namespace sockets {
@@ -16,10 +17,18 @@ namespace sockets {
     std::string
     get_error_message(int code);
 
+    class StringError : public std::exception
+    {
+    public:
+        virtual std::string string(std::stringstream ss) const = 0;
+
+        const char* what() const noexcept override;
+    };
+
     /**
      * Error thrown when a C-library function returns an error.
      */
-    class MethodError : public std::exception
+    class MethodError : public StringError
     {
     public:
         /** Name of the function throwing the error */
@@ -37,11 +46,23 @@ namespace sockets {
         /**
          * @return A string containing the error message.
          */
-        virtual std::string
-        string() const;
+        std::string
+        string(std::stringstream ss) const override;
+    };
 
-        const char*
-        what() const noexcept override;
+    /**
+     * Thrown when an operation is attempted on a closed resource
+     */
+    class ClosedError : public StringError
+    {
+    public:
+        const std::string resource_name;
+        const std::string operation_name;
+
+        ClosedError(std::string rn, std::string on);
+
+        std::string
+        string(std::stringstream ss) const override;
     };
 
     /**

@@ -4,13 +4,20 @@
 #include <sstream>
 
 namespace sockets {
+    const char*
+    StringError::what() const noexcept
+    {
+        std::stringstream s;
+        return string(std::move(s)).c_str();
+    }
+
     MethodError::MethodError(std::string tfn, std::string efn, int ec, MethodError::lookup_t lookup) :
     throwing_function_name(std::move(tfn)), erroring_function_name(std::move(efn)), error_code(ec), lookup(lookup) {}
 
-    std::string MethodError::string() const
+    std::string MethodError::string(std::stringstream) const
     {
         std::stringstream ss;
-        ss << "MethodError error thrown by " << this->throwing_function_name << " ";
+        ss << "MethodError thrown by " << this->throwing_function_name << " ";
         ss << "when calling " << erroring_function_name << ". ";
         ss << "Error code: " << error_code;
 
@@ -20,10 +27,15 @@ namespace sockets {
         return ss.str();
     }
 
-    const char*
-    MethodError::what() const noexcept
+    ClosedError::ClosedError(std::string rn, std::string on) :
+    resource_name(std::move(rn)), operation_name(std::move(on)) {}
+
+    std::string ClosedError::string(std::stringstream ss) const
     {
-        return string().c_str();
+        ss << "ClosedError: Cannot perform " << this->operation_name << " on " << this->resource_name << ": ";
+        ss << "The resource is closed.";
+
+        return ss.str();
     }
 
     InvalidSocketError::InvalidSocketError(std::string class_name, std::string function_name) :
