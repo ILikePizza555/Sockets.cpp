@@ -81,12 +81,12 @@ namespace sockets
          * @param offset The index in the buffer to start writing at.
          * @param flags Flags to pass to the system.
          *
-         * @return The number of bytes read, or -1 if there has been an error.
+         * @return The number of bytes read
          */
-        ssize_t
+        size_t
         recv(ByteBuffer& buffer, size_t amount, size_t offset = 0, int flags = 0);
 
-        ssize_t
+        size_t
         send(const ByteBuffer& buffer, size_t offset = 0, int flags = 0);
 
         int close();

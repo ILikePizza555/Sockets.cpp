@@ -22,7 +22,7 @@ set(IMPL_UNIX src/unix/Error.cpp src/unix/Socket.cpp src/unix/Connection.cpp src
 
 # Windows-Specific implementation files
 # These are the implementations for windows systems
-set(IMPL_WIN32 src/win32/Error.cpp src/win32/Socket.cpp src/win32/ip.cpp)
+set(IMPL_WIN32 src/win32/Error.cpp src/win32/Socket.cpp src/win32/ip.cpp src/win32/TCPSocket.cpp)
 
 # Create a shared library
 if(UNIX)
