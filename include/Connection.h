@@ -33,7 +33,8 @@ namespace sockets {
      * 
      * A connection cannot be copied.
      *
-     * An alternative implementation of Socket can be specified using the template parameter.
+     * An alternative implementation of Socket can be specified using the template parameter. This implementation must
+     * implement recv(), send(), and operator==.
      */
     template<typename T = TCPSocket>
     class Connection
@@ -72,7 +73,7 @@ namespace sockets {
         Connection<T>&
         operator=(const Connection<T>&& other) noexcept
         {
-            if(*this != other)
+            if(!(_socket == other._socket))
             {
                 _socket = other._socket;
                 other._socket = T(invalid_socket);
@@ -84,6 +85,7 @@ namespace sockets {
             }
             return *this;
         }
+
         /**
          * Reads up to n bytes from the network.
          *
@@ -207,6 +209,7 @@ namespace sockets {
         {
             return _closed;
         }
+
     };
 
     using TCPConnection = Connection<TCPSocket>;
