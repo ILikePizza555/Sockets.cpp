@@ -55,12 +55,35 @@ namespace sockets {
         }
 
         // Delete the copy constructor
-        Connection(const Connection &) = delete;
+        Connection(const Connection<T> &) = delete;
 
         // Delete copy assignment operator
-        Connection &
-        operator=(const Connection &) = delete;
+        Connection<T> &
+        operator=(const Connection<T> &) = delete;
 
+        // Move construction
+        Connection(const Connection<T>&& other) noexcept : _socket(other._socket), _buffer(std::move(other._buffer)), _closed(_closed)
+        {
+            other._socket = T(invalid_socket);
+            other._closed = true;
+        }
+
+        // Move assignment
+        Connection<T>&
+        operator=(const Connection<T>&& other) noexcept
+        {
+            if(*this != other)
+            {
+                _socket = other._socket;
+                other._socket = T(invalid_socket);
+
+                _buffer = std::move(other._buffer);
+
+                _closed = other._closed;
+                other._closed = true;
+            }
+            return *this;
+        }
         /**
          * Reads up to n bytes from the network.
          *
