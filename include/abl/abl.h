@@ -3,7 +3,6 @@
 #ifdef _WIN32
 //Windows Headers
 #include <winsock2.h>
-#include <inttypes.h>
 #include <Ws2tcpip.h>
 #else
 //Unix Headers
@@ -21,7 +20,7 @@ namespace sockets {
     typedef SOCKET sock_t;
     const static sock_t invalid_socket = INVALID_SOCKET;
 
-    typedef uint32_t socklen_t;
+    typedef int socklen_t;
 #else
     //Unix
     typedef int sock_t;

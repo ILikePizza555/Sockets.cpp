@@ -101,4 +101,9 @@ namespace sockets
 
         int close();
     };
+
+    inline bool operator==(TCPSocket a, TCPSocket b)
+    {
+        return a.socket == b.socket;
+    }
 }
