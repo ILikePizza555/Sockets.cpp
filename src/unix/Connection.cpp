@@ -7,32 +7,20 @@
 
 namespace sockets
 {
-    Connection<> connect_to(std::string host, std::string port)
+
+    TCPConnection connect_to(std::string host, std::string port)
     {
-        addrinfo hints{
-            0,
-            AF_UNSPEC,
-            SOCK_STREAM,
-            IPPROTO_TCP,
-            0,
-            nullptr,
-            nullptr,
-            nullptr
-        };
+        auto addresses = get_address_info(host,
+                port,
+                (AI_V4MAPPED | AI_ADDRCONFIG),
+                ip_family::ANY,
+                sock_type::STREAM,
+                sock_proto::TCP);
 
-        // First we create a new addrinfo struct to use to open a socket, and then pass it to getaddrinfo to fill it.
-        // Then we transfer ownership of the raw pointer into a unique pointer to take care of memory management
-        // automatically.
-        auto result_ptr = new addrinfo;
-        auto value = getaddrinfo(host.c_str(), port.c_str(), &hints, &result_ptr);
-        auto result = std::unique_ptr<addrinfo, decltype(&freeaddrinfo)>(result_ptr, freeaddrinfo);
-        result_ptr = nullptr;
 
-        if(value != 0) throw AddressInfoError(__func__, value);
+        TCPSocket s(addresses[0].family);
+        s.connect(addresses[0].address);
 
-        Socket s(result->ai_family, result->ai_socktype, result->ai_protocol);
-        s.connect(result->ai_addr, result->ai_addrlen);
-
-        return Connection<>(s);
+        return TCPConnection(s);
     }
 }

@@ -209,6 +209,8 @@ namespace sockets {
         }
     };
 
+    using TCPConnection = Connection<TCPSocket>;
+
     /**
      * Attempts to establish a connection to the specified host on the specified port and returns a Connection
      * object if successful.
@@ -217,6 +219,6 @@ namespace sockets {
      * @param port The port to connect on.
      * @return A connection object representing the connection.
      */
-    Connection<> connect_to(std::string host, std::string port);
+    TCPConnection connect_to(std::string host, std::string port);
     //TODO: Implement Unicode overloads
 }
