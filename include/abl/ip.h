@@ -22,6 +22,9 @@ namespace sockets {
         sockaddr_in6*
         as_sockaddr6();
 
+        ip_family
+        get_family();
+
         /**
          * Tests if the address is a loopback address.
          * @return

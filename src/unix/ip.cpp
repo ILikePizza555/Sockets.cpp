@@ -24,6 +24,12 @@ namespace sockets {
         return reinterpret_cast<sockaddr_in6*>(addr_ptr.get());
     }
 
+    ip_family
+    addr_t::get_family()
+    {
+        return ip_family(addr_ptr->ss_family);
+    }
+
     bool
     addr_t::is_loopback()
     {
