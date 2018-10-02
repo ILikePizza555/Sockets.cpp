@@ -119,4 +119,4 @@ namespace sockets
         return ::close(this->socket);
 #endif
     }
-};
+}
