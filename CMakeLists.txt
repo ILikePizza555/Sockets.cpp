@@ -18,7 +18,7 @@ set(IMPL_COMMON src/common/Error.cpp src/common/Byte.cpp)
 
 # Unix-Specific implementation files
 # These are the implementations for *nix systems
-set(IMPL_UNIX src/unix/Error.cpp src/unix/Connection.cpp src/unix/ip.cpp)
+set(IMPL_UNIX src/unix/Error.cpp src/unix/Connection.cpp src/unix/ip.cpp src/unix/TCPSocket.cpp)
 
 # Windows-Specific implementation files
 # These are the implementations for windows systems
