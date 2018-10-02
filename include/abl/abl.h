@@ -9,6 +9,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+#define SOCKET_ERROR -1
+
 #endif
 
 namespace sockets {

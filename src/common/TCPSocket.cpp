@@ -6,6 +6,9 @@
 #include <abl/TCPSocket.h>
 #include <Error.h>
 
+#ifdef unix
+#include <unistd.h>
+#endif
 
 namespace sockets
 {
@@ -19,7 +22,7 @@ namespace sockets
     {
         auto result = ::accept(this->socket, nullptr, nullptr);
         if (result == invalid_socket)
-            throw MethodError("TCPSocket::accept", "accept", WSAGetLastError(), get_error_message);
+            throw MethodError("TCPSocket::accept", "accept");
         return TCPSocket(result);
     }
 
@@ -29,7 +32,7 @@ namespace sockets
         socklen_t addr_len = sizeof(sockaddr_storage);
         auto result = ::accept(this->socket, reinterpret_cast<sockaddr*>(addr_ptr), &addr_len);
         if (result == invalid_socket)
-            throw MethodError("TCPSocket::accept", "accept", WSAGetLastError(), get_error_message);
+            throw MethodError("TCPSocket::accept", "accept");
 
         return std::make_tuple(TCPSocket(result), addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), addr_len});
     }
@@ -39,21 +42,21 @@ namespace sockets
     {
         auto result = ::bind(this->socket, addr.as_sockaddr(), addr.length);
         if (result == SOCKET_ERROR)
-            throw MethodError("TCPSocket::bind", "bind", WSAGetLastError(), get_error_message);
+            throw MethodError("TCPSocket::bind", "bind");
     }
 
     void TCPSocket::connect(sockets::addr_t &addr)
     {
         auto result = ::connect(this->socket, addr.as_sockaddr(), addr.length);
         if (result == SOCKET_ERROR)
-            throw MethodError("TCPSocket::connect", "connect", WSAGetLastError(), get_error_message);
+            throw MethodError("TCPSocket::connect", "connect");
     }
 
     void TCPSocket::listen(int backlog)
     {
         auto result = ::listen(this->socket, backlog);
         if (result == SOCKET_ERROR)
-            throw MethodError("TCPSocket::listen", "listen", WSAGetLastError(), get_error_message);
+            throw MethodError("TCPSocket::listen", "listen");
     }
 
     addr_t TCPSocket::getpeername()
@@ -62,7 +65,7 @@ namespace sockets
         socklen_t addr_len = sizeof(sockaddr_storage);
         auto result = ::getpeername(this->socket, reinterpret_cast<sockaddr*>(addr_ptr), &addr_len);
         if (result == SOCKET_ERROR)
-            throw MethodError("TCPSocket::getpeername", "getpeername", WSAGetLastError(), get_error_message);
+            throw MethodError("TCPSocket::getpeername", "getpeername");
 
         return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), addr_len};
     }
@@ -73,7 +76,7 @@ namespace sockets
         socklen_t addr_len = sizeof(sockaddr_storage);
         auto result = ::getsockname(this->socket, reinterpret_cast<sockaddr*>(addr_ptr), &addr_len);
         if(result == SOCKET_ERROR)
-            throw MethodError("TCPSocket::getsockname", "getsockname", WSAGetLastError(), get_error_message);
+            throw MethodError("TCPSocket::getsockname", "getsockname");
 
         return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), addr_len};
     }
@@ -89,11 +92,11 @@ namespace sockets
                                 static_cast<int>(amount),
                                 flags);
         if(result == SOCKET_ERROR)
-            throw MethodError("TCPSocket::recv", "recv", WSAGetLastError(), get_error_message);
+            throw MethodError("TCPSocket::recv", "recv");
 
         // Resize to the read amount. This correctly sets size() on the buffer.
         buffer.resize(static_cast<size_t>(result) + offset);
-        return result;
+        return static_cast<size_t>(result);
     }
 
     size_t TCPSocket::send(const ByteBuffer& buffer, size_t offset, int flags)
@@ -103,13 +106,17 @@ namespace sockets
                                  static_cast<int>(buffer.size()),
                                  flags);
         if(result == SOCKET_ERROR)
-            throw MethodError("TCPSocket::send", "send", WSAGetLastError(), get_error_message);
-        
-        return result;
+            throw MethodError("TCPSocket::send", "send");
+
+        return static_cast<size_t>(result);
     }
 
     int TCPSocket::close()
     {
+#ifdef _WIN32
         return closesocket(this->socket);
+#else
+        return ::close(this->socket);
+#endif
     }
 };

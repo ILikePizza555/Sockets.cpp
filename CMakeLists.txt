@@ -14,15 +14,15 @@ set(INCLUDE_FILES include/Byte.h include/Connection.h include/ServerSocket.h inc
 # Common Implementation Files
 # These are all implementations that are common across platforms
 
-set(IMPL_COMMON src/common/Error.cpp src/common/Byte.cpp)
+set(IMPL_COMMON src/common/Error.cpp src/common/Byte.cpp src/common/TCPSocket.cpp)
 
 # Unix-Specific implementation files
 # These are the implementations for *nix systems
-set(IMPL_UNIX src/unix/Error.cpp src/unix/Connection.cpp src/unix/ip.cpp src/unix/TCPSocket.cpp)
+set(IMPL_UNIX src/unix/Error.cpp src/unix/Connection.cpp src/unix/ip.cpp)
 
 # Windows-Specific implementation files
 # These are the implementations for windows systems
-set(IMPL_WIN32 src/win32/Error.cpp src/win32/ip.cpp src/win32/TCPSocket.cpp)
+set(IMPL_WIN32 src/win32/Error.cpp src/win32/ip.cpp)
 
 # Create a shared library
 if(UNIX)

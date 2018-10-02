@@ -16,7 +16,17 @@ namespace sockets
         sock_t socket = invalid_socket;
 
         TCPSocket() = default;
+
+        /**
+         * Constructs a new TCPSocket object by copying the handle
+         * @param socket
+         */
         explicit TCPSocket(sock_t socket);
+
+        /**
+         * Constructs a new TCPSocket object by creating a new socket
+         * @param fam
+         */
         explicit TCPSocket(ip_family fam);
 
         /**

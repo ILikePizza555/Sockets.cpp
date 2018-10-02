@@ -41,7 +41,7 @@ namespace sockets {
         using lookup_t = std::function<std::string(int)>;
         const lookup_t lookup;
 
-        MethodError(std::string tfn, std::string efn, int ec, lookup_t = {});
+        MethodError(std::string tfn, std::string efn, int ec = get_error_code(), lookup_t = get_error_message);
 
         /**
          * @return A string containing the error message.
