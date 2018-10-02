@@ -53,14 +53,14 @@ namespace sockets
          *
          * @param addr The address to bind too.
          */
-        void bind(addr_t& addr);
+        void bind(const addr_t& addr);
 
         /**
          * Connects the socket to an address.
          *
          * @param addr
          */
-        void connect(addr_t& addr);
+        void connect(const addr_t& addr);
 
         /**
          * Marks the socket as passive, indicating it will be used for incoming connections.

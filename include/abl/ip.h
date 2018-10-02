@@ -15,29 +15,29 @@ namespace sockets {
         socklen_t length = 0;
 
         sockaddr*
-        as_sockaddr();
+        as_sockaddr() const;
 
         sockaddr_in*
-        as_sockaddr4();
+        as_sockaddr4() const;
 
         sockaddr_in6*
-        as_sockaddr6();
+        as_sockaddr6() const;
 
         ip_family
-        get_family();
+        get_family() const;
 
         /**
          * Tests if the address is a loopback address.
          * @return
          */
         bool
-        is_loopback();
+        is_loopback() const;
 
         /**
          * Returns the textual representation of the address.
          */
         std::string
-        name();
+        name() const;
     };
 
     struct address_info

@@ -38,14 +38,14 @@ namespace sockets
     }
 
     void
-    TCPSocket::bind(sockets::addr_t &addr)
+    TCPSocket::bind(const sockets::addr_t &addr)
     {
         auto result = ::bind(this->socket, addr.as_sockaddr(), addr.length);
         if (result == SOCKET_ERROR)
             throw MethodError("TCPSocket::bind", "bind");
     }
 
-    void TCPSocket::connect(sockets::addr_t &addr)
+    void TCPSocket::connect(const sockets::addr_t &addr)
     {
         auto result = ::connect(this->socket, addr.as_sockaddr(), addr.length);
         if (result == SOCKET_ERROR)

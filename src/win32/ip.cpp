@@ -10,31 +10,31 @@
 
 namespace sockets {
     sockaddr *
-    addr_t::as_sockaddr()
+    addr_t::as_sockaddr() const
     {
         return reinterpret_cast<sockaddr *>(addr_ptr.get());
     }
 
     sockaddr_in *
-    addr_t::as_sockaddr4()
+    addr_t::as_sockaddr4() const
     {
         return reinterpret_cast<sockaddr_in *>(addr_ptr.get());
     }
 
     sockaddr_in6 *
-    addr_t::as_sockaddr6()
+    addr_t::as_sockaddr6() const
     {
         return reinterpret_cast<sockaddr_in6 *>(addr_ptr.get());
     }
 
     ip_family
-    addr_t::get_family()
+    addr_t::get_family() const
     {
         return ip_family(addr_ptr->ss_family);
     }
 
     bool
-    addr_t::is_loopback()
+    addr_t::is_loopback() const
     {
         if (this->addr_ptr->ss_family == ip_family::INET)
         {
@@ -56,7 +56,7 @@ namespace sockets {
     }
 
     std::string
-    addr_t::name()
+    addr_t::name() const
     {
         static unsigned long size = 40;
         char *rv = new char[size];
