@@ -1,10 +1,4 @@
 project(libsocketscpp_unit_tests)
 
-add_executable(unit_test main.cpp connection_test.cpp)
-
-target_link_libraries(unit_test PRIVATE socketscpp)
-
-add_custom_command(TARGET unit_test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:socketscpp>
-        $<TARGET_FILE_DIR:unit_test>)
+set(TEST_FILES main.cpp connection_test.cpp)
+Create_library_test(unit_test ${TEST_FILES})

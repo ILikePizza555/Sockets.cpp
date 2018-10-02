@@ -1,0 +1,3 @@
+project(libsocketcpp_system_tests)
+
+Create_library_test(client_connect_ip_test client_connect_ip_test.cpp)
