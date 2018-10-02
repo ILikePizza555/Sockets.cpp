@@ -3,6 +3,8 @@
 //
 
 #include <abl/ip.h>
+#include <cstring>
+#include <netdb.h>
 #include <Error.h>
 
 namespace sockets {
@@ -65,5 +67,62 @@ namespace sockets {
             throw MethodError("addr_t::name", "inet_ntop", errno, get_error_message);
 
         return std::string(buf, size);
+    }
+
+    address_info::address_info(sockets::ip_family family,
+                               sockets::sock_type socket_type,
+                               sockets::sock_proto protocol,
+                               sockets::addr_t address) :
+                               family(family), socket_type(socket_type), protocol(protocol), address(std::move(address))
+    {}
+
+    address_info::address_info(int family, int socket_type, int protocol, sockets::addr_t address) :
+        family(sockets::ip_family(family)),
+        socket_type(sockets::sock_type(socket_type)),
+        protocol(sockets::sock_proto(protocol)),
+        address(std::move(address))
+    {}
+
+    std::vector<address_info>
+    get_address_info(const std::string &host, const std::string &port, int flags,
+                     sockets::ip_family hint_family, sockets::sock_type hint_type, sockets::sock_proto hint_proto)
+    {
+        std::vector<address_info> rv;
+
+        addrinfo hints
+        {
+            flags,
+            hint_family,
+            hint_type,
+            hint_proto,
+            0,
+            nullptr,
+            nullptr,
+            nullptr
+        };
+
+        auto* addrinfo_ptr = new addrinfo;
+        auto result = getaddrinfo(host.c_str(), port.c_str(), &hints, &addrinfo_ptr);
+        if(result != 0)
+            throw MethodError(__func__, "getaddrinfo", result, [](int ec){return std::string(gai_strerror(ec));});
+
+        // Vector construction loop
+        auto next = addrinfo_ptr;
+        while(next != NULL)
+        {
+            // Copy sockaddr to avoid deletion
+            auto* sockaddr_copy = new sockaddr_storage;
+            std::memcpy(sockaddr_copy, next->ai_addr, next->ai_addrlen);
+
+            rv.emplace_back(next->ai_family,
+                    next->ai_socktype,
+                    next->ai_protocol,
+                    addr_t{std::unique_ptr<sockaddr_storage>(sockaddr_copy), next->ai_addrlen});
+
+            next = next->ai_next;
+        }
+
+        freeaddrinfo(addrinfo_ptr);
+        return rv;
     }
 }

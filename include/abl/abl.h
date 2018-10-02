@@ -31,6 +31,7 @@ namespace sockets {
      */
     enum ip_family : int
     {
+        ANY = AF_UNSPEC,
         INET = AF_INET,
         INET6 = AF_INET6
     };
