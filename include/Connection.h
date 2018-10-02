@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include "Byte.h"
-#include "abl/Socket.h"
+#include "abl/TCPSocket.h"
 #include "Error.h"
 
 #ifndef DEFAULT_BUFFER_CAPACITY
@@ -18,7 +18,7 @@ namespace sockets {
          * @param socket
          * @param closed
          */
-        template<typename T = Socket>
+        template<typename T = TCPSocket>
         void
         check_connection_state(const std::string &function_name, T &socket, bool closed)
         {
@@ -35,7 +35,7 @@ namespace sockets {
      *
      * An alternative implementation of Socket can be specified using the template parameter.
      */
-    template<typename T = Socket>
+    template<typename T = TCPSocket>
     class Connection
     {
     private:
