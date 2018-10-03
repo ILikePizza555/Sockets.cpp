@@ -150,7 +150,7 @@ TEST_CASE("Connection::read()", "[Connection]")
     {
         Connection<FailureSocketStub> conn(FailureSocketStub{});
 
-        REQUIRE_THROWS_AS(conn.read(1), sockets::SocketError);
+        REQUIRE_THROWS_AS(conn.read(1), sockets::MethodError);
     }
 }
 
@@ -188,7 +188,7 @@ TEST_CASE("Connection::read_exactly()", "[Connection]")
     {
         Connection<FailureSocketStub> conn(FailureSocketStub{});
 
-        REQUIRE_THROWS_AS(conn.read_exactly(1), sockets::SocketError);
+        REQUIRE_THROWS_AS(conn.read_exactly(1), sockets::MethodError);
     }
 }
 
