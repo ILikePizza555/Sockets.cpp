@@ -199,7 +199,13 @@ namespace sockets {
             return static_cast<size_t>(bytes);
         }
 
-        //TODO: getpeername()
+        /*
+         * @return The internal socket
+         */
+        const T& get_socket()
+        {
+            return _socket;
+        }
 
         /**
          * Returns true if closed. False if otherwise.
