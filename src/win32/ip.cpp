@@ -58,6 +58,22 @@ namespace sockets {
         return false;
     }
 
+    int
+    addr_t::port() const
+    {
+        if (this->addr_ptr->ss_family == ip_family::INET)
+        {
+            return this->as_sockaddr4()->sin_port;
+        }
+
+        if(this->addr_ptr->ss_family == ip_family::INET6)
+        {
+            return this->as_sockaddr6()->sin6_port;
+        }
+
+        return -1;
+    }
+
     void AddrInfoFlags::set_all() { flags = AI_ALL; }
 
     AddrInfoFlags& AddrInfoFlags::set_ipv4_mapping()

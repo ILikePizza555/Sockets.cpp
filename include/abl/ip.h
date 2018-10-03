@@ -39,6 +39,9 @@ namespace sockets {
         std::string
         name() const;
 
+        /*
+         * @return The address's port as an integer, or -1 if there was an error.
+         */
         int
         port() const;
     };
