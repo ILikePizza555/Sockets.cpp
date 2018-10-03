@@ -14,10 +14,6 @@ namespace sockets {
         std::unique_ptr<sockaddr_storage> addr_ptr = nullptr;
         size_t length = 0;
 
-        addr_t(std::unique_ptr<sockaddr_storage> addr_ptr, size_t length);
-        addr_t(addr_t&& o) noexcept;
-        addr_t& operator=(addr_t&& o) noexcept;
-
         sockaddr*
         as_sockaddr() const;
 
@@ -76,10 +72,10 @@ namespace sockets {
 
     struct address_info
     {
-        const ip_family family;
-        const sock_type socket_type;
-        const sock_proto protocol;
-        const addr_t address;
+        ip_family family;
+        sock_type socket_type;
+        sock_proto protocol;
+        addr_t address;
 
         address_info(ip_family family, sock_type socket_type, sock_proto protocol, addr_t address);
         address_info(int family, int socket_type, int protocol, addr_t address);
