@@ -88,6 +88,12 @@ namespace sockets {
         return *this;
     }
 
+    AddrInfoFlags& AddrInfoFlags::set_addr_config()
+    {
+        _impl->flags |= AI_ADDRCONFIG;
+        return *this;
+    }
+
     AddrInfoFlags& AddrInfoFlags::set_numeric_host()
     {
         _impl->flags |= AI_NUMERICHOST;
@@ -120,7 +126,7 @@ namespace sockets {
     {}
 
     std::vector<address_info>
-    get_address_info(const std::string &host, const std::string &port, AddrInfoFlags flags,
+    get_address_info(const std::string &host, const std::string &port, AddrInfoFlags& flags,
                      sockets::ip_family hint_family, sockets::sock_type hint_type, sockets::sock_proto hint_proto)
     {
         std::vector<address_info> rv;

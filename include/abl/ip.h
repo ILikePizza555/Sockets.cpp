@@ -64,6 +64,9 @@ namespace sockets {
         /** Indicates that the address returned is intented to be used for the bind() method */
         AddrInfoFlags& set_passive();
 
+        /** Indicates that getaddrinfo should only resolve if a valid global address is configured */
+        AddrInfoFlags& set_addr_config();
+
         /** Indicates that the system should not perform name resolution */
         AddrInfoFlags& set_numeric_host();
 
@@ -89,7 +92,7 @@ namespace sockets {
     std::vector<address_info>
     get_address_info(const std::string& host,
                     const std::string& port,
-                    AddrInfoFlags flags,
+                    AddrInfoFlags& flags,
                     ip_family hint_family,
                     sock_type hint_type,
                     sock_proto hint_proto);

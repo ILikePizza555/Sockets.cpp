@@ -2,17 +2,20 @@
 // Created by avris on 9/27/2018.
 //
 
+#include <abl/ip.h>
 #include <Connection.h>
-#include <netdb.h>
 
 namespace sockets
 {
 
     TCPConnection connect_to(std::string host, std::string port)
     {
+        AddrInfoFlags flags = AddrInfoFlags();
+        flags.set_ipv4_mapping().set_addr_config();
+
         auto addresses = get_address_info(host,
                 port,
-                (AI_V4MAPPED | AI_ADDRCONFIG),
+                flags,
                 ip_family::ANY,
                 sock_type::STREAM,
                 sock_proto::TCP);

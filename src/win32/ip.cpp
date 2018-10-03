@@ -9,6 +9,7 @@
 
 #define AI_ALL 0x0100
 #define AI_V4MAPPED 0x0800
+#define AI_ADDRCONFIG 0x0400
 
 namespace sockets {
     sockaddr *
@@ -75,6 +76,12 @@ namespace sockets {
         return *this;
     }
 
+    AddrInfoFlags& AddrInfoFlags::set_addr_config()
+    {
+        _impl->flags |= AI_ADDRCONFIG;
+        return *this;
+    }
+
     AddrInfoFlags& AddrInfoFlags::set_numeric_host()
     {
         _impl->flags |= AI_NUMERICHOST;
@@ -107,12 +114,8 @@ namespace sockets {
     }
 
     std::vector<address_info>
-    get_address_info(const std::string& host,
-                     const std::string& port,
-                     AddrInfoFlags flags,
-                     ip_family hint_family,
-                     sock_type hint_type,
-                     sock_proto hint_proto)
+    get_address_info(const std::string& host, const std::string& port, AddrInfoFlags& flags,
+                     ip_family hint_family, sock_type hint_type, sock_proto hint_proto)
     {
         std::vector<address_info> rv;
 
