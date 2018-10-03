@@ -46,15 +46,8 @@ namespace sockets {
     class AddrInfoFlags
     {
     private:
-        struct Impl;
-        std::unique_ptr<Impl> _impl = nullptr;
+        int flags;
     public:
-        AddrInfoFlags();
-
-        AddrInfoFlags(AddrInfoFlags&& o) noexcept = default;
-
-        AddrInfoFlags& operator=(AddrInfoFlags&& o) noexcept = default;
-
         /** Sets all flags */
         void set_all();
 

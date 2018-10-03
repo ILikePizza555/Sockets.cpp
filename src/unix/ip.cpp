@@ -69,46 +69,41 @@ namespace sockets {
         return std::string(buf, size);
     }
 
-    struct AddrInfoFlags::Impl { int flags = 0; };
-
-    AddrInfoFlags::AddrInfoFlags() : _impl(std::make_unique<Impl>())
-    {}
-
-    void AddrInfoFlags::set_all() { _impl->flags = AI_ALL; }
+    void AddrInfoFlags::set_all() { flags = AI_ALL; }
 
     AddrInfoFlags& AddrInfoFlags::set_ipv4_mapping()
     {
-        _impl->flags |= AI_V4MAPPED;
+        flags |= AI_V4MAPPED;
         return *this;
     }
 
     AddrInfoFlags& AddrInfoFlags::set_passive()
     {
-        _impl->flags |= AI_PASSIVE;
+        flags |= AI_PASSIVE;
         return *this;
     }
 
     AddrInfoFlags& AddrInfoFlags::set_addr_config()
     {
-        _impl->flags |= AI_ADDRCONFIG;
+        flags |= AI_ADDRCONFIG;
         return *this;
     }
 
     AddrInfoFlags& AddrInfoFlags::set_numeric_host()
     {
-        _impl->flags |= AI_NUMERICHOST;
+        flags |= AI_NUMERICHOST;
         return *this;
     }
 
     AddrInfoFlags& AddrInfoFlags::set_numeric_serv()
     {
-        _impl->flags |= AI_NUMERICSERV;
+        flags |= AI_NUMERICSERV;
         return *this;
     }
 
     int AddrInfoFlags::get()
     {
-        return _impl->flags;
+        return flags;
     }
 
     address_info::address_info(sockets::ip_family family,
