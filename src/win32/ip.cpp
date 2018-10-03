@@ -2,11 +2,13 @@
 // Created by avris on 9/27/2018.
 //
 
+#include <abl/abl.h>
 #include <abl/ip.h>
+#include <cstring>
 #include <Error.h>
-#include <inaddr.h>
-#include <ws2ipdef.h>
-#include <in6addr.h>
+
+#define AI_ALL 0x0100
+#define AI_V4MAPPED 0x0800
 
 namespace sockets {
     sockaddr *
@@ -55,6 +57,41 @@ namespace sockets {
         return false;
     }
 
+    struct AddrInfoFlags::Impl { int flags = 0; };
+
+    AddrInfoFlags::AddrInfoFlags() : _impl(std::make_unique<Impl>()) {}
+
+    void AddrInfoFlags::set_all() { _impl->flags = AI_ALL; }
+
+    AddrInfoFlags& AddrInfoFlags::set_ipv4_mapping()
+    {
+        _impl->flags |= AI_V4MAPPED;
+        return *this;
+    }
+
+    AddrInfoFlags& AddrInfoFlags::set_passive()
+    {
+        _impl->flags |= AI_PASSIVE;
+        return *this;
+    }
+
+    AddrInfoFlags& AddrInfoFlags::set_numeric_host()
+    {
+        _impl->flags |= AI_NUMERICHOST;
+        return *this;
+    }
+
+    AddrInfoFlags& AddrInfoFlags::set_numeric_serv()
+    {
+        // Not supported, so do nothing
+        return *this;
+    }
+
+    int AddrInfoFlags::get()
+    {
+        return _impl->flags;
+    }
+
     std::string
     addr_t::name() const
     {
@@ -67,5 +104,52 @@ namespace sockets {
             throw MethodError("addr_t::name", "WSAAddressToStringA");
 
         return std::string(rv);
+    }
+
+    std::vector<address_info>
+    get_address_info(const std::string& host,
+                     const std::string& port,
+                     AddrInfoFlags flags,
+                     ip_family hint_family,
+                     sock_type hint_type,
+                     sock_proto hint_proto)
+    {
+        std::vector<address_info> rv;
+
+        addrinfo hints
+                {
+                        flags,
+                        hint_family,
+                        hint_type,
+                        hint_proto,
+                        0,
+                        nullptr,
+                        nullptr,
+                        nullptr
+                };
+
+        auto* addrinfo_ptr = new addrinfo;
+        auto result = getaddrinfo(host.c_str(), port.c_str(), &hints, &addrinfo_ptr);
+        if(result != 0)
+            throw MethodError(__func__, "getaddrinfo", result, [](int ec){return std::string(gai_strerror(ec));});
+
+        // Vector construction loop
+        auto next = addrinfo_ptr;
+        while(next != NULL)
+        {
+            // Copy sockaddr to avoid deletion
+            auto* sockaddr_copy = new sockaddr_storage;
+            std::memcpy(sockaddr_copy, next->ai_addr, next->ai_addrlen);
+
+            rv.emplace_back(next->ai_family,
+                            next->ai_socktype,
+                            next->ai_protocol,
+                            addr_t{std::unique_ptr<sockaddr_storage>(sockaddr_copy), next->ai_addrlen});
+
+            next = next->ai_next;
+        }
+
+        freeaddrinfo(addrinfo_ptr);
+        return rv;
     }
 }

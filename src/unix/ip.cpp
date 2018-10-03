@@ -69,6 +69,42 @@ namespace sockets {
         return std::string(buf, size);
     }
 
+    struct AddrInfoFlags::Impl { int flags = 0; };
+
+    AddrInfoFlags::AddrInfoFlags() : _impl(std::make_unique<Impl>())
+    {}
+
+    void AddrInfoFlags::set_all() { _impl->flags = AI_ALL; }
+
+    AddrInfoFlags& AddrInfoFlags::set_ipv4_mapping()
+    {
+        _impl->flags |= AI_V4MAPPED;
+        return *this;
+    }
+
+    AddrInfoFlags& AddrInfoFlags::set_passive()
+    {
+        _impl->flags |= AI_PASSIVE;
+        return *this;
+    }
+
+    AddrInfoFlags& AddrInfoFlags::set_numeric_host()
+    {
+        _impl->flags |= AI_NUMERICHOST;
+        return *this;
+    }
+
+    AddrInfoFlags& AddrInfoFlags::set_numeric_serv()
+    {
+        _impl->flags |= AI_NUMERICSERV;
+        return *this;
+    }
+
+    int AddrInfoFlags::get()
+    {
+        return _impl->flags;
+    }
+
     address_info::address_info(sockets::ip_family family,
                                sockets::sock_type socket_type,
                                sockets::sock_proto protocol,
@@ -84,14 +120,14 @@ namespace sockets {
     {}
 
     std::vector<address_info>
-    get_address_info(const std::string &host, const std::string &port, int flags,
+    get_address_info(const std::string &host, const std::string &port, AddrInfoFlags flags,
                      sockets::ip_family hint_family, sockets::sock_type hint_type, sockets::sock_proto hint_proto)
     {
         std::vector<address_info> rv;
 
         addrinfo hints
         {
-            flags,
+            flags.get(),
             hint_family,
             hint_type,
             hint_proto,
