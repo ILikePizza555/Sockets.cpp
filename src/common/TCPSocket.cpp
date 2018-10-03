@@ -18,7 +18,7 @@ namespace sockets
         socket = ::socket(fam, sock_type::STREAM, sock_proto::TCP);
     }
 
-    TCPSocket TCPSocket::accept()
+    TCPSocket TCPSocket::accept() const
     {
         auto result = ::accept(this->socket, nullptr, nullptr);
         if (result == invalid_socket)
@@ -26,7 +26,7 @@ namespace sockets
         return TCPSocket(result);
     }
 
-    std::tuple<TCPSocket, addr_t> TCPSocket::acceptfrom()
+    std::tuple<TCPSocket, addr_t> TCPSocket::acceptfrom() const
     {
         auto* addr_ptr = new sockaddr_storage;
         socklen_t addr_len = sizeof(sockaddr_storage);
@@ -62,7 +62,7 @@ namespace sockets
             throw MethodError("TCPSocket::listen", "listen");
     }
 
-    addr_t TCPSocket::getpeername()
+    addr_t TCPSocket::getpeername() const
     {
         auto* addr_ptr = new sockaddr_storage;
         socklen_t addr_len = sizeof(sockaddr_storage);
@@ -73,7 +73,7 @@ namespace sockets
         return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), static_cast<size_t>(addr_len)};
     }
 
-    addr_t TCPSocket::getsockname()
+    addr_t TCPSocket::getsockname() const
     {
         auto* addr_ptr = new sockaddr_storage;
         socklen_t addr_len = sizeof(sockaddr_storage);
@@ -84,7 +84,7 @@ namespace sockets
         return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), static_cast<size_t>(addr_len)};
     }
 
-    size_t TCPSocket::recv(ByteBuffer& buffer, size_t amount, size_t offset, int flags)
+    size_t TCPSocket::recv(ByteBuffer& buffer, size_t amount, size_t offset, int flags) const
     {
         // Resize the buffer to the maximum ammount
         buffer.resize(amount + offset);
@@ -102,10 +102,10 @@ namespace sockets
         return static_cast<size_t>(result);
     }
 
-    size_t TCPSocket::send(const ByteBuffer& buffer, size_t offset, int flags)
+    size_t TCPSocket::send(const ByteBuffer& buffer, size_t offset, int flags) const
     {
         ssize_t result =  ::send(socket,
-                                 reinterpret_cast<const char*>(buffer.data()),
+                                 reinterpret_cast<const char*>(buffer.data() + offset),
                                  static_cast<int>(buffer.size()),
                                  flags);
         if(result == SOCKET_ERROR)

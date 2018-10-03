@@ -38,7 +38,7 @@ namespace sockets
          * @return A new TCPSocket.
          */
         TCPSocket
-        accept();
+        accept() const;
 
         /**
          * Performs the same function as accpet(), but also returns the address of the connected client.
@@ -46,7 +46,7 @@ namespace sockets
          * @return A tuple with a TCPSocket and addr_t structure.
          */
         std::tuple<TCPSocket, addr_t>
-        acceptfrom();
+        acceptfrom() const;
 
         /**
          * Binds the socket to an address.
@@ -74,14 +74,14 @@ namespace sockets
          *
          * @return
          */
-        addr_t getpeername();
+        addr_t getpeername() const;
 
         /**
          * Returns the address that the socket is bound too.
          *
          * @return
          */
-        addr_t getsockname();
+        addr_t getsockname() const;
 
         /**
          * Receives bytes into the ByteBuffer. Resizes the buffer to the appropriate size.
@@ -94,10 +94,10 @@ namespace sockets
          * @return The number of bytes read
          */
         size_t
-        recv(ByteBuffer& buffer, size_t amount, size_t offset = 0, int flags = 0);
+        recv(ByteBuffer& buffer, size_t amount, size_t offset = 0, int flags = 0) const;
 
         size_t
-        send(const ByteBuffer& buffer, size_t offset = 0, int flags = 0);
+        send(const ByteBuffer& buffer, size_t offset = 0, int flags = 0) const;
 
         int close();
     };
