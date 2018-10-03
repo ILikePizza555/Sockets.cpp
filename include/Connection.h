@@ -63,7 +63,7 @@ namespace sockets {
         operator=(const Connection<T> &) = delete;
 
         // Move construction
-        Connection(const Connection<T>&& other) noexcept : _socket(other._socket), _buffer(std::move(other._buffer)), _closed(_closed)
+        Connection(Connection<T>&& other) noexcept : _socket(other._socket), _buffer(std::move(other._buffer)), _closed(_closed)
         {
             other._socket = T(invalid_socket);
             other._closed = true;
@@ -71,7 +71,7 @@ namespace sockets {
 
         // Move assignment
         Connection<T>&
-        operator=(const Connection<T>&& other) noexcept
+        operator=(Connection<T>&& other) noexcept
         {
             if(!(_socket == other._socket))
             {
