@@ -1,5 +1,7 @@
 project(libsocketscpp_tests)
 
+enable_testing()
+
 function(Create_library_test test_name files)
     message(STATUS "Building test " ${test_name} " with files " ${files})
 
