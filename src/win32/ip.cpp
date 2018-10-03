@@ -12,6 +12,9 @@
 #define AI_ADDRCONFIG 0x0400
 
 namespace sockets {
+    addr_t::addr_t(std::unique_ptr<sockaddr_storage> addr_ptr, size_t length) :
+            addr_ptr(std::move(addr_ptr)), length(length) {}
+
     addr_t::addr_t(sockets::addr_t &&o) noexcept : addr_ptr(std::move(o.addr_ptr)), length(o.length)
     {
         o.length = 0;

@@ -14,8 +14,8 @@ namespace sockets {
         std::unique_ptr<sockaddr_storage> addr_ptr = nullptr;
         size_t length = 0;
 
+        addr_t(std::unique_ptr<sockaddr_storage> addr_ptr, size_t length);
         addr_t(addr_t&& o) noexcept;
-
         addr_t& operator=(addr_t&& o) noexcept;
 
         sockaddr*
