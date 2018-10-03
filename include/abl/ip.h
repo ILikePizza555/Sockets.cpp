@@ -38,6 +38,9 @@ namespace sockets {
          */
         std::string
         name() const;
+
+        int
+        port() const;
     };
 
     /**
