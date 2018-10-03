@@ -34,7 +34,10 @@ namespace sockets
         if (result == invalid_socket)
             throw MethodError("TCPSocket::accept", "accept");
 
-        return std::make_tuple(TCPSocket(result), addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), addr_len});
+        return std::make_tuple(
+                TCPSocket(result),
+                addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), static_cast<size_t>(addr_len)}
+                );
     }
 
     void
@@ -67,7 +70,7 @@ namespace sockets
         if (result == SOCKET_ERROR)
             throw MethodError("TCPSocket::getpeername", "getpeername");
 
-        return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), addr_len};
+        return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), static_cast<size_t>(addr_len)};
     }
 
     addr_t TCPSocket::getsockname()
@@ -78,7 +81,7 @@ namespace sockets
         if(result == SOCKET_ERROR)
             throw MethodError("TCPSocket::getsockname", "getsockname");
 
-        return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), addr_len};
+        return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), static_cast<size_t>(addr_len)};
     }
 
     size_t TCPSocket::recv(ByteBuffer& buffer, size_t amount, size_t offset, int flags)
