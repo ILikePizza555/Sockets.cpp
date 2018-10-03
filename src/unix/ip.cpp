@@ -152,9 +152,9 @@ namespace sockets {
             std::memcpy(sockaddr_copy, next->ai_addr, next->ai_addrlen);
 
             rv.emplace_back(next->ai_family,
-                    next->ai_socktype,
-                    next->ai_protocol,
-                    addr_t{std::unique_ptr<sockaddr_storage>(sockaddr_copy), next->ai_addrlen});
+                            next->ai_socktype,
+                            next->ai_protocol,
+                            addr_t{std::unique_ptr<sockaddr_storage>(sockaddr_copy), next->ai_addrlen});
 
             next = next->ai_next;
         }

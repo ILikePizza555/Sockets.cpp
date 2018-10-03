@@ -101,13 +101,30 @@ namespace sockets {
         static unsigned long size = 40;
         char *rv = new char[size];
 
-        int result = WSAAddressToStringA(reinterpret_cast<sockaddr *>(this->addr_ptr.get()), this->length, nullptr, rv,
+        int result = WSAAddressToStringA(reinterpret_cast<sockaddr *>(this->addr_ptr.get()),
+                                         this->length,
+                                         nullptr,
+                                         rv,
                                          &size);
         if (result != 0)
             throw MethodError("addr_t::name", "WSAAddressToStringA");
 
         return std::string(rv);
     }
+
+    address_info::address_info(sockets::ip_family family,
+                               sockets::sock_type socket_type,
+                               sockets::sock_proto protocol,
+                               sockets::addr_t address) :
+                               family(family), socket_type(socket_type), protocol(protocol), address(std::move(address))
+    {}
+
+    address_info::address_info(int family, int socket_type, int protocol, sockets::addr_t address) :
+        family(sockets::ip_family(family)),
+        socket_type(sockets::sock_type(socket_type)),
+        protocol(sockets::sock_proto(protocol)),
+        address(std::move(address))
+    {}
 
     std::vector<address_info>
     get_address_info(const std::string& host, const std::string& port, AddrInfoFlags& flags,
