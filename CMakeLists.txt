@@ -18,11 +18,11 @@ set(IMPL_COMMON src/common/Error.cpp src/common/Byte.cpp src/common/TCPSocket.cp
 
 # Unix-Specific implementation files
 # These are the implementations for *nix systems
-set(IMPL_UNIX src/unix/Error.cpp src/unix/ip.cpp)
+set(IMPL_UNIX src/unix/Error.cpp src/unix/ip.cpp src/unix/abl.cpp)
 
 # Windows-Specific implementation files
 # These are the implementations for windows systems
-set(IMPL_WIN32 src/win32/Error.cpp src/win32/ip.cpp)
+set(IMPL_WIN32 src/win32/Error.cpp src/win32/ip.cpp src/win32/abl.cpp)
 
 # Create a shared library
 if(UNIX)
