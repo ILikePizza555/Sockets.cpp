@@ -205,7 +205,7 @@ namespace sockets {
             check_connection_state(__func__, _socket, _closed);
 
             ssize_t bytes = _socket.send(data.data(), data.size(), 0);
-            if(bytes == -1) throw MethodErrorError(__func__, "send", get_error_code(), get_error_message);
+            if(bytes == -1) throw MethodError(__func__, "send", get_error_code(), get_error_message);
 
             return static_cast<size_t>(bytes);
         }
