@@ -181,14 +181,18 @@ namespace sockets {
         {
             check_connection_state(__func__, _socket, _closed);
 
+            // Check the distance so that we don't get any weird errors with casting
             auto distance = std::distance(begin, end);
             if(distance < 0) throw std::invalid_argument("begin and end have a negative distance");
             if(distance == 0) return 0;
 
-            _buffer.reserve(static_cast<size_t>(distance));
-            std::copy(begin, end, _buffer.begin());
+            // Resize only if needed
+            if(_buffer.size() < distance)
+                _buffer.resize(static_cast<size_t>(distance));
 
-            ssize_t bytes = _socket.send(_buffer, _buffer.capacity(), 0);
+
+            std::copy(begin, end, _buffer.begin());
+            ssize_t bytes = _socket.send(_buffer, 0, 0);
             if(bytes == -1) throw MethodError(__func__, "send", get_error_code(), get_error_message);
 
             return static_cast<size_t>(bytes);
