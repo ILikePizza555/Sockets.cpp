@@ -40,9 +40,11 @@ namespace sockets {
         name() const;
 
         /*
-         * @return The address's port as an integer, or -1 if there was an error.
+         * Returns the address's port.
+         *
+         * @return The address's port.
          */
-        int
+        uint16_t
         port() const;
     };
 
