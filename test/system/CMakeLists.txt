@@ -13,3 +13,4 @@ function(new_test TEST_NAME)
 endfunction()
 
 new_test(client_connect_test)
+new_test(tcp_server_test)
