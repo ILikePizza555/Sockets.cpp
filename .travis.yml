@@ -36,4 +36,4 @@ install: true
 script:
     - cmake -DCMAKE_VERBOSE_MAKEFILE=1 -G "Unix Makefiles"
     - make
-    - ./test/unit_test
+    - ctest ./test
