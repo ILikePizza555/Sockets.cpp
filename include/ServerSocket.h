@@ -104,4 +104,6 @@ namespace sockets {
             return _socket;
         }
     };
+
+    using TCPServer = ServerSocket<TCPSocket>;
 }
