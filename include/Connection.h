@@ -210,10 +210,7 @@ namespace sockets {
             return static_cast<size_t>(bytes);
         }
 
-        /*
-         * @return The internal socket
-         */
-        const T& get_socket()
+        T& get_socket()
         {
             return _socket;
         }
