@@ -5,17 +5,31 @@
 #include <iostream>
 #include <Connection.h>
 
+void print_addr(sockets::addr_t& addr)
+{
+    using std::cout;
+    using std::endl;
+    cout << "addr_t(ip=" << addr.name() <<"; port=" << addr.port() <<"; localhost=" << addr.is_loopback() << ")" << endl;
+}
+
 int main()
 {
     sockets::setup();
 
     sockets::TCPConnection connection;
-    std::string request = "HEAD / HTTP/1.1\r\n\r\n";
+    std::string request = "GET / HTTP/1.1\r\n\r\n";
 
     try
     {
         connection = sockets::connect_to("google.com", "80");
+        auto local_addr = connection.get_socket().getsockname();
+        auto remote_addr = connection.get_socket().getpeername();
+
         std::cout << "Connection established." << std::endl;
+        std::cout << "Local: ";
+        print_addr(local_addr);
+        std::cout << "Remote: ";
+        print_addr(remote_addr);
     }
     catch (std::exception& e)
     {
@@ -28,8 +42,8 @@ int main()
 
     try
     {
-        connection.write(request.begin(), request.end());
-        std::cout << "Request sent." << std::endl;
+        size_t bytes = connection.write(request.begin(), request.end());
+        std::cout << "Request sent. (" << bytes << " bytes)" << std::endl;
     }
     catch (std::exception& e)
     {
