@@ -84,4 +84,14 @@ namespace sockets {
         const char *
         what() const noexcept override;
     };
+
+    class ConnectionResetError : std::exception
+    {
+    public:
+
+        ConnectionResetError();
+
+        const char*
+        what() const noexcept override;
+    };
 }

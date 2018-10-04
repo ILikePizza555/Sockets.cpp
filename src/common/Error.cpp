@@ -48,4 +48,12 @@ namespace sockets {
         ss << class_name << "::" << function_name << ": invalid socket";
         return ss.str().c_str();
     }
+
+    ConnectionResetError::ConnectionResetError()
+    {}
+
+    const char* ConnectionResetError::what() const noexcept
+    {
+        return "Connection reset by peer.";
+    }
 }
