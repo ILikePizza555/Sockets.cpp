@@ -49,14 +49,14 @@ namespace sockets {
     };
 
     /**
-     * @return An addr_t object set to the ipv4 loopback address
+     * Generates an addr_t structure from an ip address encoded as a string.
+     *
+     * @param family The family of ip address to use (either INET or INET6)
+     * @param ip_address A string holding a textual representation of an ip address
+     * @param port A port in host byte order
+     * @return An addr_t structure
      */
-    addr_t new_v4_loopback();
-
-    /**
-     * @return Anaddr_t object set to the ipv6 loopback address
-     */
-    addr_t new_v6_loopback();
+    addr_t from_string(ip_family family, std::string ip_address, unsigned short port);
 
     /**
      * Class that carries the flags for getaddrinfo

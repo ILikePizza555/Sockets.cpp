@@ -6,6 +6,7 @@
 #include <abl/ip.h>
 #include <cstring>
 #include <Error.h>
+#include <ws2tcpip.h>
 
 #define AI_ALL 0x0100
 #define AI_V4MAPPED 0x0800
@@ -56,6 +57,25 @@ namespace sockets {
         }
 
         return false;
+    }
+
+    addr_t from_string(ip_family family, const std::string& ip_address, unsigned short port)
+    {
+        auto* addr_ptr = new sockaddr_storage;
+
+        int result = inet_pton(family, ip_address.c_str(), addr_ptr);
+        if(result == -1) throw MethodError(__func__, "inet_pton");
+
+        if(family == ip_family::INET)
+        {
+            reinterpret_cast<sockaddr_in *>(addr_ptr)->sin_port = htons(port);
+            return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), sizeof(sockaddr_in)};
+        }
+        else if(family == ip_family::INET6)
+        {
+            reinterpret_cast<sockaddr_in6 *>(addr_ptr)->sin6_port = htons(port);
+            return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), sizeof(sockaddr_in6)};
+        }
     }
 
     uint16_t
