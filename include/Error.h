@@ -17,6 +17,11 @@ namespace sockets {
     std::string
     get_error_message(int code);
 
+    /**
+     * @return True if the last error messages signifies that the connection was closed. False otherwise.
+     */
+    bool check_connection_reset();
+
     class StringError : public std::exception
     {
     public:

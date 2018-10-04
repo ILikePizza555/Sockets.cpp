@@ -12,4 +12,9 @@ namespace sockets {
     {
         return std::string(strerror(code));
     }
+
+    bool check_connection_closed()
+    {
+        return errno == ECONNRESET;
+    }
 }

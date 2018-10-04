@@ -22,3 +22,8 @@ std::string sockets::get_error_message(int code)
                   nullptr);
     return std::string(message);
 }
+
+bool sockets::check_connection_closed()
+{
+    return WSAGetLastError() == WSAECONNRESET;
+}
