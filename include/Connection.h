@@ -102,8 +102,7 @@ namespace sockets {
             // Ensure that the buffer has the capacity for n bytes
             _buffer.reserve(n);
 
-            ssize_t bytes_read = _socket.recv(_buffer, n);
-            if (bytes_read == -1) throw MethodError(__func__, "recv", get_error_code(), get_error_message);
+            _socket.recv(_buffer, n);
 
             return _buffer;
         }
@@ -127,9 +126,7 @@ namespace sockets {
 
             while (_buffer.size() < n)
             {
-                ssize_t bytes_received = _socket.recv(_buffer, n - _buffer.size(), _buffer.size());
-                if (bytes_received == -1)
-                    throw MethodError(__func__, "recv", get_error_code(), get_error_message);
+                _socket.recv(_buffer, n - _buffer.size(), _buffer.size());
             }
 
             return _buffer;
@@ -155,8 +152,6 @@ namespace sockets {
             while(true)
             {
                 ssize_t bytes_received = _socket.recv(_buffer, DEFAULT_BUFFER_CAPACITY, _buffer.size());
-                if(bytes_received == -1)
-                    throw MethodError( __func__, "rev", get_error_code(), get_error_message);
 
                 // Search for a delimiter in the received bytes
                 auto needle = std::search(_buffer.begin() + bytes_received, _buffer.end(), delim.begin(), delim.end());
@@ -193,7 +188,6 @@ namespace sockets {
 
             std::copy(begin, end, _buffer.begin());
             ssize_t bytes = _socket.send(_buffer, 0, 0);
-            if(bytes == -1) throw MethodError(__func__, "send", get_error_code(), get_error_message);
 
             return static_cast<size_t>(bytes);
         }
@@ -205,7 +199,6 @@ namespace sockets {
             check_connection_state(__func__, _socket, _closed);
 
             ssize_t bytes = _socket.send(data.data(), data.size(), 0);
-            if(bytes == -1) throw MethodError(__func__, "send", get_error_code(), get_error_message);
 
             return static_cast<size_t>(bytes);
         }
