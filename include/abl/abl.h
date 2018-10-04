@@ -15,17 +15,6 @@
 #endif
 
 namespace sockets {
-    // Define the socket type
-#ifdef _WIN32
-    typedef SOCKET sock_t;
-    const static sock_t invalid_socket = INVALID_SOCKET;
-
-    typedef int socklen_t;
-#else
-    //Unix
-    typedef int sock_t;
-    const static sock_t invalid_socket = -1;
-#endif
     /**
      * Define the supported address families
      */
