@@ -215,11 +215,16 @@ namespace sockets {
             return _socket;
         }
 
+        std::string get_name() const
+        {
+            return _socket.getpeername().name();
+        }
+
         /**
          * Returns true if closed. False if otherwise.
          */
         bool
-        closed()
+        closed() const
         {
             return _closed;
         }
