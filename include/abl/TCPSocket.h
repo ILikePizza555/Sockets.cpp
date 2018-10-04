@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "socket.h"
 #include "Byte.h"
 #include <tuple>
 #include <memory>
