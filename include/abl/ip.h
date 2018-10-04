@@ -49,6 +49,16 @@ namespace sockets {
     };
 
     /**
+     * @return An addr_t object set to the ipv4 loopback address
+     */
+    addr_t new_v4_loopback();
+
+    /**
+     * @return Anaddr_t object set to the ipv6 loopback address
+     */
+    addr_t new_v6_loopback();
+
+    /**
      * Class that carries the flags for getaddrinfo
      */
     class AddrInfoFlags
