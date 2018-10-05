@@ -95,7 +95,7 @@ namespace sockets
                                 static_cast<int>(amount),
                                 flags);
         if(result == SOCKET_ERROR)
-            throw MethodError("TCPSocket::recv", "recv");
+            throw SocketReadError("TCPSocket::recv");
 
         // Resize to the read amount. This correctly sets size() on the buffer.
         buffer.resize(static_cast<size_t>(result) + offset);
@@ -109,7 +109,7 @@ namespace sockets
                                  static_cast<int>(buffer.size()),
                                  flags);
         if(result == SOCKET_ERROR)
-            throw MethodError("TCPSocket::send", "send");
+            throw SocketWriteError("TCPSocket::send");
 
         return static_cast<size_t>(result);
     }
