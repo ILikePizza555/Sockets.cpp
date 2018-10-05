@@ -49,11 +49,37 @@ namespace sockets {
         return ss.str().c_str();
     }
 
-    ConnectionResetError::ConnectionResetError()
-    {}
-
-    const char* ConnectionResetError::what() const noexcept
+    SocketReadError::SocketReadError(std::string tfn) : MethodError(std::move(tfn), "recv"),
+                                                        type(map_error_type(get_error_code()))
     {
-        return "Connection reset by peer.";
+    }
+
+    const char* SocketReadError::what() const noexcept
+    {
+        std::stringstream ss;
+        ss << "SocketReadError thrown by " << throwing_function_name;
+        ss << "Error code: " << error_code;
+
+        if(lookup)
+            ss << ": " << lookup(error_code);
+
+        return ss.str().c_str();
+    }
+
+    SocketWriteError::SocketWriteError(std::string tfn) : MethodError(std::move(tfn), "send"),
+                                                          type(map_error_type(get_error_code()))
+    {
+    }
+
+    const char* SocketWriteError::what() const noexcept
+    {
+        std::stringstream ss;
+        ss << "SocketWriteError thrown by " << throwing_function_name;
+        ss << "Error code: " << error_code;
+
+        if(lookup)
+            ss << ": " << lookup(error_code);
+
+        return ss.str().c_str();
     }
 }

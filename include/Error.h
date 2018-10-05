@@ -107,7 +107,7 @@ namespace sockets {
 
     public:
         /** Type of error */
-        ErrorType type;
+        const ErrorType type;
 
         SocketReadError(std::string tfn);
 
