@@ -23,7 +23,42 @@ std::string sockets::get_error_message(int code)
     return std::string(message);
 }
 
-bool sockets::check_connection_closed()
+sockets::SocketReadError::ErrorType sockets::SocketReadError::map_error_type(int code)
 {
-    return WSAGetLastError() == WSAECONNRESET;
+    switch (code)
+    {
+        case WSANOTINITIALISED:
+            return ErrorType::NOT_INITIALIZED;
+        case WSAEWOULDBLOCK:
+            return ErrorType::WOULD_BLOCK;
+        case WSAENOTSOCK:
+            return ErrorType::NOT_SOCKET;
+        case WSAETIMEDOUT:
+            return ErrorType::TIMED_OUT;
+        case WSAENOTCONN:
+            return ErrorType::NOT_CONNECTED;
+        default:
+            return ErrorType::OTHER;
+    }
+}
+
+sockets::SocketWriteError::ErrorType sockets::SocketWriteError::map_error_type(int code)
+{
+    switch (code)
+    {
+        case WSANOTINITIALISED:
+            return ErrorType::NOT_INITIALIZED;
+        case WSAETIMEDOUT:
+            return ErrorType::TIMED_OUT;
+        case WSAEWOULDBLOCK:
+            return ErrorType::WOULD_BLOCK;
+        case WSAENOTSOCK:
+            return ErrorType::NOT_SOCKET;
+        case WSAENOTCONN:
+            return ErrorType::NOT_CONNECTED;
+        case WSAECONNRESET:
+            return ErrorType::CONNECTION_RESET;
+        default:
+            return ErrorType::OTHER;
+    }
 }

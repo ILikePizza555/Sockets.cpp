@@ -85,13 +85,62 @@ namespace sockets {
         what() const noexcept override;
     };
 
-    class ConnectionResetError : std::exception
+    /**
+     * Thrown by a socket class if there is an error with a call to recv()
+     */
+    class SocketReadError : MethodError
     {
     public:
+        enum ErrorType
+        {
+            NOT_INITIALIZED,
+            WOULD_BLOCK,
+            INVALID_HANDLE,
+            NOT_SOCKET,
+            TIMED_OUT,
+            INTERRUPTED,
+            NOT_CONNECTED,
+            OTHER
+        };
+    protected:
+        ErrorType map_error_type(int code);
 
-        ConnectionResetError();
+    public:
+        /** Type of error */
+        ErrorType type;
 
-        const char*
+        SocketReadError(std::string tfn);
+
+        const char *
+        what() const noexcept override;
+    };
+
+    class SocketWriteError : MethodError
+    {
+    public:
+        enum ErrorType
+        {
+            NOT_INITIALIZED,
+            TIMED_OUT,
+            WOULD_BLOCK,
+            INVALID_HANDLE,
+            NOT_SOCKET,
+            NOT_CONNECTED,
+            INTERRUPTED,
+            CONNECTION_RESET,
+            OTHER
+        };
+
+    protected:
+        ErrorType map_error_type(int code);
+
+    public:
+        /** Type of error */
+        ErrorType type;
+
+        SocketWriteError(std::string tfn);
+
+        const char *
         what() const noexcept override;
     };
 }
