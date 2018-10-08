@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 
 # Library Header Files
 # This should be set to all files in include/
-set(INCLUDE_FILES include/Byte.h include/Connection.h include/ServerSocket.h include/abl/abl.h
+set(INCLUDE_FILES include/Byte.h include/Connection.h include/ServerSocket.h include/abl/enums.h
         include/Error.h include/Byte.h include/abl/TCPSocket.h include/abl/ip.h)
 
 # Common Implementation Files
@@ -22,7 +22,7 @@ set(IMPL_UNIX src/unix/Error.cpp src/unix/ip.cpp src/unix/abl.cpp)
 
 # Windows-Specific implementation files
 # These are the implementations for windows systems
-set(IMPL_WIN32 src/win32/Error.cpp src/win32/ip.cpp src/win32/abl.cpp src/win32/handle.cpp)
+set(IMPL_WIN32 src/win32/Error.cpp src/win32/ip.cpp src/win32/enums.cpp src/win32/handle.cpp)
 
 # Create a shared library
 if(UNIX)

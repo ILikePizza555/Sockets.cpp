@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "abl/abl.h"
+#include "abl/enums.h"
 #include "abl/ip.h"
 #include "Connection.h"
 
