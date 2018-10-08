@@ -13,5 +13,8 @@ namespace sockets {
          * Struct that contains the system socket handle.
          */
         struct handle_t;
+
+        using UniqueHandle = std::unique_ptr<handle_t>;
+        using SharedHandle = std::unique_ptr<handle_t>;
     }
 }
