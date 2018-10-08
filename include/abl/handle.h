@@ -1,26 +1,51 @@
 //
+// Defines the abstraction for the system socket handle.
 // Created by avris on 10/4/2018.
 //
 
 #pragma once
 
-#include "abl.h"
+#include <memory>
 
 namespace sockets {
-    // Define the socket type
-#ifdef _WIN32
-    typedef SOCKET sock_t;
-    const static sock_t invalid_socket = INVALID_SOCKET;
+    namespace abl {
+        /**
+         * Struct that contains the system socket handle.
+         */
+        struct handle_t;
 
-    typedef int socklen_t;
-#else
-    //Unix
-    typedef int sock_t;
-    const static sock_t invalid_socket = -1;
-#endif
+        namespace {
+            /**
+             * Type unsafe method for getting the system handle type.
+             * @param handle
+             * @return
+             */
+            void* get_system_handle(const handle_t* handle);
+            void* get_system_handle(const std::unique_ptr<handle_t>& handle);
+            void* get_system_handle(const std::shared_ptr<handle_t>& handle);
+        }
 
+        /**
+         * Returns the system handle stored in handle_t
+         * @tparam SystemType The type of the handle the system uses.
+         * @return
+         */
+        template<typename SystemType>
+        SystemType get_handle(const handle_t* handle)
+        {
+            return *reinterpret_cast<SystemType*>(get_system_handle(handle));
+        }
 
-    void set_ipv6_only(sock_t socket, bool enable);
+        template<typename SystemType>
+        SystemType get_handle(const std::unique_ptr<handle_t>& handle)
+        {
+            return *reinterpret_cast<SystemType>(get_system_handle(handle));
+        }
 
-    bool get_ipv6_only(sock_t socket);
+        template<typename SystemType>
+        SystemType get_handle(const std::shared_ptr<handle_t>& handle)
+        {
+            return *reinterpret_cast<SystemType>(get_system_handle(handle));
+        }
+    }
 }
