@@ -6,6 +6,7 @@
 #pragma once
 
 #include "handle.h"
+#include "enums.h"
 
 #ifdef _WIN32
 
@@ -28,5 +29,9 @@ namespace sockets {
         int get_system_handle(const UniqueHandle& handle);
         int get_system_handle(const SharedHandle& handle);
 #endif
+
+        int iftosys(ip_family family);
+        int sttosys(sock_type type);
+        int sptosys(sock_proto proto);
     }
 }
