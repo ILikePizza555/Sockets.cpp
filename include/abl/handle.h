@@ -15,6 +15,6 @@ namespace sockets {
         struct handle_t;
 
         using UniqueHandle = std::unique_ptr<handle_t>;
-        using SharedHandle = std::unique_ptr<handle_t>;
+        using SharedHandle = std::shared_ptr<handle_t>;
     }
 }
