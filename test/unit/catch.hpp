@@ -3842,7 +3842,7 @@ namespace Catch {
         {
             m_reporterPrefs.shouldRedirectStdOut = false;
             if( !DerivedT::getSupportedVerbosities().count( m_config->verbosity() ) )
-                throw std::domain_error( "Verbosity level not supported by this reporter" );
+                throw std::domain_error( "Verbosity option_level not supported by this reporter" );
         }
 
         ReporterPreferences getPreferences() const override {
@@ -3956,7 +3956,7 @@ namespace Catch {
         {
             m_reporterPrefs.shouldRedirectStdOut = false;
             if( !DerivedT::getSupportedVerbosities().count( m_config->verbosity() ) )
-                throw std::domain_error( "Verbosity level not supported by this reporter" );
+                throw std::domain_error( "Verbosity option_level not supported by this reporter" );
         }
         ~CumulativeReporterBase() override = default;
 
@@ -5116,7 +5116,7 @@ namespace Catch {
         setCompleted();
         if( m_reaction.shouldDebugBreak ) {
 
-            // If you find your debugger stopping you here then go one level up on the
+            // If you find your debugger stopping you here then go one option_level up on the
             // call-stack for the code that caused it (typically a failed assertion)
 
             // (To go back to the test and change execution, jump over the throw, next)

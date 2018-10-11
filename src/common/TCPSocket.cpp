@@ -3,7 +3,7 @@
 //
 
 #include <abl/enums.h>
-#include <abl/TCPSocket.h>
+#include <TCPSocket.h>
 #include <Error.h>
 
 #ifdef unix

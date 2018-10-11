@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include "Byte.h"
-#include "abl/TCPSocket.h"
+#include "TCPSocket.h"
 #include "Error.h"
 
 #ifndef DEFAULT_BUFFER_CAPACITY
