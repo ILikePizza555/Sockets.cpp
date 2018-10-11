@@ -5,12 +5,14 @@
 
 #pragma once
 
+#include "ip.h"
 #include "handle.h"
 #include "enums.h"
 
 #ifdef _WIN32
 
 #include <winsock2.h>
+#include <ws2ipdef.h>
 
 #elif __unix
 
@@ -33,5 +35,8 @@ namespace sockets {
         int iftosys(ip_family family);
         int sttosys(sock_type type);
         int sptosys(sock_proto proto);
+
+        sockaddr_in ipv4_to_system(ipv4_addr address);
+        sockaddr_in6 ipv6_to_system(ipv6_addr address);
     }
 }
