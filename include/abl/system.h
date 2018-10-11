@@ -26,10 +26,14 @@ namespace sockets {
         SOCKET get_system_handle(const handle_t* handle);
         SOCKET get_system_handle(const UniqueHandle& handle);
         SOCKET get_system_handle(const SharedHandle& handle);
+
+        handle_t* from_system_handle(SOCKET handle);
 #elif __unix
         int get_system_handle(const handle_t* handle);
         int get_system_handle(const UniqueHandle& handle);
         int get_system_handle(const SharedHandle& handle);
+
+        handle_t* from_system_handle(int handle);
 #endif
 
         int iftosys(ip_family family);

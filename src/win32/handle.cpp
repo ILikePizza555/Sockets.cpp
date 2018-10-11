@@ -26,5 +26,10 @@ namespace sockets {
         {
             return handle->socket;
         }
+
+        handle_t* from_system_handle(SOCKET handle)
+        {
+            return new handle_t{handle};
+        }
     }
 }
