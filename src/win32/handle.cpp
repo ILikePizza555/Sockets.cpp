@@ -3,23 +3,28 @@
 //
 
 #include <abl/handle.h>
-#include <Error.h>
+#include <abl/system.h>
 
-void sockets::set_ipv6_only(sock_t socket, bool enable)
-{
-    BOOL optval = enable;
+namespace sockets {
+    namespace abl {
+        struct handle_t
+        {
+            SOCKET socket;
+        };
 
-    auto result = setsockopt(socket, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(optval), sizeof(BOOL));
-    if(result == SOCKET_ERROR) throw MethodError(__func__, "setsockopt");
-}
+        SOCKET get_system_handle(const handle_t* handle)
+        {
+            return handle->socket;
+        }
 
-bool sockets::get_ipv6_only(sockets::sock_t socket)
-{
-    BOOL value = 0;
-    int value_len = sizeof(BOOL);
+        SOCKET get_system_handle(const UniqueHandle& handle)
+        {
+            return handle->socket;
+        }
 
-    auto result = getsockopt(socket, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<char *>(value), &value_len);
-    if(result == SOCKET_ERROR) throw MethodError(__func__, "setsockopt");
-
-    return value != 0;
+        SOCKET get_system_handle(const SharedHandle& handle)
+        {
+            return handle->socket;
+        }
+    }
 }
