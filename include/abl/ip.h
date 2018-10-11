@@ -39,19 +39,22 @@ namespace sockets {
         };
 
 
-        class IpAddress
+        struct IpAddress
         {
-            std::unique_ptr<sockaddr_storage> addr_ptr = nullptr;
+            std::unique_ptr<addr_t> addr_ptr = nullptr;
             size_t length = 0;
 
-            sockaddr *
-            as_sockaddr() const;
+            IpAddress() = default;
+            IpAddress(std::unique_ptr<addr_t> addr_ptr);
 
-            sockaddr_in *
-            as_sockaddr4() const;
-
-            sockaddr_in6 *
-            as_sockaddr6() const;
+            /**
+             * Creates a new IpAddress from an ip address encoded as a string.
+             *
+             * @param family The family of the ip address.
+             * @param address The textual representation of the ip address
+             * @param port The port in host byte order
+             */
+            IpAddress(ip_family family, std::string address, uint16_t port);
 
             ip_family
             get_family() const;
@@ -77,17 +80,6 @@ namespace sockets {
             uint16_t
             port() const;
         };
-
-        /**
-         * Generates an addr_t structure from an ip address encoded as a string.
-         *
-         * @param family The family of ip address to use (either INET or INET6)
-         * @param ip_address A string holding a textual representation of an ip address
-         * @param port A port in host byte order
-         * @return An addr_t structure
-         */
-        addr_t
-        from_string(ip_family family, std::string ip_address, unsigned short port);
 
         /**
          * Class that carries the flags for getaddrinfo
@@ -131,11 +123,11 @@ namespace sockets {
             ip_family family;
             sock_type socket_type;
             sock_proto protocol;
-            addr_t address;
+            IpAddress address;
 
-            address_info(ip_family family, sock_type socket_type, sock_proto protocol, addr_t address);
+            address_info(ip_family family, sock_type socket_type, sock_proto protocol, IpAddress address);
 
-            address_info(int family, int socket_type, int protocol, addr_t address);
+            address_info(int family, int socket_type, int protocol, IpAddress address);
         };
 
 
