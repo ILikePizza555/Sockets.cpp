@@ -25,31 +25,14 @@ namespace sockets {
             if(family != ip_family::INET && family != ip_family::INET6)
                 throw std::invalid_argument("Invalid Argument for family: not INET nor INET6");
 
-            // Copy a string into a unique pointer to a character array to use with WSAStringToAddress
-            // and to manage memory for us.
-            std::unique_ptr<char[]> string_cpy = std::make_unique<char[]>(address.size());
-            std::copy(address.cbegin(), address.cend(), string_cpy.get());
-
             if(family == ip_family::INET)
             {
-                sockaddr_in s = ipv4strtoaddr(string_cpy.get());
-
-                this->addr_ptr = std::make_unique<addr_t>();
-                this->addr_ptr->v4addr = ipv4_addr{port, to_array(s)};
+                this->addr_ptr = std::make_unique<addr_t>(system::system_to_ipv4(system::ipv4str_to_addr(address, port)));
             }
 
             if(family == ip_family::INET6)
             {
-                sockaddr_in6 s = ipv6strtoaddr(string_cpy.get());
-
-                // Create an addr_t pointer holding an ipv6_addr struct
-                this->addr_ptr = std::unique_ptr<addr_t>();
-                this->addr_ptr->v6addr = ipv6_addr{
-                        port,
-                        s.sin6_flowinfo,
-                        to_array(s),
-                        s.sin6_scope_id
-                };
+                this->addr_ptr = std::make_unique<addr_t>(system::system_to_ipv6(system::ipv6str_to_addr(address, port)));
             }
         }
 
