@@ -22,7 +22,7 @@ set(IMPL_UNIX src/unix/Error.cpp src/unix/ip.cpp src/unix/abl.cpp)
 
 # Windows-Specific implementation files
 # These are the implementations for windows systems
-set(IMPL_WIN32 src/win32/Error.cpp src/win32/handle.cpp include/abl/options.h)
+set(IMPL_WIN32 src/win32/Error.cpp src/win32/handle.cpp)
 
 # Create a shared library
 if(UNIX)
