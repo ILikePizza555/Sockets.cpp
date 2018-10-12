@@ -8,6 +8,8 @@
 #include <Error.h>
 #include <inaddr.h>
 #include <in6addr.h>
+#include <Ws2tcpip.h>
+
 
 namespace sockets {
     namespace abl {
@@ -96,6 +98,45 @@ namespace sockets {
         {
             // Because this is the same for both structs in the union, we don't need to check for the correct struct.
             return this->addr_ptr->v4addr.port;
+        }
+
+        void AddrInfoFlags::set_all()
+        {
+            this->flags |= 0x0100;
+        }
+
+        AddrInfoFlags& AddrInfoFlags::set_ipv4_mapping()
+        {
+            this->flags |= 0x0800;
+            return *this;
+        }
+
+        AddrInfoFlags& AddrInfoFlags::set_passive()
+        {
+            this->flags |= 0x01;
+            return *this;
+        }
+
+        AddrInfoFlags& AddrInfoFlags::set_addr_config()
+        {
+            this->flags |= 0x0400;
+            return *this;
+        }
+
+        AddrInfoFlags& AddrInfoFlags::set_numeric_host()
+        {
+            this->flags |= 0x04;
+            return *this;
+        }
+
+        AddrInfoFlags& AddrInfoFlags::set_numeric_serv()
+        {
+            return *this;
+        }
+
+        int AddrInfoFlags::get()
+        {
+            return this->flags;
         }
     }
 }
