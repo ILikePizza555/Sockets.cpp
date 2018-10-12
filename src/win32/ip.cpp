@@ -104,5 +104,17 @@ namespace sockets {
                 };
             }
         }
+
+        IpAddress& IpAddress::operator=(sockets::abl::IpAddress&& other) noexcept
+        {
+            if(this != &other)
+            {
+                this->addr_ptr = std::move(other.addr_ptr);
+                this->family = other.family;
+
+                other.family = ip_family::ANY;
+            }
+            return *this;
+        }
     }
 }
