@@ -9,59 +9,6 @@
 #include <inaddr.h>
 #include <in6addr.h>
 
-sockaddr_in ipv4strtoaddr(char* str)
-{
-    sockaddr_in s{};
-    s.sin_family = AF_INET;
-    int s_size = sizeof(s);
-
-    int result = WSAStringToAddressA(
-            str,
-            AF_INET,
-            NULL,
-            reinterpret_cast<LPSOCKADDR>(&s),
-            &s_size);
-
-    if (result == SOCKET_ERROR)
-        throw sockets::MethodError(__func__, "WSAStringToAddressA");
-
-    return s;
-}
-
-sockaddr_in6 ipv6strtoaddr(char* str)
-{
-    sockaddr_in6 s{};
-    s.sin6_family = AF_INET6;
-    int s_size = sizeof(s);
-
-    int result = WSAStringToAddressA(
-            str,
-            AF_INET6,
-            NULL,
-            reinterpret_cast<LPSOCKADDR>(&s),
-            &s_size);
-
-    if(result == SOCKET_ERROR)
-        throw sockets::MethodError("IpAddress::IpAddress", "WSAStringToAddressA");
-
-    return s;
-}
-
-std::array<unsigned char, 4> to_array(sockaddr_in addr)
-{
-    return std::array<unsigned char, 4> { addr.sin_addr.S_un.S_un_b.s_b1,
-                                          addr.sin_addr.S_un.S_un_b.s_b2,
-                                          addr.sin_addr.S_un.S_un_b.s_b3,
-                                          addr.sin_addr.S_un.S_un_b.s_b4 };
-}
-
-std::array<unsigned char, 16> to_array(sockaddr_in6 addr)
-{
-    std::array<unsigned char, 16> rv{};
-    std::copy(addr.sin6_addr.u.Byte, addr.sin6_addr.u.Byte + 16, rv.begin());
-    return rv;
-}
-
 namespace sockets {
     namespace abl {
         IpAddress::IpAddress(std::unique_ptr<addr_t> &&addr_ptr, ip_family family) : family(family),
