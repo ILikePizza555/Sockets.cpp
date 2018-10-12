@@ -79,7 +79,7 @@ namespace sockets {
             return rv;
         }
 
-        sockaddr_in system::ipv4str_to_addr(const std::string &str)
+        sockaddr_in system::ipv4str_to_addr(const std::string &str, uint16_t port)
         {
             std::unique_ptr<char[]> str_copy = std::make_unique<char[]>(str.size());
             std::copy(str.cbegin(), str.cend(), str_copy.get());
@@ -98,10 +98,12 @@ namespace sockets {
             if (result == SOCKET_ERROR)
                 throw sockets::MethodError(__func__, "WSAStringToAddressA");
 
+            s.sin_port = port;
+
             return s;
         }
 
-        sockaddr_in6 system::ipv6str_to_addr(const std::string &str)
+        sockaddr_in6 system::ipv6str_to_addr(const std::string &str, uint16_t port)
         {
             std::unique_ptr<char[]> str_copy = std::make_unique<char[]>(str.size());
             std::copy(str.cbegin(), str.cend(), str_copy.get());
@@ -119,6 +121,8 @@ namespace sockets {
 
             if(result == SOCKET_ERROR)
                 throw sockets::MethodError(__func__, "WSAStringToAddressA");
+
+            s.sin6_port = port;
 
             return s;
         }

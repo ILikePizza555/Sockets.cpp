@@ -78,10 +78,10 @@ namespace sockets {
             system_to_ipv6(const sockaddr_in6 &addr);
 
             sockaddr_in
-            ipv4str_to_addr(const std::string &str);
+            ipv4str_to_addr(const std::string &str, uint16_t port);
 
             sockaddr_in6
-            ipv6str_to_addr(const std::string &str);
+            ipv6str_to_addr(const std::string &str, uint16_t port);
 
             std::string
             to_string(const sockaddr_in &ipv4_addr);
