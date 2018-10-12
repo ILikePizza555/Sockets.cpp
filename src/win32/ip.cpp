@@ -2,6 +2,7 @@
 // Created by avris on 10/11/2018.
 //
 
+#include <algorithm>
 #include <abl/ip.h>
 #include <abl/system.h>
 #include <Error.h>
@@ -115,6 +116,29 @@ namespace sockets {
                 other.family = ip_family::ANY;
             }
             return *this;
+        }
+
+        ip_family IpAddress::get_family() const
+        {
+            return this->family;
+        }
+
+        bool IpAddress::is_loopback() const
+        {
+            if(this->family == ip_family::INET)
+            {
+                return addr_ptr->v4addr.address[0] == 127;
+            }
+
+            if(this->family == ip_family::INET6)
+            {
+                return std::all_of(addr_ptr->v6addr.address.begin(),
+                                   addr_ptr->v6addr.address.end() - 1,
+                                   [](unsigned char b){return b == 0;}) &&
+                       addr_ptr->v6addr.address[15] == 1;
+            }
+
+            return false;
         }
     }
 }

@@ -59,8 +59,6 @@ namespace sockets {
              */
             IpAddress(ip_family family, const std::string& address, uint16_t port);
 
-            ~IpAddress();
-
             ip_family
             get_family() const;
 
