@@ -5,7 +5,6 @@
 #include <abl/system.h>
 #include <in6addr.h>
 #include <Error.h>
-#include "../../../../AppData/Local/Packages/CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc/LocalState/rootfs/usr/include/netinet/in.h"
 
 namespace sockets {
     namespace abl {
