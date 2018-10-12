@@ -8,6 +8,59 @@
 #include <inaddr.h>
 #include <in6addr.h>
 
+sockaddr_in ipv4strtoaddr(char* str)
+{
+    sockaddr_in s{};
+    s.sin_family = AF_INET;
+    int s_size = sizeof(s);
+
+    int result = WSAStringToAddressA(
+            str,
+            AF_INET,
+            NULL,
+            reinterpret_cast<LPSOCKADDR>(&s),
+            &s_size);
+
+    if (result == SOCKET_ERROR)
+        throw sockets::MethodError(__func__, "WSAStringToAddressA");
+
+    return s;
+}
+
+sockaddr_in6 ipv6strtoaddr(char* str)
+{
+    sockaddr_in6 s{};
+    s.sin6_family = AF_INET6;
+    int s_size = sizeof(s);
+
+    int result = WSAStringToAddressA(
+            str,
+            AF_INET6,
+            NULL,
+            reinterpret_cast<LPSOCKADDR>(&s),
+            &s_size);
+
+    if(result == SOCKET_ERROR)
+        throw sockets::MethodError("IpAddress::IpAddress", "WSAStringToAddressA");
+
+    return s;
+}
+
+std::array<unsigned char, 4> to_array(sockaddr_in addr)
+{
+    return std::array<unsigned char, 4> { addr.sin_addr.S_un.S_un_b.s_b1,
+                                          addr.sin_addr.S_un.S_un_b.s_b2,
+                                          addr.sin_addr.S_un.S_un_b.s_b3,
+                                          addr.sin_addr.S_un.S_un_b.s_b4 };
+}
+
+std::array<unsigned char, 16> to_array(sockaddr_in6 addr)
+{
+    std::array<unsigned char, 16> rv{};
+    std::copy(addr.sin6_addr.u.Byte, addr.sin6_addr.u.Byte + 16, rv.begin());
+    return rv;
+}
+
 namespace sockets {
     namespace abl {
         IpAddress::IpAddress(std::unique_ptr<addr_t> &&addr_ptr, ip_family family) : family(family),
@@ -31,58 +84,24 @@ namespace sockets {
 
             if(family == ip_family::INET)
             {
-                sockaddr_in s{};
-                s.sin_family = static_cast<short>(iftosys(family));
-                int s_size = sizeof(s);
+                sockaddr_in s = ipv4strtoaddr(string_cpy.get());
 
-                int result = WSAStringToAddressA(
-                        string_cpy.get(),
-                        iftosys(family),
-                        NULL,
-                        reinterpret_cast<LPSOCKADDR>(&s),
-                        &s_size);
-
-                if (result == SOCKET_ERROR)
-                    throw MethodError("IpAddress::IpAddress", "WSAStringToAddressA");
-
-                // Create an addr_t pointer
-                auto p = new addr_t{};
-                p->v4addr = ipv4_addr{port, {s.sin_addr.S_un.S_un_b.s_b1,
-                                             s.sin_addr.S_un.S_un_b.s_b2,
-                                             s.sin_addr.S_un.S_un_b.s_b3,
-                                             s.sin_addr.S_un.S_un_b.s_b4}};
-                this->addr_ptr = std::unique_ptr<addr_t>(p);
+                this->addr_ptr = std::make_unique<addr_t>();
+                this->addr_ptr->v4addr = ipv4_addr{port, to_array(s)};
             }
 
             if(family == ip_family::INET6)
             {
-                sockaddr_in6 s{};
-                s.sin6_family = static_cast<short>(iftosys(family));
-                int s_size = sizeof(s);
-
-                int result = WSAStringToAddressA(
-                        string_cpy.get(),
-                        iftosys(family),
-                        NULL,
-                        reinterpret_cast<LPSOCKADDR>(&s),
-                        &s_size);
-
-                if(result == SOCKET_ERROR)
-                    throw MethodError("IpAddress::IpAddress", "WSAStringToAddressA");
+                sockaddr_in6 s = ipv6strtoaddr(string_cpy.get());
 
                 // Create an addr_t pointer holding an ipv6_addr struct
-                auto p = new addr_t{};
-                p->v6addr = ipv6_addr{
-                    port,
-                    s.sin6_flowinfo,
-                    {},
-                    s.sin6_scope_id
+                this->addr_ptr = std::unique_ptr<addr_t>();
+                this->addr_ptr->v6addr = ipv6_addr{
+                        port,
+                        s.sin6_flowinfo,
+                        to_array(s),
+                        s.sin6_scope_id
                 };
-
-                // Copy the address from the struct to our struct
-                std::copy(s.sin6_addr.u.Byte, s.sin6_addr.u.Byte + 16, p->v6addr.address.begin());
-
-                this->addr_ptr = std::unique_ptr<addr_t>(p);
             }
         }
     }
