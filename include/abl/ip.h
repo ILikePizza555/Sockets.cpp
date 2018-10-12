@@ -14,7 +14,6 @@ namespace sockets {
     namespace abl {
         struct ipv4_addr
         {
-            const ip_family family = ip_family::INET;
             uint16_t port = 0;
 
             /** The ip address stored as an array of bytes in host byte order */
@@ -23,7 +22,6 @@ namespace sockets {
 
         struct ipv6_addr
         {
-            const ip_family family = ip_family::INET6;
             uint16_t port = 0;
 
             uint32_t flowinfo;
@@ -39,13 +37,18 @@ namespace sockets {
         };
 
 
-        struct IpAddress
+        class IpAddress
         {
+        private:
+            ip_family family = ip_family::ANY;
             std::unique_ptr<addr_t> addr_ptr = nullptr;
-            size_t length = 0;
 
+        public:
             IpAddress() = default;
-            IpAddress(std::unique_ptr<addr_t> addr_ptr);
+            IpAddress(std::unique_ptr<addr_t>&& addr_ptr, ip_family family);
+            IpAddress(IpAddress&& other) noexcept;
+
+            IpAddress& operator=(IpAddress&& other) noexcept;
 
             /**
              * Creates a new IpAddress from an ip address encoded as a string.
@@ -54,7 +57,9 @@ namespace sockets {
              * @param address The textual representation of the ip address
              * @param port The port in host byte order
              */
-            IpAddress(ip_family family, std::string address, uint16_t port);
+            IpAddress(ip_family family, const std::string& address, uint16_t port);
+
+            ~IpAddress();
 
             ip_family
             get_family() const;
