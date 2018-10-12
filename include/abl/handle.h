@@ -22,7 +22,7 @@ namespace sockets {
          */
         void close_handle(handle_t handle);
 
-        using UniqueHandle = std::unique_ptr<handle_t>;
+        using UniqueHandle = std::unique_ptr<handle_t, decltype(&close_handle)>;
         using SharedHandle = std::shared_ptr<handle_t>;
 
         using HandleRef = const handle_t *;
