@@ -70,5 +70,22 @@ namespace sockets {
 
             return false;
         }
+
+        std::string IpAddress::name() const
+        {
+            if (this->family == ip_family::INET)
+                return system::to_string(system::ipv4_to_system(this->addr_ptr->v4addr));
+
+            if (this->family == ip_family::INET6)
+                return system::to_string(system::ipv6_to_system(this->addr_ptr->v6addr));
+
+            throw InvalidStateError("IpAddress", __func__, "family not set to INET or INET6.");
+        }
+
+        uint16_t IpAddress::port() const
+        {
+            // Because this is the same for both structs in the union, we don't need to check for the correct struct.
+            return this->addr_ptr->v4addr.port;
+        }
     }
 }
