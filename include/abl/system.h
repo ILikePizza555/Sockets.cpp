@@ -47,12 +47,21 @@ namespace sockets {
             handle_t* from_system_handle(int handle);
 #endif
 
+            /**
+             * Converts the ip_family enum into a valid parameter for the system socket call.
+             */
             int
             iftosys(ip_family family);
 
+            /**
+             * Converts the sock_type enum into a valid parameter for the system socket call.
+             */
             int
             sttosys(sock_type type);
 
+            /**
+             * Converts the sock_proto enum into a valid parameter for the system socket call.
+             */
             int
             sptosys(sock_proto proto);
 
