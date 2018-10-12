@@ -70,15 +70,25 @@ namespace sockets {
         string(std::stringstream ss) const override;
     };
 
-    /**
-     * Thrown when an operation is attempted on an invalid socket
-     */
-    class InvalidSocketError : std::exception
+    class InvalidStateError : std::exception
     {
     public:
         const std::string class_name;
         const std::string function_name;
+        const std::string message;
 
+        InvalidStateError(std::string class_name, std::string function_name, std::string message);
+
+        const char *
+        what() const noexcept override;
+    };
+
+    /**
+     * Thrown when an operation is attempted on an invalid socket
+     */
+    class InvalidSocketError : public InvalidStateError
+    {
+    public:
         InvalidSocketError(std::string class_name, std::string function_name);
 
         const char *
