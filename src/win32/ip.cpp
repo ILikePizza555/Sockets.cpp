@@ -48,6 +48,16 @@ namespace sockets {
             return *this;
         }
 
+        const std::unique_ptr<addr_t>& IpAddress::addr() const
+        {
+            return this->addr_ptr;
+        }
+
+        std::unique_ptr<addr_t>& IpAddress::addr()
+        {
+            return this->addr_ptr;
+        }
+
         ip_family IpAddress::get_family() const
         {
             return this->family;

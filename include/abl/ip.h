@@ -16,7 +16,7 @@ namespace sockets {
         {
             uint16_t port = 0;
 
-            /** The ip address stored as an array of bytes in host byte order */
+            /** The ip address stored as an array of bytes in big-endian format */
             std::array<unsigned char, 4> address = {};
         };
 
@@ -25,7 +25,7 @@ namespace sockets {
             uint16_t port = 0;
 
             uint32_t flowinfo;
-            /** The ip address stored as an array of bytes in host byte order */
+            /** The ip address stored as an array of bytes in big-endian format */
             std::array<unsigned char, 16> address = {};
             uint32_t scope_id;
         };
@@ -58,6 +58,9 @@ namespace sockets {
              * @param port The port in host byte order
              */
             IpAddress(ip_family family, const std::string& address, uint16_t port);
+
+            const std::unique_ptr<addr_t>& addr() const;
+            std::unique_ptr<addr_t>& addr();
 
             ip_family
             get_family() const;
