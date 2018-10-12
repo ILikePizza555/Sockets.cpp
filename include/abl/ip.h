@@ -130,10 +130,6 @@ namespace sockets {
             sock_type socket_type;
             sock_proto protocol;
             IpAddress address;
-
-            address_info(ip_family family, sock_type socket_type, sock_proto protocol, IpAddress address);
-
-            address_info(int family, int socket_type, int protocol, IpAddress address);
         };
 
 
