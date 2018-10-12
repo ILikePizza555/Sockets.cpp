@@ -12,6 +12,11 @@ namespace sockets {
             SOCKET socket;
         };
 
+        void close_handle(handle_t* handle)
+        {
+            closesocket(handle->socket);
+        }
+
         SOCKET get_system_handle(const handle_t* handle)
         {
             return handle->socket;
@@ -30,6 +35,18 @@ namespace sockets {
         handle_t* from_system_handle(SOCKET handle)
         {
             return new handle_t{handle};
+        }
+
+        UniqueHandle new_unique_handle(ip_family family, sock_type type, sock_proto protocol)
+        {
+            SOCKET s = socket(iftosys(family), sttosys(type), sptosys(protocol));
+            return UniqueHandle(new handle_t{s}, &close_handle);
+        }
+
+        SharedHandle new_shared_handle(ip_family family, sock_type type, sock_proto protocol)
+        {
+            SOCKET s = socket(iftosys(family), sttosys(type), sptosys(protocol));
+            return SharedHandle(new handle_t{s}, &close_handle);
         }
     }
 }

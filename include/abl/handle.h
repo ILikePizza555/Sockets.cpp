@@ -20,7 +20,7 @@ namespace sockets {
          * This function is not intended to be called directly. Use UniqueHandle or SharedHandle instead.
          * @param handle
          */
-        void close_handle(handle_t handle);
+        void close_handle(handle_t* handle);
 
         using UniqueHandle = std::unique_ptr<handle_t, decltype(&close_handle)>;
         using SharedHandle = std::shared_ptr<handle_t>;
