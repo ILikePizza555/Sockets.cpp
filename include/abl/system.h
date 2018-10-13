@@ -65,17 +65,26 @@ namespace sockets {
             int
             iftosys(ip_family family);
 
+            ip_family
+            systoif(int family);
+
             /**
              * Converts the sock_type enum into a valid parameter for the system socket call.
              */
             int
             sttosys(sock_type type);
 
+            sock_type
+            systost(int type);
+
             /**
              * Converts the sock_proto enum into a valid parameter for the system socket call.
              */
             int
             sptosys(sock_proto proto);
+
+            sock_proto
+            systosp(int proto);
 
             sockaddr_in
             ipv4_to_system(const ipv4_addr &address);
@@ -88,6 +97,9 @@ namespace sockets {
 
             ipv6_addr
             system_to_ipv6(const sockaddr_in6 &addr);
+
+            IpAddress
+            system_to_IpAddress(const sockaddr* addr);
 
             sockaddr_in
             ipv4str_to_addr(const std::string &str, uint16_t port);
