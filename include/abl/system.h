@@ -39,12 +39,24 @@ namespace sockets {
             handle_t *
             from_system_handle(SOCKET handle);
 
+            UniqueHandle
+            unique_from_system_handle(SOCKET handle);
+
+            SharedHandle
+            shared_from_system_handle(SOCKET handle);
+
 #elif __unix
             int get_system_handle(const handle_t* handle);
             int get_system_handle(const UniqueHandle& handle);
             int get_system_handle(const SharedHandle& handle);
 
             handle_t* from_system_handle(int handle);
+
+            UniqueHandle
+            unique_from_system_handle(int handle);
+
+            SharedHandle
+            shared_from_system_handle(int handle);
 #endif
 
             /**
