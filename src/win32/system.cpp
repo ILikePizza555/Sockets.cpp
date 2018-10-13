@@ -115,6 +115,21 @@ namespace sockets {
             return rv;
         }
 
+        IpAddress system::system_to_IpAddress(const sockaddr *addr)
+        {
+            if(addr->sa_family == AF_INET)
+            {
+                ipv4_addr lib_addr = system_to_ipv4(*reinterpret_cast<const sockaddr_in*>(addr));
+                return IpAddress(std::make_unique<addr_t>(lib_addr), ip_family::INET);
+            }
+
+            if(addr->sa_family == AF_INET6)
+            {
+                ipv6_addr lib_addr = system_to_ipv6(*reinterpret_cast<const sockaddr_in6*>(addr));
+                return IpAddress(std::make_unique<addr_t>(lib_addr), ip_family::INET6);
+            }
+        }
+
         sockaddr_in system::ipv4str_to_addr(const std::string &str, uint16_t port)
         {
             std::unique_ptr<char[]> str_copy = std::make_unique<char[]>(str.size());
