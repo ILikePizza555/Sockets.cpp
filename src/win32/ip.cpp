@@ -138,5 +138,48 @@ namespace sockets {
         {
             return this->flags;
         }
+
+        std::vector<address_info>
+        get_address_info(const std::string &host, const std::string &port, AddrInfoFlags &flags,
+                         ip_family hint_family, sock_type hint_type, sock_proto hint_proto)
+        {
+            addrinfo hints{
+                flags.get(),
+                system::iftosys(hint_family),
+                system::sttosys(hint_type),
+                system::sptosys(hint_proto),
+                0,
+                nullptr,
+                nullptr,
+                nullptr
+            };
+
+            addrinfo* addr_result = nullptr;
+
+            int result_code = getaddrinfo(host.data(), port.data(), &hints, &addr_result);
+            if(result_code != 0)
+            {
+                freeaddrinfo(addr_result);
+                throw MethodError(__func__, "getaddrinfo");
+            }
+
+            std::vector<address_info> rv;
+            addrinfo* next = addr_result;
+            while(next != nullptr)
+            {
+                address_info ai{
+                    system::systoif(next->ai_family),
+                    system::systost(next->ai_socktype),
+                    system::systosp(next->ai_protocol),
+                    system::system_to_IpAddress(next->ai_addr)
+                };
+                rv.push_back(ai);
+
+                next = next->ai_next;
+            }
+
+            freeaddrinfo(addr_result);
+            return rv;
+        }
     }
 }
