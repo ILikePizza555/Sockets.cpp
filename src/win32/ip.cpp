@@ -14,6 +14,18 @@
 namespace sockets {
     namespace abl {
 
+        IpAddress::IpAddress(sockets::abl::ipv4_addr addr)
+        {
+            this->addr.family = ip_family::INET;
+            this->addr.v4addr = addr;
+        }
+
+        IpAddress::IpAddress(sockets::abl::ipv6_addr addr)
+        {
+            this->addr.family = ip_family::INET6;
+            this->addr.v6addr = addr;
+        }
+
         IpAddress::IpAddress(ip_family family, const std::string& address, uint16_t port)
         {
             if(family != ip_family::INET && family != ip_family::INET6)

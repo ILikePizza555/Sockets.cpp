@@ -60,6 +60,8 @@ namespace sockets {
         public:
             IpAddress() = default;
 
+            explicit IpAddress(ipv4_addr addr);
+            explicit IpAddress(ipv6_addr addr);
             /**
              * Creates a new IpAddress from an ip address encoded as a string.
              *
