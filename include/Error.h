@@ -121,8 +121,7 @@ namespace sockets {
 
         SocketReadError(std::string tfn);
 
-        const char *
-        what() const noexcept override;
+        std::string string(std::stringstream ss) const final;
     };
 
     class SocketWriteError : MethodError
@@ -150,7 +149,6 @@ namespace sockets {
 
         SocketWriteError(std::string tfn);
 
-        const char *
-        what() const noexcept override;
+        std::string string(std::stringstream ss) const final;
     };
 }

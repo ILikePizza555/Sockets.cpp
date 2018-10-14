@@ -62,16 +62,15 @@ namespace sockets {
     {
     }
 
-    const char* SocketReadError::what() const noexcept
+    std::string SocketReadError::string(std::stringstream ss) const
     {
-        std::stringstream ss;
         ss << "SocketReadError thrown by " << throwing_function_name;
         ss << "Error code: " << error_code;
 
         if(lookup)
             ss << ": " << lookup(error_code);
 
-        return ss.str().c_str();
+        return ss.str();
     }
 
     SocketWriteError::SocketWriteError(std::string tfn) : MethodError(std::move(tfn), "send"),
@@ -79,15 +78,14 @@ namespace sockets {
     {
     }
 
-    const char* SocketWriteError::what() const noexcept
+    std::string SocketWriteError::string(std::stringstream ss) const
     {
-        std::stringstream ss;
         ss << "SocketWriteError thrown by " << throwing_function_name;
         ss << "Error code: " << error_code;
 
         if(lookup)
             ss << ": " << lookup(error_code);
 
-        return ss.str().c_str();
+        return ss.str();
     }
 }
