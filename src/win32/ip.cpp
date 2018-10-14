@@ -34,13 +34,13 @@ namespace sockets {
             if(family == ip_family::INET)
             {
                 addr.family = family;
-                addr.v4addr = system::system_to_ipv4(system::ipv4str_to_addr(address, port));
+                addr.v4addr = system::to_ipv4(system::from_ipv4_str(address, port));
             }
 
             if(family == ip_family::INET6)
             {
                 addr.family = family;
-                addr.v6addr = system::system_to_ipv6(system::ipv6str_to_addr(address, port));
+                addr.v6addr = system::to_ipv6(system::from_ipv6_str(address, port));
             }
         }
 
@@ -82,10 +82,10 @@ namespace sockets {
         std::string IpAddress::name() const
         {
             if (this->addr.family == ip_family::INET)
-                return system::to_string(system::ipv4_to_system(this->addr.v4addr));
+                return system::to_string(system::from_ipv4(this->addr.v4addr));
 
             if (this->addr.family == ip_family::INET6)
-                return system::to_string(system::ipv6_to_system(this->addr.v6addr));
+                return system::to_string(system::from_ipv6(this->addr.v6addr));
 
             throw InvalidStateError("IpAddress", __func__, "family not set to INET or INET6.");
         }
@@ -167,7 +167,7 @@ namespace sockets {
                     system::systoif(next->ai_family),
                     system::systost(next->ai_socktype),
                     system::systosp(next->ai_protocol),
-                    system::system_to_IpAddress(next->ai_addr)
+                    system::to_ipaddress(next->ai_addr)
                 };
                 rv.push_back(ai);
 

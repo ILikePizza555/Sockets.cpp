@@ -87,28 +87,28 @@ namespace sockets {
             systosp(int proto);
 
             sockaddr_in
-            ipv4_to_system(const ipv4_addr &address);
+            from_ipv4(const ipv4_addr &address);
 
             sockaddr_in6
-            ipv6_to_system(const ipv6_addr &address);
+            from_ipv6(const ipv6_addr &address);
 
             ipv4_addr
-            system_to_ipv4(const sockaddr_in &addr);
+            to_ipv4(const sockaddr_in &addr);
 
             ipv6_addr
-            system_to_ipv6(const sockaddr_in6 &addr);
+            to_ipv6(const sockaddr_in6 &addr);
 
             IpAddress
-            system_to_IpAddress(const sockaddr* addr);
+            to_ipaddress(const sockaddr *addr);
 
             sockaddr*
-            IpAddress_to_system(const IpAddress& addr);
+            from_ipaddress(const IpAddress &addr);
 
             sockaddr_in
-            ipv4str_to_addr(const std::string &str, uint16_t port);
+            from_ipv4_str(const std::string &str, uint16_t port);
 
             sockaddr_in6
-            ipv6str_to_addr(const std::string &str, uint16_t port);
+            from_ipv6_str(const std::string &str, uint16_t port);
 
             std::string
             to_string(const sockaddr_in &ipv4_addr);

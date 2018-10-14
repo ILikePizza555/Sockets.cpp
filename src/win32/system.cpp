@@ -81,7 +81,7 @@ namespace sockets {
             }
         }
 
-        sockaddr_in system::ipv4_to_system(const sockets::abl::ipv4_addr &address)
+        sockaddr_in system::from_ipv4(const sockets::abl::ipv4_addr &address)
         {
             sockaddr_in rv{AF_INET, address.port, {}, {}};
             rv.sin_addr.s_addr = (address.address[0] << 24) |
@@ -91,14 +91,14 @@ namespace sockets {
             return rv;
         }
 
-        sockaddr_in6 system::ipv6_to_system(const sockets::abl::ipv6_addr &address)
+        sockaddr_in6 system::from_ipv6(const sockets::abl::ipv6_addr &address)
         {
             sockaddr_in6 rv{AF_INET6, address.port, address.flowinfo, {}, {address.scope_id}};
             std::copy(address.address.cbegin(), address.address.cend(), rv.sin6_addr.u.Byte);
             return rv;
         }
 
-        ipv4_addr system::system_to_ipv4(const sockaddr_in &addr)
+        ipv4_addr system::to_ipv4(const sockaddr_in &addr)
         {
             return ipv4_addr{addr.sin_port, {
                 static_cast<unsigned char>((addr.sin_addr.s_addr >> 24) & 0xFF),
@@ -108,29 +108,29 @@ namespace sockets {
             }};
         }
 
-        ipv6_addr system::system_to_ipv6(const sockaddr_in6 &addr)
+        ipv6_addr system::to_ipv6(const sockaddr_in6 &addr)
         {
             ipv6_addr rv{addr.sin6_port, addr.sin6_flowinfo, {}, addr.sin6_scope_id};
             std::copy(addr.sin6_addr.u.Byte, addr.sin6_addr.u.Byte + 16, rv.address.begin());
             return rv;
         }
 
-        IpAddress system::system_to_IpAddress(const sockaddr *addr)
+        IpAddress system::to_ipaddress(const sockaddr *addr)
         {
             if(addr->sa_family == AF_INET)
             {
-                return IpAddress(system_to_ipv4(*reinterpret_cast<const sockaddr_in*>(addr)));
+                return IpAddress(to_ipv4(*reinterpret_cast<const sockaddr_in *>(addr)));
             }
 
             if(addr->sa_family == AF_INET6)
             {
-                return IpAddress(system_to_ipv6(*reinterpret_cast<const sockaddr_in6*>(addr)));
+                return IpAddress(to_ipv6(*reinterpret_cast<const sockaddr_in6 *>(addr)));
             }
 
             throw std::invalid_argument("addr->sa_family is not set to AF_INET or AF_INET6");
         }
 
-        sockaddr_in system::ipv4str_to_addr(const std::string &str, uint16_t port)
+        sockaddr_in system::from_ipv4_str(const std::string &str, uint16_t port)
         {
             std::unique_ptr<char[]> str_copy = std::make_unique<char[]>(str.size());
             std::copy(str.cbegin(), str.cend(), str_copy.get());
@@ -154,7 +154,7 @@ namespace sockets {
             return s;
         }
 
-        sockaddr_in6 system::ipv6str_to_addr(const std::string &str, uint16_t port)
+        sockaddr_in6 system::from_ipv6_str(const std::string &str, uint16_t port)
         {
             std::unique_ptr<char[]> str_copy = std::make_unique<char[]>(str.size());
             std::copy(str.cbegin(), str.cend(), str_copy.get());
