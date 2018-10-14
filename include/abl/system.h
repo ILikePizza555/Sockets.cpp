@@ -101,9 +101,6 @@ namespace sockets {
             IpAddress
             to_ipaddress(const sockaddr *addr);
 
-            sockaddr*
-            from_ipaddress(const IpAddress &addr);
-
             sockaddr_in
             from_ipv4_str(const std::string &str, uint16_t port);
 

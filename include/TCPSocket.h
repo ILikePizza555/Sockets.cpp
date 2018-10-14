@@ -5,30 +5,32 @@
 #pragma once
 
 #include "abl/handle.h"
+#include "abl/ip.h"
 #include "Byte.h"
 #include <tuple>
 #include <memory>
-#include "abl/ip.h"
 
 namespace sockets
 {
     struct TCPSocket
     {
-        sock_t socket = invalid_socket;
+        abl::UniqueHandle handle;
 
-        TCPSocket() = default;
+        TCPSocket();
 
         /**
-         * Constructs a new TCPSocket object by copying the handle
+         * Constructs a new TCPSocket object by moving the handle
          * @param socket
          */
-        explicit TCPSocket(sock_t socket);
+        explicit TCPSocket(abl::UniqueHandle&& socket);
 
         /**
          * Constructs a new TCPSocket object by creating a new socket
          * @param fam
          */
-        explicit TCPSocket(ip_family fam);
+        explicit TCPSocket(abl::ip_family fam);
+
+        bool operator==(TCPSocket& other);
 
         /**
          * Accepts the first incoming connection and creates a new connected socket.
@@ -42,11 +44,11 @@ namespace sockets
         accept() const;
 
         /**
-         * Performs the same function as accpet(), but also returns the address of the connected client.
+         * Performs the same function as accept(), but also returns the address of the connected client.
          *
-         * @return A tuple with a TCPSocket and addr_t structure.
+         * @return A tuple with a TCPSocket and an instance of IpAddress.
          */
-        std::tuple<TCPSocket, addr_t>
+        std::tuple<TCPSocket, abl::IpAddress>
         acceptfrom() const;
 
         /**
@@ -54,35 +56,35 @@ namespace sockets
          *
          * @param addr The address to bind too.
          */
-        void bind(const addr_t& addr);
+        void bind(const abl::IpAddress& addr);
 
         /**
          * Connects the socket to an address.
          *
          * @param addr
          */
-        void connect(const addr_t& addr);
+        void connect(const abl::IpAddress& addr);
 
         /**
          * Marks the socket as passive, indicating it will be used for incoming connections.
          *
          * @param backlog
          */
-        void listen(int backlog = SOMAXCONN);
+        void listen(int backlog);
 
         /**
          * Returns the address of the peer connected to the socket.
          *
          * @return
          */
-        addr_t getpeername() const;
+        abl::IpAddress getpeername() const;
 
         /**
          * Returns the address that the socket is bound too.
          *
          * @return
          */
-        addr_t getsockname() const;
+        abl::IpAddress getsockname() const;
 
         /**
          * Receives bytes into the ByteBuffer. Resizes the buffer to the appropriate size.
@@ -99,12 +101,5 @@ namespace sockets
 
         size_t
         send(const ByteBuffer& buffer, size_t offset = 0, int flags = 0) const;
-
-        int close();
     };
-
-    inline bool operator==(TCPSocket a, TCPSocket b)
-    {
-        return a.socket == b.socket;
-    }
 }
