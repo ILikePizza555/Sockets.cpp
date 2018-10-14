@@ -26,6 +26,11 @@ namespace sockets
         return this->handle == other.handle;
     }
 
+    bool TCPSocket::invalid() const
+    {
+        return this->handle == nullptr;
+    }
+
     TCPSocket TCPSocket::accept() const
     {
         auto result = ::accept(system::get_system_handle(this->handle), nullptr, nullptr);

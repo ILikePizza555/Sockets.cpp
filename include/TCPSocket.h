@@ -33,6 +33,11 @@ namespace sockets
         bool operator==(TCPSocket& other);
 
         /**
+         * Returns true if the socket is invalid; false otherwise.
+         */
+        bool invalid() const;
+
+        /**
          * Accepts the first incoming connection and creates a new connected socket.
          *
          * This method will only work if the socket has been bound, and has been marked as passive
