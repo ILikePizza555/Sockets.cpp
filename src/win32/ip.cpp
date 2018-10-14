@@ -44,16 +44,50 @@ namespace sockets {
             }
         }
 
+        addr_t&
+        IpAddress::get_addr()
+        {
+            return this->addr;
+        }
+
         const addr_t&
         IpAddress::get_addr() const
         {
             return this->addr;
         }
 
-        addr_t&
-        IpAddress::get_addr()
+        ipv4_addr& IpAddress::get_as_ipv4()
         {
-            return this->addr;
+            if (!is_ipv4()) throw InvalidStateError("IpAddress", __func__, "Contained address is not ipv4");
+            return this->addr.v4addr;
+        }
+
+        const ipv4_addr& IpAddress::get_as_ipv4() const
+        {
+            if (!is_ipv4()) throw InvalidStateError("IpAddress", __func__, "Contained address is not ipv4");
+            return this->addr.v4addr;
+        }
+
+        ipv6_addr& IpAddress::get_as_ipv6()
+        {
+            if(!is_ipv6()) throw InvalidStateError("IpAddress", __func__, "Contained address is not ipv6");
+            return this->addr.v6addr;
+        }
+
+        const ipv6_addr& IpAddress::get_as_ipv6() const
+        {
+            if(!is_ipv6()) throw InvalidStateError("IpAddress", __func__, "Contained address is not ipv6");
+            return this->addr.v6addr;
+        }
+
+        bool IpAddress::is_ipv4() const
+        {
+            return this->addr.family == ip_family::INET;
+        }
+
+        bool IpAddress::is_ipv6() const
+        {
+            return this->addr.family == ip_family::INET6;
         }
 
         ip_family IpAddress::get_family() const

@@ -71,8 +71,26 @@ namespace sockets {
              */
             IpAddress(ip_family family, const std::string& address, uint16_t port);
 
-            const addr_t& get_addr() const;
             addr_t& get_addr();
+            const addr_t& get_addr() const;
+
+            /**
+             * Gets the address as an ipv4 struct. Throws an exception if the internal address is not an ipv4 address.
+             * @return
+             */
+            ipv4_addr& get_as_ipv4();
+            const ipv4_addr& get_as_ipv4() const;
+
+            /**
+             * Gets the address as an ipv6 struct. Throws an exception if the internal address is not an ipv6 address.
+             * @return
+             */
+            ipv6_addr& get_as_ipv6();
+            const ipv6_addr& get_as_ipv6() const;
+
+            bool is_ipv4() const;
+
+            bool is_ipv6() const;
 
             ip_family
             get_family() const;
