@@ -40,25 +40,27 @@ namespace sockets {
             uint32_t scope_id;
         };
 
-        union addr_t
+        struct addr_t
         {
-            ipv4_addr v4addr;
-            ipv6_addr v6addr;
+            ip_family family = ip_family::ANY;
+
+            union
+            {
+                ipv4_addr v4addr;
+                ipv6_addr v6addr;
+            };
         };
 
 
         class IpAddress
         {
         private:
-            ip_family family = ip_family::ANY;
-            std::unique_ptr<addr_t> addr_ptr = nullptr;
+            addr_t addr;
 
         public:
-            IpAddress() = default;
-            IpAddress(std::unique_ptr<addr_t>&& addr_ptr, ip_family family);
+            IpAddress();
+            IpAddress(const IpAddress& other);
             IpAddress(IpAddress&& other) noexcept;
-
-            IpAddress& operator=(IpAddress&& other) noexcept;
 
             /**
              * Creates a new IpAddress from an ip address encoded as a string.
@@ -69,8 +71,11 @@ namespace sockets {
              */
             IpAddress(ip_family family, const std::string& address, uint16_t port);
 
-            const std::unique_ptr<addr_t>& addr() const;
-            std::unique_ptr<addr_t>& addr();
+            IpAddress& operator=(const IpAddress& other);
+            IpAddress& operator=(IpAddress&& other) noexcept;
+
+            const addr_t& get_addr() const;
+            addr_t& get_addr();
 
             ip_family
             get_family() const;
