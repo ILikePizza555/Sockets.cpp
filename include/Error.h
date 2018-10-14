@@ -27,7 +27,7 @@ namespace sockets {
     public:
         virtual std::string string(std::stringstream ss) const = 0;
 
-        const char* what() const noexcept override;
+        const char* what() const noexcept final;
     };
 
     /**
@@ -70,7 +70,7 @@ namespace sockets {
         string(std::stringstream ss) const override;
     };
 
-    class InvalidStateError : std::exception
+    class InvalidStateError : public StringError
     {
     public:
         const std::string class_name;
@@ -79,8 +79,8 @@ namespace sockets {
 
         InvalidStateError(std::string class_name, std::string function_name, std::string message);
 
-        const char *
-        what() const noexcept override;
+        std::string
+        string(std::stringstream ss) const override;
     };
 
     /**
@@ -91,8 +91,8 @@ namespace sockets {
     public:
         InvalidSocketError(std::string class_name, std::string function_name);
 
-        const char *
-        what() const noexcept override;
+        std::string
+        string(std::stringstream ss) const final;
     };
 
     /**

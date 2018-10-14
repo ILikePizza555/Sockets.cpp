@@ -38,15 +38,23 @@ namespace sockets {
         return ss.str();
     }
 
+    InvalidStateError::InvalidStateError(std::string class_name, std::string function_name, std::string message) :
+    class_name(std::move(class_name)), function_name(std::move(function_name)), message(std::move(message)) {}
+
+    std::string InvalidStateError::string(std::stringstream ss) const
+    {
+        ss << "InvalidStateError: when calling " << class_name << "::" << function_name << ": " << message;
+        return ss.str();
+    }
+
     InvalidSocketError::InvalidSocketError(std::string class_name, std::string function_name) :
-    class_name(std::move(class_name)), function_name(std::move(function_name))
+    InvalidStateError(std::move(class_name), std::move(function_name), "invalid socket")
     {}
 
-    const char* InvalidSocketError::what() const noexcept
+    std::string InvalidSocketError::string(std::stringstream ss) const
     {
-        std::stringstream ss;
         ss << class_name << "::" << function_name << ": invalid socket";
-        return ss.str().c_str();
+        return ss.str();
     }
 
     SocketReadError::SocketReadError(std::string tfn) : MethodError(std::move(tfn), "recv"),
