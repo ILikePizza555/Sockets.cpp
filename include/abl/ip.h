@@ -55,12 +55,10 @@ namespace sockets {
         class IpAddress
         {
         private:
-            addr_t addr;
+            addr_t addr{};
 
         public:
-            IpAddress();
-            IpAddress(const IpAddress& other);
-            IpAddress(IpAddress&& other) noexcept;
+            IpAddress() = default;
 
             /**
              * Creates a new IpAddress from an ip address encoded as a string.
@@ -70,9 +68,6 @@ namespace sockets {
              * @param port The port in host byte order
              */
             IpAddress(ip_family family, const std::string& address, uint16_t port);
-
-            IpAddress& operator=(const IpAddress& other);
-            IpAddress& operator=(IpAddress&& other) noexcept;
 
             const addr_t& get_addr() const;
             addr_t& get_addr();

@@ -8,76 +8,60 @@
 #include <Error.h>
 #include <inaddr.h>
 #include <in6addr.h>
-#include <Ws2tcpip.h>
+#include <ws2tcpip.h>
 
 
 namespace sockets {
     namespace abl {
-        IpAddress::IpAddress(std::unique_ptr<addr_t> &&addr_ptr, ip_family family) : family(family),
-                                                                                     addr_ptr(std::move(addr_ptr))
-        {}
 
-        IpAddress::IpAddress(IpAddress &&other) noexcept : family(other.family), addr_ptr(std::move(other.addr_ptr))
-        {
-            other.family = ip_family::ANY;
-        }
-
-        IpAddress::IpAddress(ip_family family, const std::string& address, uint16_t port) : family(family)
+        IpAddress::IpAddress(ip_family family, const std::string& address, uint16_t port)
         {
             if(family != ip_family::INET && family != ip_family::INET6)
                 throw std::invalid_argument("Invalid Argument for family: not INET nor INET6");
 
             if(family == ip_family::INET)
             {
-                this->addr_ptr = std::make_unique<addr_t>(system::system_to_ipv4(system::ipv4str_to_addr(address, port)));
+                addr.family = family;
+                addr.v4addr = system::system_to_ipv4(system::ipv4str_to_addr(address, port));
             }
 
             if(family == ip_family::INET6)
             {
-                this->addr_ptr = std::make_unique<addr_t>(system::system_to_ipv6(system::ipv6str_to_addr(address, port)));
+                addr.family = family;
+                addr.v6addr = system::system_to_ipv6(system::ipv6str_to_addr(address, port));
             }
         }
 
-        IpAddress& IpAddress::operator=(sockets::abl::IpAddress&& other) noexcept
+        const addr_t&
+        IpAddress::get_addr() const
         {
-            if(this != &other)
-            {
-                this->addr_ptr = std::move(other.addr_ptr);
-                this->family = other.family;
-
-                other.family = ip_family::ANY;
-            }
-            return *this;
+            return this->addr;
         }
 
-        const std::unique_ptr<addr_t>& IpAddress::addr() const
+        addr_t&
+        IpAddress::get_addr()
         {
-            return this->addr_ptr;
-        }
-
-        std::unique_ptr<addr_t>& IpAddress::addr()
-        {
-            return this->addr_ptr;
+            return this->addr;
         }
 
         ip_family IpAddress::get_family() const
         {
-            return this->family;
+            return this->addr.family;
         }
 
         bool IpAddress::is_loopback() const
         {
-            if(this->family == ip_family::INET)
+            if(this->addr.family == ip_family::INET)
             {
-                return addr_ptr->v4addr.address[0] == 127;
+                return this->addr.v4addr.address[0] == 127;
             }
 
-            if(this->family == ip_family::INET6)
+            if(this->addr.family == ip_family::INET6)
             {
-                return std::all_of(addr_ptr->v6addr.address.begin(),
-                                   addr_ptr->v6addr.address.end() - 1,
+                return std::all_of(this->addr.v6addr.address.begin(),
+                                   this->addr.v6addr.address.end() - 1,
                                    [](unsigned char b){return b == 0;}) &&
-                       addr_ptr->v6addr.address[15] == 1;
+                       this->addr.v6addr.address[15] == 1;
             }
 
             return false;
@@ -85,11 +69,11 @@ namespace sockets {
 
         std::string IpAddress::name() const
         {
-            if (this->family == ip_family::INET)
-                return system::to_string(system::ipv4_to_system(this->addr_ptr->v4addr));
+            if (this->addr.family == ip_family::INET)
+                return system::to_string(system::ipv4_to_system(this->addr.v4addr));
 
-            if (this->family == ip_family::INET6)
-                return system::to_string(system::ipv6_to_system(this->addr_ptr->v6addr));
+            if (this->addr.family == ip_family::INET6)
+                return system::to_string(system::ipv6_to_system(this->addr.v6addr));
 
             throw InvalidStateError("IpAddress", __func__, "family not set to INET or INET6.");
         }
@@ -97,7 +81,7 @@ namespace sockets {
         uint16_t IpAddress::port() const
         {
             // Because this is the same for both structs in the union, we don't need to check for the correct struct.
-            return this->addr_ptr->v4addr.port;
+            return this->addr.v4addr.port;
         }
 
         void AddrInfoFlags::set_all()
