@@ -10,7 +10,7 @@
 #ifdef unix
 #include <netinet/in.h>
 
-#define INVALID_SOCKET -1
+#define SOCKET_ERROR -1
 #endif
 
 namespace sockets
@@ -35,10 +35,10 @@ namespace sockets
 
     TCPSocket TCPSocket::accept() const
     {
-        auto result = ::accept(system::get_system_handle(this->handle), nullptr, nullptr);
-        if (result == INVALID_SOCKET)
+        ssize_t result = ::accept(system::get_system_handle(this->handle), nullptr, nullptr);
+        if (result == SOCKET_ERROR)
             throw MethodError("TCPSocket::accept", "accept");
-        return TCPSocket(system::unique_from_system_handle(result));
+        return TCPSocket(system::unique_from_system_handle(static_cast<int>(result)));
     }
 
     std::tuple<TCPSocket, IpAddress> TCPSocket::acceptfrom() const
@@ -46,15 +46,15 @@ namespace sockets
         std::unique_ptr<sockaddr_storage> addr_ptr = std::make_unique<sockaddr_storage>();
         socklen_t addr_len = sizeof(sockaddr_storage);
 
-        auto result = ::accept(system::get_system_handle(this->handle),
+        ssize_t result = ::accept(system::get_system_handle(this->handle),
                                reinterpret_cast<sockaddr*>(addr_ptr.get()),
                                &addr_len);
-        if (result == INVALID_SOCKET)
+        if (result == SOCKET_ERROR)
             throw MethodError("TCPSocket::accept", "accept");
 
 
         return std::make_tuple(
-                    TCPSocket(system::unique_from_system_handle(result)),
+                    TCPSocket(system::unique_from_system_handle(static_cast<int>(result))),
                     abl::system::to_ipaddress(reinterpret_cast<sockaddr *>(addr_ptr.get())));
     }
 
@@ -77,7 +77,7 @@ namespace sockets
                                  sizeof(sys_sockaddr));
         }
 
-        if (bind_result == INVALID_SOCKET)
+        if (bind_result == SOCKET_ERROR)
             throw MethodError("TCPSocket::bind", "bind");
     }
 
@@ -99,14 +99,14 @@ namespace sockets
                                        sizeof(sys_sockaddr));
         }
 
-        if (connect_result == INVALID_SOCKET)
+        if (connect_result == SOCKET_ERROR)
             throw MethodError("TCPSocket::connect", "connect");
     }
 
     void TCPSocket::listen(int backlog)
     {
         auto result = ::listen(system::get_system_handle(this->handle), backlog);
-        if (result == INVALID_SOCKET)
+        if (result == SOCKET_ERROR)
             throw MethodError("TCPSocket::listen", "listen");
     }
 
@@ -118,7 +118,7 @@ namespace sockets
         auto result = ::getpeername(system::get_system_handle(this->handle),
                                     reinterpret_cast<sockaddr*>(addr_ptr.get()),
                                     &addr_len);
-        if (result == INVALID_SOCKET)
+        if (result == SOCKET_ERROR)
             throw MethodError("TCPSocket::getpeername", "getpeername");
 
         return system::to_ipaddress(reinterpret_cast<sockaddr*>(addr_ptr.get()));
@@ -132,7 +132,7 @@ namespace sockets
         auto result = ::getsockname(system::get_system_handle(this->handle),
                                     reinterpret_cast<sockaddr*>(addr_ptr.get()),
                                     &addr_len);
-        if(result == INVALID_SOCKET)
+        if(result == SOCKET_ERROR)
             throw MethodError("TCPSocket::getsockname", "getsockname");
 
         return system::to_ipaddress(reinterpret_cast<sockaddr*>(addr_ptr.get()));
@@ -148,7 +148,7 @@ namespace sockets
                                 reinterpret_cast<char*>(buffer.data() + offset),
                                 static_cast<int>(amount),
                                 flags);
-        if(result == INVALID_SOCKET)
+        if(result == SOCKET_ERROR)
             throw SocketReadError("TCPSocket::recv");
 
         // Resize to the read amount. This correctly sets size() on the buffer.
@@ -162,7 +162,7 @@ namespace sockets
                                  reinterpret_cast<const char*>(buffer.data() + offset),
                                  static_cast<int>(buffer.size()),
                                  flags);
-        if(result == INVALID_SOCKET)
+        if(result == SOCKET_ERROR)
             throw SocketWriteError("TCPSocket::send");
 
         return static_cast<size_t>(result);
