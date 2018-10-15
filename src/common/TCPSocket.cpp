@@ -8,6 +8,8 @@
 #include <Error.h>
 
 #ifdef unix
+#include <netinet/in.h>
+
 #define INVALID_SOCKET -1
 #endif
 
@@ -63,12 +65,16 @@ namespace sockets
         if(addr.is_ipv4())
         {
             auto sys_sockaddr = system::from_ipv4(addr.get_as_ipv4());
-            bind_result = ::bind(system::get_system_handle(this->handle), &sys_sockaddr, sizeof(sys_sockaddr));
+            bind_result = ::bind(system::get_system_handle(this->handle),
+                                 reinterpret_cast<const sockaddr*>(&sys_sockaddr),
+                                 sizeof(sys_sockaddr));
         }
         else if (addr.is_ipv6())
         {
             auto sys_sockaddr = system::from_ipv6(addr.get_as_ipv6());
-            bind_result = ::bind(system::get_system_handle(this->handle), &sys_sockaddr, sizeof(sys_sockaddr));
+            bind_result = ::bind(system::get_system_handle(this->handle),
+                                 reinterpret_cast<const sockaddr*>(&sys_sockaddr),
+                                 sizeof(sys_sockaddr));
         }
 
         if (bind_result == INVALID_SOCKET)
@@ -81,12 +87,16 @@ namespace sockets
         if(addr.is_ipv4())
         {
             auto sys_sockaddr = system::from_ipv4(addr.get_as_ipv4());
-            connect_result = ::connect(system::get_system_handle(this->handle), &sys_sockaddr, sizeof(sys_sockaddr));
+            connect_result = ::connect(system::get_system_handle(this->handle),
+                                       reinterpret_cast<sockaddr*>(&sys_sockaddr),
+                                       sizeof(sys_sockaddr));
         }
         else if(addr.is_ipv6())
         {
             auto sys_sockaddr = system::from_ipv6(addr.get_as_ipv6());
-            connect_result = ::connect(system::get_system_handle(this->handle), &sys_sockaddr, sizeof(sys_sockaddr));
+            connect_result = ::connect(system::get_system_handle(this->handle),
+                                       reinterpret_cast<sockaddr*>(&sys_sockaddr),
+                                       sizeof(sys_sockaddr));
         }
 
         if (connect_result == INVALID_SOCKET)
@@ -102,24 +112,30 @@ namespace sockets
 
     IpAddress TCPSocket::getpeername() const
     {
-        auto* addr_ptr = new sockaddr_storage;
+        std::unique_ptr<sockaddr_storage> addr_ptr = std::make_unique<sockaddr_storage>();
         socklen_t addr_len = sizeof(sockaddr_storage);
-        auto result = ::getpeername(system::get_system_handle(this->handle), reinterpret_cast<sockaddr*>(addr_ptr), &addr_len);
+
+        auto result = ::getpeername(system::get_system_handle(this->handle),
+                                    reinterpret_cast<sockaddr*>(addr_ptr.get()),
+                                    &addr_len);
         if (result == INVALID_SOCKET)
             throw MethodError("TCPSocket::getpeername", "getpeername");
 
-        return system::to_ipaddress(reinterpret_cast<sockaddr*>(addr_ptr));
+        return system::to_ipaddress(reinterpret_cast<sockaddr*>(addr_ptr.get()));
     }
 
     IpAddress TCPSocket::getsockname() const
     {
-        auto* addr_ptr = new sockaddr_storage;
+        std::unique_ptr<sockaddr_storage> addr_ptr = std::make_unique<sockaddr_storage>();
         socklen_t addr_len = sizeof(sockaddr_storage);
-        auto result = ::getsockname(system::get_system_handle(this->handle), reinterpret_cast<sockaddr*>(addr_ptr), &addr_len);
+
+        auto result = ::getsockname(system::get_system_handle(this->handle),
+                                    reinterpret_cast<sockaddr*>(addr_ptr.get()),
+                                    &addr_len);
         if(result == INVALID_SOCKET)
             throw MethodError("TCPSocket::getsockname", "getsockname");
 
-        return system::to_ipaddress(reinterpret_cast<sockaddr*>(addr_ptr));
+        return system::to_ipaddress(reinterpret_cast<sockaddr*>(addr_ptr.get()));
     }
 
     size_t TCPSocket::recv(ByteBuffer& buffer, size_t amount, size_t offset, int flags) const
