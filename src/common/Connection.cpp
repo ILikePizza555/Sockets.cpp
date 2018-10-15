@@ -5,9 +5,13 @@
 #include <abl/ip.h>
 #include <Connection.h>
 
+using sockets::abl::AddrInfoFlags;
+using sockets::abl::ip_family;
+using sockets::abl::sock_type;
+using sockets::abl::sock_proto;
+
 namespace sockets
 {
-
     TCPConnection connect_to(std::string host, std::string port)
     {
         AddrInfoFlags flags = AddrInfoFlags();
@@ -24,6 +28,6 @@ namespace sockets
         TCPSocket s(addresses[0].family);
         s.connect(addresses[0].address);
 
-        return TCPConnection(s);
+        return TCPConnection(std::move(s));
     }
 }
