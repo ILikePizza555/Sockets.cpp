@@ -14,6 +14,8 @@
 #include <winsock2.h>
 #include <ws2ipdef.h>
 
+using socklen_t = int;
+
 #elif __unix
 
 #include <sys/socket.h>
