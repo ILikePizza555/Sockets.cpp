@@ -4,6 +4,7 @@
 #include "Byte.h"
 #include "TCPSocket.h"
 #include "Error.h"
+#include "socket_type_traits.h"
 
 #ifndef DEFAULT_BUFFER_CAPACITY
 #define DEFAULT_BUFFER_CAPACITY 1400
@@ -22,8 +23,10 @@ namespace sockets {
         void
         check_connection_state(const std::string &function_name, T &socket, bool closed)
         {
+            static_assert(can_be_invalid<T>::value, "T must provide invalid() method");
+
             if (closed) throw sockets::ClosedError("Connection", function_name);
-            if (socket.socket == sockets::invalid_socket)
+            if (socket.invalid())
                 throw sockets::InvalidSocketError("Connection", function_name);
         }
     }
@@ -39,12 +42,17 @@ namespace sockets {
     template<typename T = TCPSocket>
     class Connection
     {
+        static_assert(has_recv<T>::value, "T must provide recv(ByteBuffer&, size_t, size_t, int)");
+        static_assert(has_send<T>::value, "T must provide send(const ByteBuffer&, size_t, size_t, int");
+        static_assert(std::is_move_constructible<T>::value, "T must be movable");
+        static_assert(std::is_move_assignable<T>::value, "T must be movable");
+
     private:
         T _socket;
         ByteBuffer _buffer;
         bool _closed;
     public:
-        Connection() : _socket(invalid_socket), _buffer(), _closed(true) {}
+        Connection() : _socket(), _buffer(), _closed(true) {}
 
         explicit Connection(T socket) : _socket(socket), _buffer(), _closed(false)
         {}
@@ -63,9 +71,9 @@ namespace sockets {
         operator=(const Connection<T> &) = delete;
 
         // Move construction
-        Connection(Connection<T>&& other) noexcept : _socket(other._socket), _buffer(std::move(other._buffer)), _closed(other._closed)
+        Connection(Connection<T>&& other) noexcept :
+        _socket(std::move(other.socket)), _buffer(std::move(other._buffer)), _closed(other._closed)
         {
-            other._socket = T(invalid_socket);
             other._closed = true;
         }
 
@@ -75,8 +83,7 @@ namespace sockets {
         {
             if(!(_socket == other._socket))
             {
-                _socket = other._socket;
-                other._socket = T(invalid_socket);
+                _socket = std::move(other._socket);
 
                 _buffer = std::move(other._buffer);
 
