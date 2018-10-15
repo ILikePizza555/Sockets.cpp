@@ -34,7 +34,7 @@ namespace sockets {
     {
     private:
         template<typename U>
-        static auto test(size_t) -> decltype(std::declval<U>().send(ByteBuffer(), size_t(1), size_t(1), int(1)) == 1, std::true_type);
+        static auto test(size_t) -> decltype(std::declval<U>().send(ByteBuffer{}, size_t(1), int(1)) == 1, std::true_type());
 
         template<typename>
         static std::false_type test(...);
@@ -48,7 +48,7 @@ namespace sockets {
     {
     private:
         template<typename U>
-        static auto test(size_t) -> decltype(std::declval<U>().invalid() == true, std::true_type);
+        static auto test(size_t) -> decltype(std::declval<U>().invalid() == true, std::true_type());
 
         template<typename>
         static std::false_type test(...);

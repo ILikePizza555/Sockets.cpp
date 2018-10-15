@@ -43,7 +43,7 @@ namespace sockets {
     class Connection
     {
         static_assert(has_recv<T>::value, "T must provide recv(ByteBuffer&, size_t, size_t, int)");
-        static_assert(has_send<T>::value, "T must provide send(const ByteBuffer&, size_t, size_t, int");
+        static_assert(has_send<T>::value, "T must provide send(const ByteBuffer&, size_t, int)");
         static_assert(std::is_move_constructible<T>::value, "T must be movable");
         static_assert(std::is_move_assignable<T>::value, "T must be movable");
 
