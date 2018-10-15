@@ -54,14 +54,8 @@ namespace sockets {
     public:
         Connection() : _socket(), _buffer(), _closed(true) {}
 
-        explicit Connection(T socket) : _socket(socket), _buffer(), _closed(false)
+        explicit Connection(T socket) : _socket(std::move(socket)), _buffer(), _closed(false)
         {}
-
-        ~Connection()
-        {
-            _socket.close();
-            _closed = true;
-        }
 
         // Delete the copy constructor
         Connection(const Connection<T> &) = delete;
@@ -72,7 +66,7 @@ namespace sockets {
 
         // Move construction
         Connection(Connection<T>&& other) noexcept :
-        _socket(std::move(other.socket)), _buffer(std::move(other._buffer)), _closed(other._closed)
+        _socket(std::move(other._socket)), _buffer(std::move(other._buffer)), _closed(other._closed)
         {
             other._closed = true;
         }
