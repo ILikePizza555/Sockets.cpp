@@ -5,6 +5,7 @@
 #include <abl/system.h>
 #include <in6addr.h>
 #include <Error.h>
+#include <inaddr.h>
 
 std::vector<char> c_str_copy(const std::string& str)
 {
@@ -109,11 +110,13 @@ namespace sockets {
 
         ipv4_addr system::to_ipv4(const sockaddr_in &addr)
         {
+            auto l_addr = addr.sin_addr.S_un.S_un_b;
+
             return ipv4_addr{addr.sin_port, {
-                static_cast<unsigned char>((addr.sin_addr.s_addr >> 24) & 0xFF),
-                static_cast<unsigned char>((addr.sin_addr.s_addr >> 16) & 0xFF),
-                static_cast<unsigned char>((addr.sin_addr.s_addr >> 8) & 0xFF),
-                static_cast<unsigned char>(addr.sin_addr.s_addr & 0xFF)
+                static_cast<unsigned char>(l_addr.s_b1),
+                static_cast<unsigned char>(l_addr.s_b2),
+                static_cast<unsigned char>(l_addr.s_b3),
+                static_cast<unsigned char>(l_addr.s_b4)
             }};
         }
 
