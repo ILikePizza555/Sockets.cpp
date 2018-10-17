@@ -6,6 +6,15 @@
 #include <in6addr.h>
 #include <Error.h>
 
+std::vector<char> c_str_copy(const std::string& str)
+{
+    std::vector<char> copy(str.size());
+    std::copy(str.cbegin(), str.cend(), copy.begin());
+    // Add a null-terminator because std::string doesn't contain one
+    copy.push_back('\0');
+    return copy;
+}
+
 namespace sockets {
     namespace abl {
         int system::iftosys(sockets::abl::ip_family family)
@@ -132,15 +141,15 @@ namespace sockets {
 
         sockaddr_in system::from_ipv4_str(const std::string &str, uint16_t port)
         {
-            std::unique_ptr<char[]> str_copy = std::make_unique<char[]>(str.size());
-            std::copy(str.cbegin(), str.cend(), str_copy.get());
+            // Copy the string into a vector because std::string doesn't provide a non-const pointer
+            auto str_copy = c_str_copy(str);
 
             sockaddr_in s{};
             s.sin_family = AF_INET;
             int s_size = sizeof(s);
 
             int result = WSAStringToAddressA(
-                    str_copy.get(),
+                    str_copy.data(),
                     AF_INET,
                     NULL,
                     reinterpret_cast<LPSOCKADDR>(&s),
@@ -156,15 +165,14 @@ namespace sockets {
 
         sockaddr_in6 system::from_ipv6_str(const std::string &str, uint16_t port)
         {
-            std::unique_ptr<char[]> str_copy = std::make_unique<char[]>(str.size());
-            std::copy(str.cbegin(), str.cend(), str_copy.get());
+            auto str_copy = c_str_copy(str);
 
             sockaddr_in6 s{};
             s.sin6_family = AF_INET6;
             int s_size = sizeof(s);
 
             int result = WSAStringToAddressA(
-                    str_copy.get(),
+                    str_copy.data(),
                     AF_INET6,
                     NULL,
                     reinterpret_cast<LPSOCKADDR>(&s),
