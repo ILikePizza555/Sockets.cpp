@@ -3,19 +3,41 @@
 //
 #include "catch.hpp"
 
+#include <abl/handle.h>
+#include <abl/system.h>
+
 #include <algorithm>
 #include <Connection.h>
+
+using sockets::abl::UniqueHandle;
 
 /**
  * Outputs the number 2 on calls to recv(). If n > than amount, amount is respected. Ignore all other functions.
  */
 struct ReceiveSocketStub
 {
-    const size_t n;
-    const sockets::sock_t socket = 1;
+private:
+    size_t n;
+    UniqueHandle socket;
+
+public:
+    explicit ReceiveSocketStub(size_t n) : n(n), socket(UniqueHandle(nullptr, &sockets::abl::close_handle)) {}
+    ReceiveSocketStub(ReceiveSocketStub&& other) noexcept : n(other.n), socket(std::move(other.socket)) { other.n = 0; }
+
+    ReceiveSocketStub& operator=(ReceiveSocketStub&& other) noexcept
+    {
+        if(this != &other)
+        {
+            this->n = other.n;
+            other.n = 0;
+
+            this->socket = std::move(other.socket);
+        }
+        return *this;
+    }
 
     ssize_t
-    recv(ByteBuffer& b, size_t amount, size_t offset = 0, int flags = 0)
+    recv(ByteBuffer& b, size_t amount, size_t offset = 0, int s = 0)
     {
         ssize_t size = std::min(amount, n);
         b.resize(static_cast<size_t>(size) + offset);
@@ -26,20 +48,13 @@ struct ReceiveSocketStub
     }
 
     ssize_t
-    send(const ByteBuffer& buffer, int flags)
-    {
-        return 0;
-    }
+    send(const ByteBuffer&, size_t, int) { return 0; }
 
-    ssize_t
-    send(const byte*, size_t length, int flags)
+    bool
+    invalid()
     {
-        return 0;
+        return false;
     }
-
-    void
-    close()
-    {}
 
     static bool is_data_correct(const ByteBuffer& buf)
     {
@@ -48,36 +63,45 @@ struct ReceiveSocketStub
 };
 
 /**
- * Stub that fails on every method call
- */
-struct FailureSocketStub
-{
-    const sockets::sock_t socket = 1;
-
-    ssize_t recv(ByteBuffer& b, size_t amount, size_t offset = 0, int flags = 0) { return -1; }
-    ssize_t send(const ByteBuffer& buffer, int flags) { return -1; }
-    ssize_t send(const byte*, size_t length, int flags) { return -1; }
-    void close() {}
-};
-
-/**
- * Outputs the number 2 amount times until n calls have been made. Then outputs delim.
+ * Outputs the number 2 `amount` times until n calls have been made. Then outputs delim.
  */
 template<size_t delim_size>
 struct DelimiterSocketStub
 {
 private:
+    /* Counter */
     size_t c = 0;
+    UniqueHandle socket = UniqueHandle(nullptr, &sockets::abl::close_handle);
+    size_t n;
+    ByteString<delim_size> delim;
 public:
-    const sockets::sock_t socket = 1;
-    const size_t n;
-    const ByteString<delim_size> delim;
-
     DelimiterSocketStub(size_t n, ByteString<delim_size> delim) : n(n), delim(delim)
     {}
 
+    DelimiterSocketStub(DelimiterSocketStub&& other) noexcept:
+    c(other.c), socket(std::move(other.socket)), n(other.n), delim(std::move(other.delim))
+    {
+        other.c = 0;
+        other.n = 0;
+    }
+
+    DelimiterSocketStub& operator=(DelimiterSocketStub&& other) noexcept
+    {
+        if(this != &other)
+        {
+            this->c = other.c;
+            this->n = other.n;
+            other.c = 0;
+            other.n = 0;
+
+            this->socket = std::move(other.socket);
+            this->delim = std::move(other.delim);
+        }
+        return *this;
+    }
+
     ssize_t
-    recv(ByteBuffer &b, size_t amount, size_t offset = 0, int flags = 0)
+    recv(ByteBuffer &b, size_t amount, size_t offset = 0, int s = 0)
     {
         if (c >= n)
         {
@@ -95,20 +119,16 @@ public:
     }
 
     ssize_t
-    send(const ByteBuffer &buffer, int flags)
+    send(const ByteBuffer&, size_t, int)
     {
         return 0;
     }
 
-    ssize_t
-    send(const byte *, size_t length, int flags)
+    bool
+    invalid()
     {
-        return 0;
-    }
-
-    void
-    close()
-    {};
+        return false;
+    };
 };
 
 TEST_CASE("Connection::read()", "[Connection]")
@@ -121,7 +141,7 @@ TEST_CASE("Connection::read()", "[Connection]")
         static const size_t AVAILABLE_DATA_AMOUNT = 64;
         static const size_t READ_AMOUNT = 64;
 
-        Connection<ReceiveSocketStub> conn(ReceiveSocketStub{AVAILABLE_DATA_AMOUNT});
+        Connection<ReceiveSocketStub> conn(std::move(ReceiveSocketStub{AVAILABLE_DATA_AMOUNT}));
 
         ByteBuffer& buf = conn.read(READ_AMOUNT);
 
@@ -138,19 +158,12 @@ TEST_CASE("Connection::read()", "[Connection]")
         static const size_t AVAILABLE_DATA_AMOUNT = 63;
         static const size_t READ_AMOUNT = 64;
 
-        Connection<ReceiveSocketStub> conn(ReceiveSocketStub{AVAILABLE_DATA_AMOUNT});
+        Connection<ReceiveSocketStub> conn(std::move(ReceiveSocketStub{AVAILABLE_DATA_AMOUNT}));
 
         ByteBuffer& buf = conn.read(READ_AMOUNT);
 
         REQUIRE(buf.size() <= READ_AMOUNT);
         REQUIRE(ReceiveSocketStub::is_data_correct(buf));
-    }
-
-    SECTION("read() throws an exception on socket failure")
-    {
-        Connection<FailureSocketStub> conn(FailureSocketStub{});
-
-        REQUIRE_THROWS_AS(conn.read(1), sockets::MethodError);
     }
 }
 
@@ -163,7 +176,7 @@ TEST_CASE("Connection::read_exactly()", "[Connection]")
         static const size_t AVAILABLE_DATA_AMOUNT = 64;
         static const size_t READ_AMOUNT = 64;
 
-        Connection<ReceiveSocketStub> conn(ReceiveSocketStub{AVAILABLE_DATA_AMOUNT});
+        Connection<ReceiveSocketStub> conn(std::move(ReceiveSocketStub{AVAILABLE_DATA_AMOUNT}));
 
         ByteBuffer& buf = conn.read_exactly(READ_AMOUNT);
 
@@ -176,19 +189,12 @@ TEST_CASE("Connection::read_exactly()", "[Connection]")
         static const size_t AVAILABLE_DATA_AMOUNT = 16;
         static const size_t READ_AMOUNT = 64;
 
-        Connection<ReceiveSocketStub> conn(ReceiveSocketStub{AVAILABLE_DATA_AMOUNT});
+        Connection<ReceiveSocketStub> conn(std::move(ReceiveSocketStub{AVAILABLE_DATA_AMOUNT}));
 
         ByteBuffer& buf = conn.read_exactly(READ_AMOUNT);
 
         REQUIRE(buf.size() == READ_AMOUNT);
         REQUIRE(ReceiveSocketStub::is_data_correct(buf));
-    }
-
-    SECTION("read_exactly() throws an exception on socket failure")
-    {
-        Connection<FailureSocketStub> conn(FailureSocketStub{});
-
-        REQUIRE_THROWS_AS(conn.read_exactly(1), sockets::MethodError);
     }
 }
 
@@ -201,7 +207,7 @@ TEST_CASE("Connection::read_until()", "[Connection]")
         static const ByteString<1> DELIMITER{'\n'};
 
         DelimiterSocketStub<DELIMITER.size()> stub{2, DELIMITER};
-        Connection<DelimiterSocketStub<DELIMITER.size()>> conn(stub);
+        Connection<DelimiterSocketStub<DELIMITER.size()>> conn(std::move(stub));
 
         ByteBuffer& buf = conn.read_until(DELIMITER);
         REQUIRE(buf.back() == DELIMITER[0]);
@@ -212,7 +218,7 @@ TEST_CASE("Connection::read_until()", "[Connection]")
         static const ByteString<4> DELIMITER{1, 2, 3, '\n'};
 
         DelimiterSocketStub<DELIMITER.size()> stub{2, DELIMITER};
-        Connection<DelimiterSocketStub<DELIMITER.size()>> conn(stub);
+        Connection<DelimiterSocketStub<DELIMITER.size()>> conn(std::move(stub));
 
         ByteBuffer& buf = conn.read_until(DELIMITER);
         REQUIRE(std::equal(buf.end() - DELIMITER.size(), buf.end(), DELIMITER.begin(), DELIMITER.end()));
@@ -223,7 +229,7 @@ TEST_CASE("Connection::read_until()", "[Connection]")
         static const ByteString<8> DELIMITER{'1', '2', '\n', '3', '4', 5, 6, 7};
 
         DelimiterSocketStub<8> stub{1, DELIMITER};
-        Connection<DelimiterSocketStub<8>> conn(stub);
+        Connection<DelimiterSocketStub<8>> conn(std::move(stub));
 
         ByteBuffer& buf = conn.read_until<1>({'\n'});
         REQUIRE(buf.back() == '\n');
