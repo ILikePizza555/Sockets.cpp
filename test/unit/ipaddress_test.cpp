@@ -23,8 +23,8 @@ TEST_CASE("IpAddress constructor", "[IpAddress]")
         sockets::abl::ipv4_addr test_addr{777, {{13, 37, 4, 20}}};
         IpAddress test_ip_addr(test_addr);
 
-        REQUIRE(test_ip_addr.is_ipv6());
-        REQUIRE(!test_ip_addr.is_ipv4());
+        REQUIRE(test_ip_addr.is_ipv4());
+        REQUIRE(!test_ip_addr.is_ipv6());
 
         REQUIRE(test_ip_addr.get_as_ipv4().port == test_addr.port);
         REQUIRE(test_ip_addr.get_as_ipv4().address == test_addr.address);
