@@ -6,21 +6,10 @@
 #include <abl/ip.h>
 #include <Error.h>
 
-#ifdef _WIN32
-
-#include <winsock2.h>
-
-#endif
-
 using sockets::abl::IpAddress;
 
 TEST_CASE("IpAddress constructor", "[IpAddress]")
 {
-#ifdef _WIN32
-    WSADATA discard{};
-    WSAStartup(MAKEWORD(2, 2), &discard);
-#endif
-
     SECTION("Default constructor should create an invalid state")
     {
         IpAddress addr;
@@ -78,6 +67,6 @@ TEST_CASE("IpAddress constructor", "[IpAddress]")
 
         const auto& v6addr = test_addr.get_as_ipv6();
         REQUIRE(v6addr.port == 777);
-        REQUIRE(v6addr.address == std::array<unsigned char, 16>{{13, 37, 0, 0, 0x0e, 0xab, 0xDE, 0xAD, 0, 0, 0, 0, 0xab, 0xbc, 0, 0x4e}});
+        REQUIRE(v6addr.address == std::array<unsigned char, 16>{{0x13, 0x37, 0, 0, 0x0e, 0xab, 0xDE, 0xAD, 0, 0, 0, 0, 0xab, 0xbc, 0, 0x4e}});
     }
 }
