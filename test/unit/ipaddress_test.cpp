@@ -6,10 +6,21 @@
 #include <abl/ip.h>
 #include <Error.h>
 
+#ifdef _WIN32
+
+#include <winsock2.h>
+
+#endif
+
 using sockets::abl::IpAddress;
 
 TEST_CASE("IpAddress constructor", "[IpAddress]")
 {
+#ifdef _WIN32
+    WSADATA discard{};
+    WSAStartup(MAKEWORD(2, 2), &discard);
+#endif
+
     SECTION("Default constructor should create an invalid state")
     {
         IpAddress addr;
