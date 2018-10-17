@@ -1,6 +1,6 @@
 project(libsocketscpp_tests_unit)
 
-set(TEST_FILES main.cpp connection_test.cpp)
+set(TEST_FILES main.cpp connection_test.cpp ipaddress_test.cpp)
 set(TEST_NAME libsocketcpp_unit_test)
 
 add_executable(${TEST_NAME} ${TEST_FILES})
