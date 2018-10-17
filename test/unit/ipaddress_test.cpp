@@ -70,3 +70,41 @@ TEST_CASE("IpAddress constructor", "[IpAddress]")
         REQUIRE(v6addr.address == std::array<unsigned char, 16>{{0x13, 0x37, 0, 0, 0x0e, 0xab, 0xDE, 0xAD, 0, 0, 0, 0, 0xab, 0xcd, 0, 0x4e}});
     }
 }
+
+TEST_CASE("IpAddress::get_as_ipv4", "[IpAddress]")
+{
+    SECTION("should return an ipv4_addr struct if initialized with an ipv4 address")
+    {
+        const IpAddress test_addr(sockets::abl::ipv4_addr{777, {{13, 37, 4, 20}}});
+
+        REQUIRE(test_addr.is_ipv4());
+        REQUIRE_NOTHROW(test_addr.get_as_ipv4());
+    }
+
+    SECTION("should throw an error if initialized without an ipv4 address")
+    {
+        const IpAddress test_addr(sockets::abl::ipv6_addr{777, 0, {{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}}, 0});
+
+        REQUIRE(!test_addr.is_ipv4());
+        REQUIRE_THROWS(test_addr.get_as_ipv4());
+    }
+}
+
+TEST_CASE("IpAddress::get_as_ipv6", "[IpAddress]")
+{
+    SECTION("should return an ipv6_addr struct if initialized with an ipv6 address")
+    {
+        const IpAddress test_addr(sockets::abl::ipv6_addr{777, 0, {{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}}, 0});
+
+        REQUIRE(test_addr.is_ipv6());
+        REQUIRE_NOTHROW(test_addr.get_as_ipv6());
+    }
+
+    SECTION("should throw an error if initialized without and ipv6 address")
+    {
+        const IpAddress test_addr(sockets::abl::ipv4_addr{777, {{13, 37, 4, 20}}});
+
+        REQUIRE(!test_addr.is_ipv6());
+        REQUIRE_THROWS(test_addr.get_as_ipv6());
+    }
+}
