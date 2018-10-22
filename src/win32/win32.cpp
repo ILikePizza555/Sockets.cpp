@@ -33,7 +33,6 @@ namespace sockets {
 
     abl::win32::WinSockDLL::~WinSockDLL()
     {
-        int error_code = WSACleanup();
-        if(error_code != 0) throw WSAError(error_code, "WSACleanup");
+        WSACleanup();
     }
 }
