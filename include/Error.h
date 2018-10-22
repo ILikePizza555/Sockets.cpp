@@ -98,7 +98,7 @@ namespace sockets {
     /**
      * Thrown by a socket class if there is an error with a call to recv()
      */
-    class SocketReadError : MethodError
+    class SocketReadError : public MethodError
     {
     public:
         enum ErrorType
@@ -124,7 +124,7 @@ namespace sockets {
         std::string string(std::stringstream ss) const final;
     };
 
-    class SocketWriteError : MethodError
+    class SocketWriteError : public MethodError
     {
     public:
         enum ErrorType
