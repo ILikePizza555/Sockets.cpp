@@ -23,7 +23,7 @@ set(IMPL_UNIX src/unix/Error.cpp src/unix/ip.cpp src/unix/abl.cpp)
 
 # Windows-Specific implementation files
 # These are the implementations for windows systems
-set(IMPL_WIN32 src/win32/Error.cpp src/win32/handle.cpp src/win32/ip.cpp src/win32/system.cpp)
+set(IMPL_WIN32 src/win32/Error.cpp src/win32/handle.cpp src/win32/ip.cpp src/win32/system.cpp src/win32/win32.cpp)
 
 # Create a shared library
 if(UNIX)
@@ -33,6 +33,7 @@ if(UNIX)
 endif()
 
 if(WIN32)
+    list(APPEND INCLUDE_FILES include/abl/win32.h)
     message(STATUS "Build for Win32 has been selected")
     message(STATUS "Files are: " ${IMPL_COMMON} " " ${IMPL_WIN32})
     add_library(socketscpp SHARED ${IMPL_COMMON} ${IMPL_WIN32})
