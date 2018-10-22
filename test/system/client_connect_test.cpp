@@ -5,16 +5,23 @@
 #include <iostream>
 #include <Connection.h>
 
-void print_addr(sockets::addr_t& addr)
+#ifdef _WIN32
+#include <abl/win32.h>
+#endif
+
+std::ostream& operator<<(std::ostream& oss, sockets::abl::IpAddress& addr)
 {
-    using std::cout;
     using std::endl;
-    cout << "addr_t(ip=" << addr.name() <<"; port=" << addr.port() <<"; localhost=" << addr.is_loopback() << ")" << endl;
+    oss << "addr_t(ip=" << addr.name() <<"; port=" << addr.port() <<"; localhost=" << addr.is_loopback() << ")" << endl;
+    return oss;
 }
 
 int main()
 {
-    sockets::setup();
+#ifdef _WIN32
+    sockets::abl::win32::WinSockDLL dll;
+    std::cout << "Initalized WinSock dll." << endl;
+#endif
 
     sockets::TCPConnection connection;
     std::string request = "GET / HTTP/1.1\r\n\r\n";
@@ -26,17 +33,14 @@ int main()
         auto remote_addr = connection.get_socket().getpeername();
 
         std::cout << "Connection established." << std::endl;
-        std::cout << "Local: ";
-        print_addr(local_addr);
-        std::cout << "Remote: ";
-        print_addr(remote_addr);
+        std::cout << "Local: " << local_addr;
+        std::cout << "Remote: " << remote_addr;
     }
     catch (std::exception& e)
     {
         std::cerr << "Error attempting to connect." << std::endl;
         std::cerr << e.what() << std::endl;
 
-        sockets::teardown();
         return 1;
     }
 
@@ -50,7 +54,6 @@ int main()
         std::cerr << "Error sending request." << std::endl;
         std::cerr << e.what() << std::endl;
 
-        sockets::teardown();
         return 1;
     }
 
@@ -65,7 +68,6 @@ int main()
                                   response.begin() + expected_response.size(),
                                   expected_response.begin(),
                                   expected_response.end());
-        sockets::teardown();
         if(compare)
         {
             std::cout << "Success!" << std::endl;
@@ -82,7 +84,6 @@ int main()
         std::cerr << "Error reading response." << std::endl;
         std::cerr << e.what() << std::endl;
 
-        sockets::teardown();
         return 1;
     }
 }
