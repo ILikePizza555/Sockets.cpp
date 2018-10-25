@@ -15,7 +15,7 @@ std::ostream& operator<<(std::ostream& out, ByteBuffer b);
 template<size_t size>
 std::ostream& operator<<(std::ostream& out, ByteString<size> b)
 {
-    out << "ByteString size=" << size << ":";
+    out << "ByteString size=" << size << ": ";
     for(auto& c : b) out << c;
     return out;
 }
