@@ -193,7 +193,7 @@ namespace sockets {
         {
             sockaddr_in addr_copy(ipv4_addr);
 
-            size_t str_size = 16;
+            DWORD str_size = 20;
             std::unique_ptr<char[]> str_ptr = std::make_unique<char[]>(str_size);
 
             int result = WSAAddressToStringA(
@@ -213,7 +213,7 @@ namespace sockets {
         {
             sockaddr_in6 addr_copy(ipv6_addr);
 
-            size_t str_size = 46;
+            size_t str_size = 50;
             std::unique_ptr<char[]> str_ptr = std::make_unique<char[]>(str_size);
 
             int result = WSAAddressToStringA(
