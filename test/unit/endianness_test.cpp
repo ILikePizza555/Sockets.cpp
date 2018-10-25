@@ -14,7 +14,9 @@
 using namespace sockets::abl::system;
 
 const static std::string test_ipv4_str = "1.2.3.4";
+/* Binary representation stored in network byte order */
 const static unsigned long test_ipv4_l = htonl(0x01020304);
+/* Array representation stored in network byte order */
 const static std::array<unsigned char, 4> test_ipv4_arr = {1, 2, 3, 4};
 
 const static std::string test_ipv6_str = "0001:0203:0405:0607:0809:0A0B:0C0D:0E0F";
@@ -113,7 +115,7 @@ TEST_CASE("from_ipv4 creates a sockaddr_in structure in network byte order", "[E
     REQUIRE(actual == test_ipv4_l);
 }
 
-TEST_CASE("from_ipv6 creates a sockaddr_in6 structure in network byte order", "[Endianness][IpAddress][ipv6]")
+TEST_CASE("from_ipv6 creates a sockaddr_in6 structure in network byte order", "[Endianness][system][ipv6]")
 {
     sockets::abl::ipv6_addr addr{0, 0, test_ipv6_arr, 0};
 
@@ -122,7 +124,20 @@ TEST_CASE("from_ipv6 creates a sockaddr_in6 structure in network byte order", "[
     REQUIRE(actual == test_ipv6_arr);
 }
 
-TEST_CASE("to_ipv4 creates an ipv4_addr object in network byte order", "[Endianness][IpAddress][ipv4]")
+TEST_CASE("to_ipv4 creates an ipv4_addr object in network byte order", "[Endianness][system][ipv4]")
 {
+    auto addr = ipv4_from_long(test_ipv4_l);
 
+    auto actual = to_ipv4(addr);
+
+    REQUIRE(actual.address == test_ipv4_arr);
+}
+
+TEST_CASE("to_ipv6 creates an ipv6_addr object in network byte order", "[Endianness][system][ipv6]")
+{
+    auto addr = ipv6_from_array(test_ipv6_arr);
+
+    auto actual = to_ipv6(addr);
+
+    REQUIRE(actual.address == test_ipv6_arr);
 }
