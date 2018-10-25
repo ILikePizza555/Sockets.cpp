@@ -19,6 +19,7 @@ namespace sockets {
          */
         struct ipv4_addr
         {
+            /** The port number stored in host byte order */
             uint16_t port;
 
             /** The ip address stored as an array of bytes in big-endian format */
@@ -32,7 +33,8 @@ namespace sockets {
          */
         struct ipv6_addr
         {
-            uint16_t port ;
+            /** The port number stored in host byte order */
+            uint16_t port;
 
             uint32_t flowinfo;
             /** The ip address stored as an array of bytes in big-endian format */
