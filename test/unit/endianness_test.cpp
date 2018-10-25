@@ -22,6 +22,8 @@ const static std::array<unsigned char, 4> test_ipv4_arr = {1, 2, 3, 4};
 const static std::string test_ipv6_str = "0001:0203:0405:0607:0809:0A0B:0C0D:0E0F";
 const static std::array<unsigned char, 16> test_ipv6_arr = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
+unsigned short test_port = 1234;
+
 unsigned long get_ipv4_as_long(const sockaddr_in& addr)
 {
 #ifdef _WIN23
@@ -109,35 +111,44 @@ TEST_CASE("IpAddress string constructor creates an ipv6 address in network byte 
 
 TEST_CASE("from_ipv4 creates a sockaddr_in structure in network byte order", "[Endianness][system][ipv4]")
 {
-    sockets::abl::ipv4_addr addr{0, test_ipv4_arr};
+    sockets::abl::ipv4_addr addr{test_port, test_ipv4_arr};
 
-    unsigned long actual = get_ipv4_as_long(from_ipv4(addr));
-    REQUIRE(actual == test_ipv4_l);
+    auto actual = from_ipv4(addr);
+    unsigned long actual_l = get_ipv4_as_long(actual);
+
+    REQUIRE(actual_l == test_ipv4_l);
+    REQUIRE(actual.sin_port == htons(test_port));
 }
 
 TEST_CASE("from_ipv6 creates a sockaddr_in6 structure in network byte order", "[Endianness][system][ipv6]")
 {
-    sockets::abl::ipv6_addr addr{0, 0, test_ipv6_arr, 0};
+    sockets::abl::ipv6_addr addr{test_port, 0, test_ipv6_arr, 0};
 
-    auto actual = get_ipv6_as_array(from_ipv6(addr));
+    auto actual = from_ipv6(addr);
+    auto actual_a = get_ipv6_as_array(actual);
 
-    REQUIRE(actual == test_ipv6_arr);
+    REQUIRE(actual_a == test_ipv6_arr);
+    REQUIRE(actual.sin6_port == htons(test_port));
 }
 
-TEST_CASE("to_ipv4 creates an ipv4_addr object in network byte order", "[Endianness][system][ipv4]")
+TEST_CASE("to_ipv4 creates an ipv4_addr object with an address in network byte order", "[Endianness][system][ipv4]")
 {
     auto addr = ipv4_from_long(test_ipv4_l);
+    addr.sin_port = htons(test_port);
 
     auto actual = to_ipv4(addr);
 
     REQUIRE(actual.address == test_ipv4_arr);
+    REQUIRE(actual.port == test_port);
 }
 
-TEST_CASE("to_ipv6 creates an ipv6_addr object in network byte order", "[Endianness][system][ipv6]")
+TEST_CASE("to_ipv6 creates an ipv6_addr object with an address in network byte order", "[Endianness][system][ipv6]")
 {
     auto addr = ipv6_from_array(test_ipv6_arr);
+    addr.sin6_port = htons(test_port);
 
     auto actual = to_ipv6(addr);
 
     REQUIRE(actual.address == test_ipv6_arr);
+    REQUIRE(actual.port == test_port);
 }
