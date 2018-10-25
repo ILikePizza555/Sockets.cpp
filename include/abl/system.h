@@ -103,6 +103,13 @@ namespace sockets {
             IpAddress
             to_ipaddress(const sockaddr *addr);
 
+            /**
+             * Creates a sockaddr_in object from a string and a port.
+             *
+             * @param str A string containing an ipv4 address in dot-decimal notation.
+             * @param port The port in host byte order.
+             * @return
+             */
             sockaddr_in
             from_ipv4_str(const std::string &str, uint16_t port);
 

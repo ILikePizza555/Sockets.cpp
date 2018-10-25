@@ -113,7 +113,7 @@ namespace sockets {
             name() const;
 
             /*
-             * Returns the address's port.
+             * Returns the address's port in host byte order.
              *
              * @return The address's port.
              */
