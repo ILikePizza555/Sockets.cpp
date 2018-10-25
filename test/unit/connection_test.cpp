@@ -229,7 +229,9 @@ TEST_CASE("Connection::read_until() reads until a delimiter is encountered", "[C
         Connection<OutputSocketStub<3, 7, 1>> conn(std::move(stub));
 
         auto expected = conn.get_socket().stream();
-        ByteBuffer& actual = conn.read_until(delim);
+        ByteBuffer actual;
+
+        REQUIRE_NOTHROW(actual = conn.read_until(delim));
         REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
     }
 
@@ -240,7 +242,9 @@ TEST_CASE("Connection::read_until() reads until a delimiter is encountered", "[C
         Connection<OutputSocketStub<1, 7, 1>> conn(std::move(stub));
 
         auto expected = conn.get_socket().stream();
-        ByteBuffer& actual = conn.read_until(delim);
+        ByteBuffer actual;
+
+        REQUIRE_NOTHROW(actual = conn.read_until(delim));
         REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
     }
 
@@ -252,7 +256,9 @@ TEST_CASE("Connection::read_until() reads until a delimiter is encountered", "[C
         Connection<OutputSocketStub<3, 7, 4>> conn(std::move(stub));
 
         auto expected = conn.get_socket().stream();
-        ByteBuffer& actual = conn.read_until(DELIMITER);
+        ByteBuffer actual;
+
+        REQUIRE_NOTHROW(actual = conn.read_until(DELIMITER));
         REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
     }
 
@@ -264,7 +270,9 @@ TEST_CASE("Connection::read_until() reads until a delimiter is encountered", "[C
         Connection<OutputSocketStub<1, 7, 4>> conn(std::move(stub));
 
         auto expected = conn.get_socket().stream();
-        ByteBuffer& actual = conn.read_until(DELIMITER);
+        ByteBuffer actual;
+
+        REQUIRE_NOTHROW(actual = conn.read_until(DELIMITER));
         REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
     }
 
@@ -274,7 +282,9 @@ TEST_CASE("Connection::read_until() reads until a delimiter is encountered", "[C
         Connection<OutputSocketStub<1, 3, 8>> conn(std::move(stub));
 
         ByteBuffer expected{'a', 'b', 'c', 'd', 'e', '\r', '\n'};
-        ByteBuffer& actual = conn.read_until<2>({'\r', '\n'});
+        ByteBuffer actual;
+
+        REQUIRE_NOTHROW(actual = conn.read_until<2>({'\r', '\n'}));
         REQUIRE(expected == actual);
     }
 }
