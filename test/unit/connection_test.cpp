@@ -63,72 +63,78 @@ public:
 };
 
 /**
- * Outputs the number 2 `amount` times until n calls have been made. Then outputs delim.
+ * Creates a stream by copying `output` `n` times and appending it with `ending`. Once bytes have been read, a pointer
+ * is incremented and they cannot be accessed again.
+ *
+ * @tparam n
+ * @tparam output_size
+ * @tparam ending_size
  */
-template<size_t delim_size>
-struct DelimiterSocketStub
+template<size_t n, size_t output_size, size_t ending_size>
+class OutputSocketStub
 {
 private:
-    /* Counter */
-    size_t c = 0;
-    UniqueHandle socket = UniqueHandle(nullptr, &sockets::abl::close_handle);
-    size_t n;
-    ByteString<delim_size> delim;
+    static size_t constexpr out_stream_size = (output_size * n) + ending_size;
+    ByteString<out_stream_size> out_stream{};
+    size_t pos = 0;
 public:
-    DelimiterSocketStub(size_t n, ByteString<delim_size> delim) : n(n), delim(delim)
-    {}
 
-    DelimiterSocketStub(DelimiterSocketStub&& other) noexcept:
-    c(other.c), socket(std::move(other.socket)), n(other.n), delim(std::move(other.delim))
+    OutputSocketStub(const ByteString<output_size>& output, const ByteString<ending_size>& ending)
     {
-        other.c = 0;
-        other.n = 0;
+        // Copy output n times to out_stream
+        for(size_t i = 0; i < n; ++i)
+        {
+            std::copy(output.begin(), output.end(), out_stream.begin() + (output_size * i));
+        }
+
+        // Copy the ending
+        std::copy(out_stream.begin() + (n * output_size), out_stream.end(), ending.being());
     }
 
-    DelimiterSocketStub& operator=(DelimiterSocketStub&& other) noexcept
+    OutputSocketStub(OutputSocketStub<n, output_size, ending_size>&& other) noexcept :
+    out_stream(std::move(other.out_stream)), pos(other.pos)
+    {
+        other.pos = 0;
+    }
+
+    OutputSocketStub<n, output_size, ending_size>&
+    operator=(OutputSocketStub<n, output_size, ending_size>&& other) noexcept
     {
         if(this != &other)
         {
-            this->c = other.c;
-            this->n = other.n;
-            other.c = 0;
-            other.n = 0;
+            this->pos = other.pos;
+            other.pos = 0;
 
-            this->socket = std::move(other.socket);
-            this->delim = std::move(other.delim);
+            this->out_stream = std::move(other.out_stream);
         }
         return *this;
     }
 
+    /**
+     * Reads up to `amount` bytes from the stream to the buffer.
+     * @return Number of bytes read.
+     */
     ssize_t
     recv(ByteBuffer &b, size_t amount, size_t offset = 0, int s = 0)
     {
-        if (c >= n)
-        {
-            b.resize(delim_size + offset);
-            std::copy(delim.cbegin(), delim.cend(), b.begin() + offset);
-            return delim_size;
-        }
+        size_t read_amount = std::min(amount, out_stream.size() - pos);
 
-        b.resize(amount + offset);
-        std::generate(b.begin() + offset, b.end(), [](){return 2;});
+        auto begin_iter = out_stream.begin() + read_amount;
+        auto end_iter = begin_iter + read_amount;
+        std::copy(begin_iter, end_iter, b.begin() + offset);
 
-        c++; //Ayy lmao
-
-        return amount;
+        pos += read_amount;
+        return read_amount;
     }
 
     ssize_t
-    send(const ByteBuffer&, size_t, int)
-    {
-        return 0;
-    }
+    send(const ByteBuffer&, size_t, int) { return 0; }
 
     bool
     invalid()
     {
         return false;
-    };
+    }
 };
 
 TEST_CASE("Connection::read()", "[Connection]")
