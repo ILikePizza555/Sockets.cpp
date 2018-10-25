@@ -4,6 +4,7 @@
 
 #include "catch.hpp"
 #include <abl/ip.h>
+#include <abl/system.h>
 #include <Error.h>
 
 using sockets::abl::IpAddress;
@@ -53,7 +54,7 @@ TEST_CASE("IpAddress constructor", "[IpAddress]")
         REQUIRE(!test_addr.is_ipv6());
 
         const auto& v4addr = test_addr.get_as_ipv4();
-        REQUIRE(v4addr.port == 777);
+        REQUIRE(v4addr.port == htons(777));
         REQUIRE(v4addr.address == std::array<unsigned char, 4>{{13, 37, 4, 20}});
     }
 
@@ -66,7 +67,7 @@ TEST_CASE("IpAddress constructor", "[IpAddress]")
         REQUIRE(test_addr.is_ipv6());
 
         const auto& v6addr = test_addr.get_as_ipv6();
-        REQUIRE(v6addr.port == 777);
+        REQUIRE(v6addr.port == htons(777));
         REQUIRE(v6addr.address == std::array<unsigned char, 16>{{0x13, 0x37, 0, 0, 0x0e, 0xab, 0xDE, 0xAD, 0, 0, 0, 0, 0xab, 0xcd, 0, 0x4e}});
     }
 }
