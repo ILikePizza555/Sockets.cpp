@@ -64,7 +64,7 @@ public:
 
 /**
  * Creates a stream by copying `output` `n` times and appending it with `ending`. Once bytes have been read, a pointer
- * is incremented and they cannot be accessed again.
+ * is incremented and they cannot be accessed again. If no more data can be read, the connection is "closed".
  *
  * @tparam n
  * @tparam output_size
@@ -118,6 +118,15 @@ public:
     recv(ByteBuffer &b, size_t amount, size_t offset = 0, int s = 0)
     {
         size_t read_amount = std::min(amount, out_stream.size() - pos);
+        if(read_amount == 0)
+        {
+#ifdef _WIN32
+            WSASetLastError(ECONNRESET);
+#elif __unix
+            errno = ECONNRESET;
+#endif
+            throw sockets::SocketReadError("recv");
+        }
 
         auto begin_iter = out_stream.begin() + read_amount;
         auto end_iter = begin_iter + read_amount;
