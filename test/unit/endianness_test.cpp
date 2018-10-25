@@ -10,50 +10,55 @@
 
 using namespace sockets::abl::system;
 
+const static std::string test_ipv4_str = "1.2.3.4";
+const static unsigned long test_ipv4_l = htonl(0x01020304);
+const static std::array<unsigned char, 4> test_ipv4_arr = {1, 2, 3, 4};
+
+const static std::string test_ipv6_str = "0:1:2:3:4:5:6:7:8:9:10:11:12:13:14:15";
+const static std::array<unsigned char, 16> test_ipv6_arr = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+
 TEST_CASE("from_ipv4_str creates a sockaddr_in structure in network byte order", "[Endianness][system][ipv4]")
 {
-    sockaddr_in addr = from_ipv4_str("1.2.3.4", 0);
+    sockaddr_in addr = from_ipv4_str(test_ipv4_str, 0);
 
     unsigned long actual = addr.sin_addr.S_un.S_addr;
 
     // Network byte order means that the most significant byte has the lowest address
-    REQUIRE(actual == 0x0000000004030201);
+    REQUIRE(actual == test_ipv4_l);
 }
 
 TEST_CASE("from_ipv6_str creates a sockaddr_in6 structure in network byte order", "[Endianness][system][ipv6]")
 {
-    auto addr = from_ipv6_str("0:1:2:3:4:5:6:7:8:9:10:11:12:13:14:15", 0);
+    auto addr = from_ipv6_str(test_ipv6_str, 0);
 
-    auto actual = addr.sin6_addr.u.Byte;
-    std::array<unsigned char, 16> expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    std::array<unsigned char, 16> actual{};
+    std::copy(addr.sin6_addr.u.Byte, addr.sin6_addr.u.Byte + 16, actual.begin());
 
-    REQUIRE(std::equal(actual, actual + 16, expected.begin(), expected.end()));
+    REQUIRE(actual == test_ipv6_arr);
 }
 
 TEST_CASE("IpAddress string constructor creates an ipv4 address in network byte order", "[Endianness][IpAddress][ipv4]")
 {
-    sockets::abl::IpAddress addr(sockets::abl::ip_family::INET, "1.2.3.4", 0);
+    sockets::abl::IpAddress addr(sockets::abl::ip_family::INET, test_ipv4_str, 0);
 
     auto actual = addr.get_as_ipv4();
-    std::array<unsigned char, 4> expected = {1, 2, 3, 4};
 
-    REQUIRE(actual.address == expected);
+    REQUIRE(actual.address == test_ipv4_arr);
 }
 
 TEST_CASE("IpAddress string constructor creates an ipv6 address in network byte order", "[Endianness][IpAddress][ipv6]")
 {
-    sockets::abl::IpAddress addr(sockets::abl::ip_family::INET6, "0:1:2:3:4:5:6:7:8:9:10:11:12:13:14:15", 0);
+    sockets::abl::IpAddress addr(sockets::abl::ip_family::INET6, test_ipv6_str, 0);
 
     auto actual = addr.get_as_ipv6();
-    std::array<unsigned char, 16> expected = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 
-    REQUIRE(actual.address == expected);
+    REQUIRE(actual.address == test_ipv6_arr);
 }
 
 TEST_CASE("from_ipv4 creates a sockaddr_in structure in network byte order", "[Endianness][system][ipv4]")
 {
-    sockets::abl::ipv4_addr addr{0, {{1, 2, 3, 4}}};
+    sockets::abl::ipv4_addr addr{0, test_ipv4_arr};
 
     unsigned long actual = from_ipv4(addr).sin_addr.S_un.S_addr;
-    REQUIRE(actual == 0x0000000004030201);
+    REQUIRE(actual == test_ipv4_l);
 }
