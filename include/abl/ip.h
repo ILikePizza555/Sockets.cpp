@@ -16,13 +16,14 @@ namespace sockets {
          * Struct that holds data for an ipv4 address.
          *
          * This struct must be trivially defined for use in the addr_t union.
+         *
+         * All values are stored in network byte order.
          */
         struct ipv4_addr
         {
-            /** The port number stored in host byte order */
             uint16_t port;
 
-            /** The ip address stored as an array of bytes in big-endian format */
+            /** The ip address stored as an array of bytes*/
             std::array<unsigned char, 4> address;
         };
 
@@ -30,10 +31,11 @@ namespace sockets {
          * Struct that holds data for an ipv6 address.
          *
          * This struct must be trivially defined for use in the addr_t union.
+         *
+         * All values are stored in network byte order.
          */
         struct ipv6_addr
         {
-            /** The port number stored in host byte order */
             uint16_t port;
 
             uint32_t flowinfo;
