@@ -87,7 +87,7 @@ public:
         }
 
         // Copy the ending
-        std::copy(out_stream.begin() + (n * output_size), out_stream.end(), ending.begin());
+        std::copy(ending.begin(), ending.end(), out_stream.begin() + (n * output_size));
     }
 
     OutputSocketStub(OutputSocketStub<n, output_size, ending_size>&& other) noexcept :

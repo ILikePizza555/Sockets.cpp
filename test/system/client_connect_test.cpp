@@ -20,11 +20,11 @@ int main()
 {
 #ifdef _WIN32
     sockets::abl::win32::WinSockDLL dll;
-    std::cout << "Initalized WinSock dll." << endl;
+    std::cout << "Initalized WinSock dll." << std::endl;
 #endif
 
     sockets::TCPConnection connection;
-    std::string request = "GET / HTTP/1.1\r\n\r\n";
+    std::string request = "HEAD / HTTP/1.1\r\n\r\n";
 
     try
     {
@@ -33,8 +33,8 @@ int main()
         auto remote_addr = connection.get_socket().getpeername();
 
         std::cout << "Connection established." << std::endl;
-        std::cout << "Local: " << local_addr;
-        std::cout << "Remote: " << remote_addr;
+        std::cout << "Local: " << local_addr << std::endl;
+        std::cout << "Remote: " << remote_addr << std::endl;
     }
     catch (std::exception& e)
     {
@@ -59,7 +59,7 @@ int main()
 
     try
     {
-        auto response = connection.read(50);
+        auto response = connection.read_until<4>({{'\r', '\n', '\r', '\n'}});
         auto expected_response = std::string("HTTP/1.1 200 OK\r\n");
 
         std::cout << "Received response: " << response << std::endl;
