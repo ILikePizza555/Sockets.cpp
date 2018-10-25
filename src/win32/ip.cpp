@@ -127,7 +127,7 @@ namespace sockets {
         uint16_t IpAddress::port() const
         {
             // Because this is the same for both structs in the union, we don't need to check for the correct struct.
-            return this->addr.v4addr.port;
+            return ntohs(this->addr.v4addr.port);
         }
 
         void AddrInfoFlags::set_all()

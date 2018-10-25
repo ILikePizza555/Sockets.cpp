@@ -94,10 +94,10 @@ namespace sockets {
         sockaddr_in system::from_ipv4(const sockets::abl::ipv4_addr &address)
         {
             sockaddr_in rv{AF_INET, address.port, {}, {}};
-            rv.sin_addr.s_addr = (address.address[0] << 24) |
-                                 (address.address[1] << 16) |
-                                 (address.address[2] << 8)  |
-                                 (address.address[3]);
+            rv.sin_addr.s_addr = (address.address[0]) |
+                                 (address.address[1] << 8) |
+                                 (address.address[2] << 16) |
+                                 (address.address[3] << 24);
             return rv;
         }
 
@@ -161,7 +161,7 @@ namespace sockets {
             if (result == SOCKET_ERROR)
                 throw sockets::MethodError(__func__, "WSAStringToAddressA");
 
-            s.sin_port = port;
+            s.sin_port = htons(port);
 
             return s;
         }
@@ -184,7 +184,7 @@ namespace sockets {
             if(result == SOCKET_ERROR)
                 throw sockets::MethodError(__func__, "WSAStringToAddressA");
 
-            s.sin6_port = port;
+            s.sin6_port = htons(port);
 
             return s;
         }
