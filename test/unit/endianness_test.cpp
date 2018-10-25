@@ -26,10 +26,12 @@ unsigned short test_port = 1234;
 
 unsigned long get_ipv4_as_long(const sockaddr_in& addr)
 {
-#ifdef _WIN23
+#ifdef _WIN32
     return addr.sin_addr.S_un.S_addr;
 #elif __unix
     return addr.sin_addr.s_addr;
+#else
+    return 0;
 #endif
 }
 
