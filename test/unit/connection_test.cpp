@@ -78,7 +78,6 @@ private:
     ByteString<out_stream_size> out_stream{};
     size_t pos = 0;
 public:
-
     OutputSocketStub(const ByteString<output_size>& output, const ByteString<ending_size>& ending)
     {
         // Copy output n times to out_stream
@@ -88,7 +87,7 @@ public:
         }
 
         // Copy the ending
-        std::copy(out_stream.begin() + (n * output_size), out_stream.end(), ending.being());
+        std::copy(out_stream.begin() + (n * output_size), out_stream.end(), ending.begin());
     }
 
     OutputSocketStub(OutputSocketStub<n, output_size, ending_size>&& other) noexcept :
@@ -143,6 +142,12 @@ public:
     invalid()
     {
         return false;
+    }
+
+    const ByteString<out_stream_size>&
+    stream() const
+    {
+        return out_stream;
     }
 };
 
@@ -213,40 +218,63 @@ TEST_CASE("Connection::read_exactly()", "[Connection]")
     }
 }
 
-TEST_CASE("Connection::read_until()", "[Connection]")
+TEST_CASE("Connection::read_until() reads until a delimiter is encountered", "[Connection]")
 {
     using sockets::Connection;
 
-    SECTION("delimiter of size 1")
+    SECTION("single-byte delimiter arrives after several calls to recv")
     {
-        static const ByteString<1> DELIMITER{'\n'};
+        ByteString<1> delim{'\n'};
+        OutputSocketStub<3, 7, 1> stub({'a', 'b', 'c', 'd', 'e', 'f', 0}, delim);
+        Connection<OutputSocketStub<3, 7, 1>> conn(std::move(stub));
 
-        DelimiterSocketStub<DELIMITER.size()> stub{2, DELIMITER};
-        Connection<DelimiterSocketStub<DELIMITER.size()>> conn(std::move(stub));
-
-        ByteBuffer& buf = conn.read_until(DELIMITER);
-        REQUIRE(buf.back() == DELIMITER[0]);
+        auto expected = conn.get_socket().stream();
+        ByteBuffer& actual = conn.read_until(delim);
+        REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
     }
 
-    SECTION("delimiter of size 4")
+    SECTION("single-byte delimiter arrives after single call to recv")
+    {
+        ByteString<1> delim{'\n'};
+        OutputSocketStub<1, 7, 1> stub({'a', 'b', 'c', 'd', 'e', 'f', 0}, delim);
+        Connection<OutputSocketStub<1, 7, 1>> conn(std::move(stub));
+
+        auto expected = conn.get_socket().stream();
+        ByteBuffer& actual = conn.read_until(delim);
+        REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
+    }
+
+    SECTION("multi-byte delimiter arrives after several calls to recv")
     {
         static const ByteString<4> DELIMITER{1, 2, 3, '\n'};
 
-        DelimiterSocketStub<DELIMITER.size()> stub{2, DELIMITER};
-        Connection<DelimiterSocketStub<DELIMITER.size()>> conn(std::move(stub));
+        OutputSocketStub<3, 7, 4> stub({'a', 'b', 'c', 'd', 'e', 'f', 0}, DELIMITER);
+        Connection<OutputSocketStub<3, 7, 4>> conn(std::move(stub));
 
-        ByteBuffer& buf = conn.read_until(DELIMITER);
-        REQUIRE(std::equal(buf.end() - DELIMITER.size(), buf.end(), DELIMITER.begin(), DELIMITER.end()));
+        auto expected = conn.get_socket().stream();
+        ByteBuffer& actual = conn.read_until(DELIMITER);
+        REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
+    }
+
+    SECTION("multi-byte delimiter arrives after single call to recv")
+    {
+        static const ByteString<4> DELIMITER{'\r', '\n', '\r', '\n'};
+
+        OutputSocketStub<1, 7, 4>  stub({'a', 'b', 'c', 'd', 'e', 'f', 0}, DELIMITER);
+        Connection<OutputSocketStub<1, 7, 4>> conn(std::move(stub));
+
+        auto expected = conn.get_socket().stream();
+        ByteBuffer& actual = conn.read_until(DELIMITER);
+        REQUIRE(std::equal(actual.begin(), actual.end(), expected.begin(), expected.end()));
     }
 
     SECTION("read_until() deletes excess bytes")
     {
-        static const ByteString<8> DELIMITER{'1', '2', '\n', '3', '4', 5, 6, 7};
+        OutputSocketStub<1, 3, 8> stub({'a', 'b', 'c'}, {'d', 'e', '\r', '\n', 5, 6, 7});
+        Connection<OutputSocketStub<1, 3, 8>> conn(std::move(stub));
 
-        DelimiterSocketStub<8> stub{1, DELIMITER};
-        Connection<DelimiterSocketStub<8>> conn(std::move(stub));
-
-        ByteBuffer& buf = conn.read_until<1>({'\n'});
-        REQUIRE(buf.back() == '\n');
+        ByteBuffer expected{'a', 'b', 'c', 'd', 'e', '\r', '\n'};
+        ByteBuffer& actual = conn.read_until<2>({'\r', '\n'});
+        REQUIRE(expected == actual);
     }
 }
