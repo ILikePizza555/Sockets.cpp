@@ -40,6 +40,34 @@ std::array<unsigned char, 16> get_ipv6_as_array(const sockaddr_in6& addr)
     return rv;
 }
 
+sockaddr_in ipv4_from_long(unsigned long addr)
+{
+    sockaddr_in rv{};
+#ifdef _WIN32
+    rv.sin_family = AF_INET;
+    rv.sin_port = 0;
+    rv.sin_addr.S_un.S_addr = addr;
+#elif __unix
+    rv.sin_family = AF_INET;
+    rv.sin_port = 0;
+    rv.sin_addr.s_addr = addr;
+#endif
+    return rv;
+}
+
+sockaddr_in6 ipv6_from_array(const std::array<unsigned char, 16>& addr)
+{
+    sockaddr_in6 rv{};
+#ifdef _WIN32
+    rv.sin6_family = AF_INET6;
+    std::copy(addr.begin(), addr.end(), rv.sin6_addr.u.Byte);
+#elif __unix
+    rv.sin6_family = AF_INET6;
+    std::copy(addr.begin(), addr.end(), addr.sin6_addr.s6_addr);
+#endif
+    return rv;
+}
+
 TEST_CASE("from_ipv4_str creates a sockaddr_in structure in network byte order", "[Endianness][system][ipv4]")
 {
     sockaddr_in addr = from_ipv4_str(test_ipv4_str, 0);
@@ -96,4 +124,5 @@ TEST_CASE("from_ipv6 creates a sockaddr_in6 structure in network byte order", "[
 
 TEST_CASE("to_ipv4 creates an ipv4_addr object in network byte order", "[Endianness][IpAddress][ipv4]")
 {
+
 }
