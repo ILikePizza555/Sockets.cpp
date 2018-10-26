@@ -175,17 +175,16 @@ namespace sockets {
         {
             std::vector<address_info> rv;
 
-            addrinfo hints
-                    {
-                            flags.get(),
-                            hint_family,
-                            hint_type,
-                            hint_proto,
-                            0,
-                            nullptr,
-                            nullptr,
-                            nullptr
-                    };
+            addrinfo hints{
+                flags.get(),
+                hint_family,
+                hint_type,
+                hint_proto,
+                0,
+                nullptr,
+                nullptr,
+                nullptr
+            };
 
             auto *addrinfo_ptr = new addrinfo;
             auto result = getaddrinfo(host.c_str(), port.c_str(), &hints, &addrinfo_ptr);
@@ -202,12 +201,13 @@ namespace sockets {
                 auto *sockaddr_copy = new sockaddr_storage;
                 std::memcpy(sockaddr_copy, next->ai_addr, next->ai_addrlen);
 
-                rv.emplace_back(
+                address_info ai{
                         system::systoif(next->ai_family),
                         system::systost(next->ai_socktype),
                         system::systosp(next->ai_protocol),
                         system::to_ipaddress(next->ai_addr)
-                );
+                };
+                rv.push_back(ai);
 
                 next = next->ai_next;
             }
