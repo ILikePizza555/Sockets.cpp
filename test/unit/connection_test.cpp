@@ -63,18 +63,19 @@ public:
 };
 
 /**
- * Creates a stream by copying `output` `n` times and appending it with `ending`. Once bytes have been read, a pointer
- * is incremented and they cannot be accessed again. If no more data can be read, the connection is "closed".
+ * Creates a stream by copying `output` `n` times and appending it with `ending`. Each call to recv() then reads out
+ * output_size bytes, except for the last call, which will read the ending bytes.
  *
- * @tparam n
- * @tparam output_size
- * @tparam ending_size
+ * The stream cannot be "rewinded." Once bytes have been read with recv(), they cannot be read again.
+ *
+ * Once all bytes have been read, the "connection" is closed, and an exception is thrown.
  */
 template<size_t n, size_t output_size, size_t ending_size>
 class OutputSocketStub
 {
 private:
-    static size_t constexpr out_stream_size = (output_size * n) + ending_size;
+    static size_t constexpr out_stream_base = (output_size * n);
+    static size_t constexpr out_stream_size = out_stream_base + ending_size;
     ByteString<out_stream_size> out_stream{};
     size_t pos = 0;
 public:
@@ -110,13 +111,20 @@ public:
     }
 
     /**
-     * Reads up to `amount` bytes from the stream to the buffer.
+     * Reads up to `output_size` bytes from the stream
      * @return Number of bytes read.
      */
     ssize_t
     recv(ByteBuffer &b, size_t amount, size_t offset = 0, int s = 0)
     {
-        size_t read_amount = std::min(amount, out_stream.size() - pos);
+        size_t read_amount;
+
+        // If next position would be greater than or equal to output_size * n, then this is the last read.
+        if (pos + output_size < out_stream_base)
+            read_amount = std::min(output_size, out_stream.size() - pos);
+        else
+            read_amount = std::min(output_size + ending_size, out_stream.size() - pos);
+
         if(read_amount == 0)
         {
 #ifdef _WIN32
@@ -127,7 +135,9 @@ public:
             throw sockets::SocketReadError("recv");
         }
 
-        auto begin_iter = out_stream.begin() + read_amount;
+        b.resize(read_amount + offset);
+
+        auto begin_iter = out_stream.begin() + pos;
         auto end_iter = begin_iter + read_amount;
         std::copy(begin_iter, end_iter, b.begin() + offset);
 
@@ -238,8 +248,8 @@ TEST_CASE("Connection::read_until() reads until a delimiter is encountered", "[C
     SECTION("single-byte delimiter arrives after single call to recv")
     {
         ByteString<1> delim{'\n'};
-        OutputSocketStub<1, 7, 1> stub({'a', 'b', 'c', 'd', 'e', 'f', 0}, delim);
-        Connection<OutputSocketStub<1, 7, 1>> conn(std::move(stub));
+        OutputSocketStub<1, 8, 1> stub({'a', 'b', 'c', 'd', 'e', 'f', 0}, delim);
+        Connection<OutputSocketStub<1, 8, 1>> conn(std::move(stub));
 
         auto expected = conn.get_socket().stream();
         ByteBuffer actual;
@@ -266,8 +276,8 @@ TEST_CASE("Connection::read_until() reads until a delimiter is encountered", "[C
     {
         static const ByteString<4> DELIMITER{'\r', '\n', '\r', '\n'};
 
-        OutputSocketStub<1, 7, 4>  stub({'a', 'b', 'c', 'd', 'e', 'f', 0}, DELIMITER);
-        Connection<OutputSocketStub<1, 7, 4>> conn(std::move(stub));
+        OutputSocketStub<1, 11, 4> stub({'a', 'b', 'c', 'd', 'e', 'f', 0}, DELIMITER);
+        Connection<OutputSocketStub<1, 11, 4>> conn(std::move(stub));
 
         auto expected = conn.get_socket().stream();
         ByteBuffer actual;
