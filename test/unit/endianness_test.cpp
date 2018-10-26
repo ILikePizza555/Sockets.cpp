@@ -7,9 +7,14 @@
 
 #include "catch.hpp"
 #include <abl/system.h>
+#include <algorithm>
+
+#ifdef _WIN32
 #include <inaddr.h>
 #include <in6addr.h>
-#include <algorithm>
+#else
+#include <netinet/in.h>
+#endif
 
 using namespace sockets::abl::system;
 
@@ -69,7 +74,7 @@ sockaddr_in6 ipv6_from_array(const std::array<unsigned char, 16>& addr)
     std::copy(addr.begin(), addr.end(), rv.sin6_addr.u.Byte);
 #elif __unix
     rv.sin6_family = AF_INET6;
-    std::copy(addr.begin(), addr.end(), addr.sin6_addr.s6_addr);
+    std::copy(addr.begin(), addr.end(), rv.sin6_addr.s6_addr);
 #endif
     return rv;
 }
