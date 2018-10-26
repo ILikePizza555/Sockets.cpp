@@ -6,195 +6,214 @@
 #include <cstring>
 #include <netdb.h>
 #include <Error.h>
+#include <abl/system.h>
+#include <arpa/inet.h>
 
 namespace sockets {
-    sockaddr*
-    addr_t::as_sockaddr() const
+    namespace abl
     {
-        return reinterpret_cast<sockaddr*>(addr_ptr.get());
-    }
-
-    sockaddr_in*
-    addr_t::as_sockaddr4() const
-    {
-        return reinterpret_cast<sockaddr_in*>(addr_ptr.get());
-    }
-
-    sockaddr_in6*
-    addr_t::as_sockaddr6() const
-    {
-        return reinterpret_cast<sockaddr_in6*>(addr_ptr.get());
-    }
-
-    ip_family
-    addr_t::get_family() const
-    {
-        return ip_family(addr_ptr->ss_family);
-    }
-
-    bool
-    addr_t::is_loopback() const
-    {
-        if (this->addr_ptr->ss_family == ip_family::INET)
+        IpAddress::IpAddress(sockets::abl::ipv4_addr addr)
         {
-            auto *a = reinterpret_cast<const sockaddr_in *>(this->addr_ptr.get());
-            uint32_t addr = a->sin_addr.s_addr;
-            return (addr & 0xFF000000) == 0x7F000000;
+            this->addr.family = ip_family::INET;
+            this->addr.v4addr = addr;
         }
 
-        if (this->addr_ptr->ss_family == ip_family::INET6)
+        IpAddress::IpAddress(sockets::abl::ipv6_addr addr)
         {
-            auto *a = reinterpret_cast<const sockaddr_in6 *>(this->addr_ptr.get());
-            auto &addr = a->sin6_addr.s6_addr;
-
-            return addr[0] == 0 && addr[1] == 0 && addr[2] == 0 && addr[4] == 0 &&
-                   addr[5] == 0 && addr[6] == 0 && addr[7] == 0 && addr[8] == 0 &&
-                   addr[9] == 0 && addr[10] == 0 && addr[11] == 0 && addr[12] == 0 &&
-                   addr[13] == 0 && addr[14] == 0 && addr[15] == 0;
+            this->addr.family = ip_family::INET6;
+            this->addr.v6addr = addr;
         }
 
-        return false;
-    }
-
-    std::string
-    addr_t::name() const
-    {
-        const static socklen_t size = 40;
-        char *buf = new char[size];
-
-        const char *result = inet_ntop(this->addr_ptr->ss_family, this->addr_ptr.get(), buf, size);
-        if (result == nullptr)
-            throw MethodError("addr_t::name", "inet_ntop", errno, get_error_message);
-
-        return std::string(buf, size);
-    }
-
-    uint16_t addr_t::port() const
-    {
-        if(this->addr_ptr->ss_family == ip_family::INET)
+        IpAddress::IpAddress(sockets::abl::ip_family family, const std::string &address, uint16_t port)
         {
-            return ntohs(this->as_sockaddr4()->sin_port);
+            if (family == INET) {
+                this->addr.family = ip_family::INET;
+                this->addr.v4addr = system::to_ipv4(system::from_ipv4_str(address, port));
+            }
+
+            if (family == INET6) {
+                this->addr.family = ip_family::INET6;
+                this->addr.v6addr = system::to_ipv6(system::from_ipv6_str(address, port));
+            }
+
+            throw std::invalid_argument("IpAddress: family is not INET or INET6");
         }
 
-        if(this->addr_ptr->ss_family == ip_family::INET6)
+        addr_t &IpAddress::get_addr()
         {
-            return ntohs(this->as_sockaddr6()->sin6_port);
+            return this->addr;
         }
 
-        //TODO: Maybe return an error?
-        return 0;
-    }
-
-    addr_t from_string(ip_family family, const std::string& ip_address, unsigned short port)
-    {
-        auto* addr_ptr = new sockaddr_storage;
-
-        int result = inet_pton(family, ip_address.c_str(), addr_ptr);
-        if(result == -1) throw MethodError(__func__, "inet_pton");
-
-        if(family == ip_family::INET)
+        const addr_t &IpAddress::get_addr() const
         {
-            reinterpret_cast<sockaddr_in *>(addr_ptr)->sin_port = htons(port);
-            return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), sizeof(sockaddr_in)};
-        }
-        else if(family == ip_family::INET6)
-        {
-            reinterpret_cast<sockaddr_in6 *>(addr_ptr)->sin6_port = htons(port);
-            return addr_t{std::unique_ptr<sockaddr_storage>(addr_ptr), sizeof(sockaddr_in6)};
-        }
-    }
-
-    void AddrInfoFlags::set_all() { flags = AI_ALL; }
-
-    AddrInfoFlags& AddrInfoFlags::set_ipv4_mapping()
-    {
-        flags |= AI_V4MAPPED;
-        return *this;
-    }
-
-    AddrInfoFlags& AddrInfoFlags::set_passive()
-    {
-        flags |= AI_PASSIVE;
-        return *this;
-    }
-
-    AddrInfoFlags& AddrInfoFlags::set_addr_config()
-    {
-        flags |= AI_ADDRCONFIG;
-        return *this;
-    }
-
-    AddrInfoFlags& AddrInfoFlags::set_numeric_host()
-    {
-        flags |= AI_NUMERICHOST;
-        return *this;
-    }
-
-    AddrInfoFlags& AddrInfoFlags::set_numeric_serv()
-    {
-        flags |= AI_NUMERICSERV;
-        return *this;
-    }
-
-    int AddrInfoFlags::get()
-    {
-        return flags;
-    }
-
-    address_info::address_info(sockets::ip_family family,
-                               sockets::sock_type socket_type,
-                               sockets::sock_proto protocol,
-                               sockets::addr_t address) :
-                               family(family), socket_type(socket_type), protocol(protocol), address(std::move(address))
-    {}
-
-    address_info::address_info(int family, int socket_type, int protocol, sockets::addr_t address) :
-        family(sockets::ip_family(family)),
-        socket_type(sockets::sock_type(socket_type)),
-        protocol(sockets::sock_proto(protocol)),
-        address(std::move(address))
-    {}
-
-    std::vector<address_info>
-    get_address_info(const std::string &host, const std::string &port, AddrInfoFlags& flags,
-                     sockets::ip_family hint_family, sockets::sock_type hint_type, sockets::sock_proto hint_proto)
-    {
-        std::vector<address_info> rv;
-
-        addrinfo hints
-        {
-            flags.get(),
-            hint_family,
-            hint_type,
-            hint_proto,
-            0,
-            nullptr,
-            nullptr,
-            nullptr
-        };
-
-        auto* addrinfo_ptr = new addrinfo;
-        auto result = getaddrinfo(host.c_str(), port.c_str(), &hints, &addrinfo_ptr);
-        if(result != 0)
-            throw MethodError(__func__, "getaddrinfo", result, [](int ec){return std::string(gai_strerror(ec));});
-
-        // Vector construction loop
-        auto next = addrinfo_ptr;
-        while(next != NULL)
-        {
-            // Copy sockaddr to avoid deletion
-            auto* sockaddr_copy = new sockaddr_storage;
-            std::memcpy(sockaddr_copy, next->ai_addr, next->ai_addrlen);
-
-            rv.emplace_back(next->ai_family,
-                            next->ai_socktype,
-                            next->ai_protocol,
-                            addr_t{std::unique_ptr<sockaddr_storage>(sockaddr_copy), next->ai_addrlen});
-
-            next = next->ai_next;
+            return this->addr;
         }
 
-        freeaddrinfo(addrinfo_ptr);
-        return rv;
+        ipv4_addr &IpAddress::get_as_ipv4()
+        {
+            if (addr.family != INET)
+                throw InvalidStateError("IpAddress", __func__, "Contained address is not ipv4");
+            return this->addr.v4addr;
+        }
+
+        const ipv4_addr &IpAddress::get_as_ipv4() const
+        {
+            if (addr.family != INET)
+                throw InvalidStateError("IpAddress", __func__, "Contained address is not ipv4");
+            return this->addr.v4addr;
+        }
+
+        ipv6_addr &IpAddress::get_as_ipv6()
+        {
+            if (addr.family != INET6)
+                throw InvalidStateError("IpAddress", __func__, "Contained address is not ipv6");
+            return this->addr.v6addr;
+        }
+
+        const ipv6_addr &IpAddress::get_as_ipv6() const
+        {
+            if (addr.family != INET6)
+                throw InvalidStateError("IpAddress", __func__, "Contained address is not ipv6");
+            return this->addr.v6addr;
+        }
+
+        bool IpAddress::is_ipv4() const
+        {
+            return addr.family == INET;
+        }
+
+        bool IpAddress::is_ipv6() const
+        {
+            return addr.family == INET6;
+        }
+
+        ip_family IpAddress::get_family() const
+        {
+            return addr.family;
+        }
+
+        bool IpAddress::is_loopback() const
+        {
+            if (this->addr.family == ip_family::INET) {
+                return addr.v4addr.address[0] == 127;
+            }
+
+            if (this->addr.family == ip_family::INET6) {
+                auto &addr = this->addr.v6addr.address;
+
+                return addr[0] == 0 && addr[1] == 0 && addr[2] == 0 && addr[4] == 0 &&
+                       addr[5] == 0 && addr[6] == 0 && addr[7] == 0 && addr[8] == 0 &&
+                       addr[9] == 0 && addr[10] == 0 && addr[11] == 0 && addr[12] == 0 &&
+                       addr[13] == 0 && addr[14] == 0 && addr[15] == 1;
+            }
+
+            return false;
+        }
+
+        std::string IpAddress::name() const
+        {
+            const static socklen_t buf_size = 50;
+            std::unique_ptr<char[]> buf = std::make_unique<char[]>(buf_size);
+
+            const char *result = inet_ntop(system::iftosys(addr.family),
+                                           addr.family == INET ? addr.v4addr.address.data()
+                                                               : addr.v6addr.address.data(),
+                                           buf.get(),
+                                           buf_size);
+            if (result == nullptr)
+                throw MethodError("IpAddress::name", "inet_ntop");
+
+            return std::string(buf.release());
+        }
+
+        uint16_t IpAddress::port() const
+        {
+            return this->addr.v4addr.port;
+        }
+
+        void AddrInfoFlags::set_all()
+        { flags = AI_ALL; }
+
+        AddrInfoFlags &AddrInfoFlags::set_ipv4_mapping()
+        {
+            flags |= AI_V4MAPPED;
+            return *this;
+        }
+
+        AddrInfoFlags &AddrInfoFlags::set_passive()
+        {
+            flags |= AI_PASSIVE;
+            return *this;
+        }
+
+        AddrInfoFlags &AddrInfoFlags::set_addr_config()
+        {
+            flags |= AI_ADDRCONFIG;
+            return *this;
+        }
+
+        AddrInfoFlags &AddrInfoFlags::set_numeric_host()
+        {
+            flags |= AI_NUMERICHOST;
+            return *this;
+        }
+
+        AddrInfoFlags &AddrInfoFlags::set_numeric_serv()
+        {
+            flags |= AI_NUMERICSERV;
+            return *this;
+        }
+
+        int AddrInfoFlags::get()
+        {
+            return flags;
+        }
+
+        std::vector<address_info>
+        get_address_info(const std::string &host, const std::string &port, AddrInfoFlags &flags,
+                         ip_family hint_family, sock_type hint_type, sock_proto hint_proto)
+        {
+            std::vector<address_info> rv;
+
+            addrinfo hints
+                    {
+                            flags.get(),
+                            hint_family,
+                            hint_type,
+                            hint_proto,
+                            0,
+                            nullptr,
+                            nullptr,
+                            nullptr
+                    };
+
+            auto *addrinfo_ptr = new addrinfo;
+            auto result = getaddrinfo(host.c_str(), port.c_str(), &hints, &addrinfo_ptr);
+            if (result != 0) {
+                delete addrinfo_ptr;
+                throw MethodError(__func__, "getaddrinfo", result,
+                                  [](int ec) { return std::string(gai_strerror(ec)); });
+            }
+
+            // Vector construction loop
+            auto next = addrinfo_ptr;
+            while (next != NULL) {
+                // Copy sockaddr to avoid deletion
+                auto *sockaddr_copy = new sockaddr_storage;
+                std::memcpy(sockaddr_copy, next->ai_addr, next->ai_addrlen);
+
+                rv.emplace_back(
+                        system::systoif(next->ai_family),
+                        system::systost(next->ai_socktype),
+                        system::systosp(next->ai_protocol),
+                        system::to_ipaddress(next->ai_addr)
+                );
+
+                next = next->ai_next;
+            }
+
+            freeaddrinfo(addrinfo_ptr);
+            return rv;
+        }
     }
 }
