@@ -3,6 +3,8 @@
 //
 
 #include <abl/system.h>
+#include <Error.h>
+#include <arpa/inet.h>
 
 namespace sockets {
     namespace abl {
@@ -103,6 +105,67 @@ namespace sockets {
             rv.address[2] = static_cast<unsigned char>(addr.sin_addr.s_addr >> 16 & 0xFF);
             rv.address[3] = static_cast<unsigned char>(addr.sin_addr.s_addr >> 24 & 0xFF);
             return rv;
+        }
+
+        ipv6_addr system::to_ipv6(const sockaddr_in6 &addr)
+        {
+            ipv6_addr rv{addr.sin6_port, addr.sin6_flowinfo, {}, addr.sin6_scope_id};
+            std::copy(addr.sin6_addr.s6_addr, addr.sin6_addr.s6_addr + 16, rv.address.begin());
+            return rv;
+        }
+
+        IpAddress system::to_ipaddress(const sockaddr *addr)
+        {
+            if(addr->sa_family == INET)
+                return IpAddress(to_ipv4(*reinterpret_cast<const sockaddr_in*>(addr)));
+            if(addr->sa_family == INET6)
+                return IpAddress(to_ipv6(*reinterpret_cast<const sockaddr_in6*>(addr)));
+            throw std::invalid_argument("addr does not contain an ipv4 or ipv6 address");
+        }
+
+        sockaddr_in system::from_ipv4_str(const std::string &str, uint16_t port)
+        {
+            sockaddr_in rv{INET, htons(port), {}, {}};
+            int error = inet_pton(INET, str.c_str(), &rv.sin_addr.s_addr);
+            if(error == 0)
+                throw std::invalid_argument("from_ipv4_str: argument str does not contain a valid ipv4 address");
+
+            return rv;
+        }
+
+        sockaddr_in6 system::from_ipv6_str(const std::string &str, uint16_t port)
+        {
+            sockaddr_in6 rv{INET6, htons(port), 0, {}, 0};
+
+            int error = inet_pton(INET6, str.c_str(), &rv.sin6_addr.s6_addr);
+            if(error == 0)
+                throw std::invalid_argument("from_ip4_str: argument str does not contain a valid ipv6 address");
+
+            return rv;
+        }
+
+        std::string system::to_string(const sockaddr_in &ipv4_addr)
+        {
+            const socklen_t buf_len = 20;
+            std::unique_ptr<char[]> buf = std::make_unique<char[]>(buf_len);
+
+            const char* error = inet_ntop(INET, &ipv4_addr.sin_addr.s_addr, buf.get(), buf_len);
+            if(error == nullptr)
+                throw MethodError(__func__, "inet_ntop");
+
+            return std::string(buf.release());
+        }
+
+        std::string system::to_string(const sockaddr_in6 &ipv6_addr)
+        {
+            const socklen_t buf_len = 50;
+            std::unique_ptr<char[]> buf = std::make_unique<char[]>(buf_len);
+
+            const char* error = inet_ntop(INET6, ipv6_addr.sin6_addr.s6_addr, buf.get(), buf_len);
+            if(error == nullptr)
+                throw MethodError(__func__, "inet_ntop");
+
+            return std::string(buf.release());
         }
     }
 }
