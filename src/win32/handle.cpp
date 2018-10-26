@@ -20,17 +20,23 @@ namespace sockets {
 
         SOCKET system::get_system_handle(const handle_t* handle)
         {
-            return handle->socket;
+            if(handle != nullptr)
+                return handle->socket;
+            throw std::invalid_argument("handle is nullptr");
         }
 
         SOCKET system::get_system_handle(const UniqueHandle& handle)
         {
-            return handle->socket;
+            if(handle != nullptr)
+                return handle->socket;
+            throw std::invalid_argument("handle is nullptr");
         }
 
         SOCKET system::get_system_handle(const SharedHandle& handle)
         {
-            return handle->socket;
+            if(handle != nullptr)
+                return handle->socket;
+            throw std::invalid_argument("handle is nullptr");
         }
 
         handle_t* system::from_system_handle(SOCKET handle)
