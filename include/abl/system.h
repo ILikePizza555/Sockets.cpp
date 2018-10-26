@@ -19,6 +19,7 @@ using socklen_t = int;
 #elif __unix
 
 #include <sys/socket.h>
+#include <netinet/in.h>
 
 #endif
 
