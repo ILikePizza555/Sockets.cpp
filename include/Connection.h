@@ -150,19 +150,25 @@ namespace sockets {
             // Check if the buffer needs to be cleared
             if(!_buffer.empty()) _buffer.clear();
 
+            size_t offset = 0;
+
             while(true)
             {
-                ssize_t bytes_received = _socket.recv(_buffer, DEFAULT_BUFFER_CAPACITY, _buffer.size());
+                size_t bytes_received = _socket.recv(_buffer, DEFAULT_BUFFER_CAPACITY, _buffer.size());
 
                 // Search for a delimiter in the received bytes
-                auto needle = std::search(_buffer.begin() + bytes_received, _buffer.end(), delim.begin(), delim.end());
-                if(needle != _buffer.end()) // Delimiter was not found.
+                auto needle = std::search(_buffer.begin() + offset, _buffer.end(), delim.begin(), delim.end());
+
+                // Delimiter was not found.
+                if(needle != _buffer.end())
                 {
                     // Clear the bytes after the delimiter
                     _buffer.erase(needle + delim_size, _buffer.cend());
 
                     return _buffer;
                 }
+
+                offset += bytes_received;
             }
         }
 
