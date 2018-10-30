@@ -178,9 +178,9 @@ namespace sockets {
 
             addrinfo hints{
                 flags.get(),
-                hint_family,
-                hint_type,
-                hint_proto,
+                system::iftosys(hint_family),
+                system::sttosys(hint_type),
+                system::sptosys(hint_proto),
                 0,
                 nullptr,
                 nullptr,
