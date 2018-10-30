@@ -190,7 +190,7 @@ namespace sockets {
             auto *addrinfo_ptr = new addrinfo;
             auto result = getaddrinfo(host.c_str(), port.c_str(), &hints, &addrinfo_ptr);
             if (result != 0) {
-                delete addrinfo_ptr;
+                freeaddrinfo(addrinfo_ptr);
                 throw MethodError(__func__, "getaddrinfo", result,
                                   [](int ec) { return std::string(gai_strerror(ec)); });
             }
@@ -198,10 +198,6 @@ namespace sockets {
             // Vector construction loop
             auto next = addrinfo_ptr;
             while (next != NULL) {
-                // Copy sockaddr to avoid deletion
-                auto *sockaddr_copy = new sockaddr_storage;
-                std::memcpy(sockaddr_copy, next->ai_addr, next->ai_addrlen);
-
                 address_info ai{
                         system::systoif(next->ai_family),
                         system::systost(next->ai_socktype),
