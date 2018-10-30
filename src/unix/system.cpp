@@ -126,7 +126,7 @@ namespace sockets {
         sockaddr_in system::from_ipv4_str(const std::string &str, uint16_t port)
         {
             sockaddr_in rv{INET, htons(port), {}, {}};
-            int error = inet_pton(INET, str.c_str(), &rv.sin_addr.s_addr);
+            int error = inet_pton(AF_INET, str.c_str(), &rv.sin_addr.s_addr);
             if(error == 0)
                 throw std::invalid_argument("from_ipv4_str: argument str does not contain a valid ipv4 address");
 
@@ -137,7 +137,7 @@ namespace sockets {
         {
             sockaddr_in6 rv{INET6, htons(port), 0, {}, 0};
 
-            int error = inet_pton(INET6, str.c_str(), &rv.sin6_addr.s6_addr);
+            int error = inet_pton(AF_INET6, str.c_str(), &rv.sin6_addr.s6_addr);
             if(error == 0)
                 throw std::invalid_argument("from_ip4_str: argument str does not contain a valid ipv6 address");
 
