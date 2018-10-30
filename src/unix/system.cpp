@@ -116,11 +116,11 @@ namespace sockets {
 
         IpAddress system::to_ipaddress(const sockaddr *addr)
         {
-            if(addr->sa_family == INET)
+            if(addr->sa_family == AF_INET)
                 return IpAddress(to_ipv4(*reinterpret_cast<const sockaddr_in*>(addr)));
-            if(addr->sa_family == INET6)
+            if(addr->sa_family == AF_INET6)
                 return IpAddress(to_ipv6(*reinterpret_cast<const sockaddr_in6*>(addr)));
-            throw std::invalid_argument("addr does not contain an ipv4 or ipv6 address");
+            throw std::invalid_argument("to_ipaddress: addr does not contain an ipv4 or ipv6 address");
         }
 
         sockaddr_in system::from_ipv4_str(const std::string &str, uint16_t port)
