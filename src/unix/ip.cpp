@@ -26,17 +26,18 @@ namespace sockets {
 
         IpAddress::IpAddress(sockets::abl::ip_family family, const std::string &address, uint16_t port)
         {
-            if (family == INET) {
+            if(family != ip_family::INET && family != ip_family::INET6)
+                throw std::invalid_argument("Invalid Argument for family: not INET nor INET6");
+
+            if (family == ip_family::INET) {
                 this->addr.family = ip_family::INET;
                 this->addr.v4addr = system::to_ipv4(system::from_ipv4_str(address, port));
             }
 
-            if (family == INET6) {
+            if (family == ip_family::INET6) {
                 this->addr.family = ip_family::INET6;
                 this->addr.v6addr = system::to_ipv6(system::from_ipv6_str(address, port));
             }
-
-            throw std::invalid_argument("IpAddress: family is not INET or INET6");
         }
 
         addr_t &IpAddress::get_addr()
