@@ -109,7 +109,7 @@ TEST_CASE("IpAddress string constructor creates an ipv4 address in network byte 
     REQUIRE(actual.address == test_ipv4_arr);
     REQUIRE(actual.port == htons(test_port));
 
-    REQUIRE(addr.port() == test_port);
+    REQUIRE(addr.port() == htons(test_port));
 }
 
 TEST_CASE("IpAddress string constructor creates an ipv6 address in network byte order", "[Endianness][IpAddress][ipv6]")
@@ -121,7 +121,7 @@ TEST_CASE("IpAddress string constructor creates an ipv6 address in network byte 
     REQUIRE(actual.address == test_ipv6_arr);
     REQUIRE(actual.port == htons(test_port));
 
-    REQUIRE(addr.port() == test_port);
+    REQUIRE(addr.port() == htons(test_port));
 }
 
 TEST_CASE("from_ipv4 creates a sockaddr_in structure in network byte order", "[Endianness][system][ipv4]")
