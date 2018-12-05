@@ -3,3 +3,6 @@ build
 *.swp
 compile_commands.json
 .idea
+.vs
+cmake-build*
+CMakeFiles

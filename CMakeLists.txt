@@ -3,9 +3,6 @@ project(socketscpp)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
-
 # Library Header Files
 # This should be set to all files in include/
 set(INCLUDE_FILES include/Byte.h include/Connection.h include/ServerSocket.h include/Error.h include/Byte.h
@@ -29,19 +26,23 @@ set(IMPL_WIN32 src/win32/Error.cpp src/win32/handle.cpp src/win32/ip.cpp src/win
 if(UNIX)
     message(STATUS "Build for Unix has been selected")
     message(STATUS "Files are: " ${IMPL_COMMON} " " ${IMPL_UNIX})
-    add_library(socketscpp SHARED ${IMPL_COMMON} ${IMPL_UNIX})
+    add_library(socketscpp ${IMPL_COMMON} ${IMPL_UNIX})
 endif()
 
 if(WIN32)
     list(APPEND INCLUDE_FILES include/abl/win32.h)
     message(STATUS "Build for Win32 has been selected")
     message(STATUS "Files are: " ${IMPL_COMMON} " " ${IMPL_WIN32})
-    add_library(socketscpp SHARED ${IMPL_COMMON} ${IMPL_WIN32})
+    add_library(socketscpp ${IMPL_COMMON} ${IMPL_WIN32})
     target_link_libraries(socketscpp wsock32 ws2_32)
 endif()
 
 # Export the header files
 set_property(TARGET socketscpp PROPERTY PUBLIC_HEADER ${INCLUDE_FILES})
+
+# Install directives
+install(TARGETS socketscpp DESTINATION lib)
+install(FILES ${INCLUDE_FILES} DESTINATION include)
 
 target_include_directories(socketscpp PUBLIC include)
 
