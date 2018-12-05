@@ -37,9 +37,6 @@ if(WIN32)
     target_link_libraries(socketscpp wsock32 ws2_32)
 endif()
 
-# Export the header files
-set_property(TARGET socketscpp PROPERTY PUBLIC_HEADER ${INCLUDE_FILES})
-
 # Install directives
 install(TARGETS socketscpp DESTINATION lib)
 install(FILES ${INCLUDE_FILES} DESTINATION include)
