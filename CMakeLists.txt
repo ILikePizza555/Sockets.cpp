@@ -3,6 +3,8 @@ project(socketscpp)
 
 set(CMAKE_CXX_STANDARD 14)
 
+option(BUILD_TESTS "Enable building of tests" OFF)
+
 # Library Header Files
 # This should be set to all files in include/
 set(INCLUDE_FILES include/Byte.h include/Connection.h include/Error.h include/Byte.h
@@ -43,4 +45,6 @@ install(FILES ${INCLUDE_FILES} DESTINATION include)
 
 target_include_directories(socketscpp PUBLIC include)
 
-add_subdirectory(test)
+if(BUILD_TESTS)
+    add_subdirectory(test)
+endif()
