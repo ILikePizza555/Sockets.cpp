@@ -173,7 +173,8 @@ namespace sockets {
         }
 
         /**
-         * Writes bytes to the connection.
+         * Writes bytes to the connection. If the connection is closed, the connection will be marked as closed and
+         * an exception will be thrown.
          *
          * @return The number of bytes written.
          */
@@ -193,10 +194,20 @@ namespace sockets {
                 _buffer.resize(static_cast<size_t>(distance));
 
 
-            std::copy(begin, end, _buffer.begin());
-            ssize_t bytes = _socket.send(_buffer, 0, 0);
-
-            return static_cast<size_t>(bytes);
+            try {
+                std::copy(begin, end, _buffer.begin());
+                ssize_t bytes = _socket.send(_buffer, 0, 0);
+                return static_cast<size_t>(bytes);
+            }
+            catch (SocketWriteError& e)
+            {
+                if (e.type == SocketWriteError::ErrorType::CONNECTION_RESET ||
+                    e.type == SocketWriteError::ErrorType::NOT_CONNECTED)
+                {
+                    _closed = true;
+                }
+                throw;
+            }
         }
 
         template<size_t data_size>
@@ -205,9 +216,18 @@ namespace sockets {
         {
             check_connection_state(__func__, _socket, _closed);
 
-            ssize_t bytes = _socket.send(data.data(), data.size(), 0);
-
-            return static_cast<size_t>(bytes);
+            try {
+                ssize_t bytes = _socket.send(data.data(), data.size(), 0);
+                return static_cast<size_t>(bytes);
+            }
+            catch (SocketWriteError& e) {
+                if (e.type == SocketWriteError::ErrorType::CONNECTION_RESET ||
+                    e.type == SocketWriteError::ErrorType::NOT_CONNECTED)
+                {
+                    _closed = true;
+                }
+                throw;
+            }
         }
 
         T& get_socket()
