@@ -47,7 +47,7 @@ namespace sockets {
         static_assert(std::is_move_constructible<T>::value, "T must be movable");
         static_assert(std::is_move_assignable<T>::value, "T must be movable");
 
-    private:
+    protected:
         T _socket;
         ByteBuffer _buffer;
         bool _closed;
