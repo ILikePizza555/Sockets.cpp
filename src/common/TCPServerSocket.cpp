@@ -28,6 +28,7 @@ namespace sockets {
         if (addresses.empty())
             throw InvalidStateError("TCPServerSocket", __func__, "get_address_info returned no addresses for " + ip + "!");
 
+        _serverSocket = TCPSocket(addresses[0].family);
         _serverSocket.bind(addresses[0].address);
         _serverSocket.listen(backlog);
     }
