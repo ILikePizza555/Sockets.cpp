@@ -41,7 +41,7 @@ endif()
 
 # Install directives
 install(TARGETS socketscpp DESTINATION lib)
-install(FILES ${INCLUDE_FILES} DESTINATION include)
+install(DIRECTORY include DESTINATION include)
 
 target_include_directories(socketscpp PUBLIC include)
 
