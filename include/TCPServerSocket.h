@@ -22,7 +22,7 @@ namespace sockets {
          * @param addr
          */
         explicit TCPServerSocket(const abl::IpAddress& addr, int backlog = 1024);
-        TCPServerSocket(const std::string& ip, unsigned short port);
+        TCPServerSocket(const std::string& ip, const std::string& port, int backlog = 1024);
 
         TCPConnection accept() const;
         std::tuple<TCPConnection, abl::IpAddress> acceptfrom() const;

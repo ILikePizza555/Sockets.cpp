@@ -14,7 +14,7 @@ set(INCLUDE_FILES include/Byte.h include/Connection.h include/Error.h include/By
 # Common Implementation Files
 # These are all implementations that are common across platforms
 
-set(IMPL_COMMON src/common/Error.cpp src/common/Byte.cpp src/common/TCPSocket.cpp src/common/Connection.cpp)
+set(IMPL_COMMON src/common/Error.cpp src/common/Byte.cpp src/common/TCPSocket.cpp src/common/Connection.cpp src/common/TCPServerSocket.cpp)
 
 # Unix-Specific implementation files
 # These are the implementations for *nix systems
