@@ -4,8 +4,8 @@
 
 #include <abl/system.h>
 #include <abl/enums.h>
-#include <TCPSocket.h>
-#include <Error.h>
+#include <sockets/TCPSocket.h>
+#include <sockets/Error.h>
 
 #ifdef unix
 #include <netinet/in.h>

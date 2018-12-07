@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include <Connection.h>
+#include <sockets/Connection.h>
 
 #ifdef _WIN32
 #include <abl/win32.h>

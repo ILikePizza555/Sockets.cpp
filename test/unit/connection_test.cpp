@@ -7,7 +7,7 @@
 #include <abl/system.h>
 
 #include <algorithm>
-#include <Connection.h>
+#include <sockets/Connection.h>
 
 using sockets::abl::UniqueHandle;
 

@@ -2,7 +2,7 @@
 // Created by avris on 9/17/2018.
 //
 
-#include <Byte.h>
+#include <sockets/Byte.h>
 
 std::ostream& operator<<(std::ostream& out, ByteBuffer b)
 {
