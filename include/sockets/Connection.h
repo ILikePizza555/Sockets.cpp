@@ -214,20 +214,10 @@ namespace sockets {
         size_t
         write(const ByteString<data_size> &data)
         {
-            check_connection_state(__func__, _socket, _closed);
+            if (_buffer.size() < data_size)
+                _buffer.resize(data_size);
 
-            try {
-                ssize_t bytes = _socket.send(data.data(), data.size(), 0);
-                return static_cast<size_t>(bytes);
-            }
-            catch (SocketWriteError& e) {
-                if (e.type == SocketWriteError::ErrorType::CONNECTION_RESET ||
-                    e.type == SocketWriteError::ErrorType::NOT_CONNECTED)
-                {
-                    _closed = true;
-                }
-                throw;
-            }
+            return write(data.begin(), data.end());
         }
 
         T& get_socket()
