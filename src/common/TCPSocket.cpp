@@ -156,11 +156,11 @@ namespace sockets
         return static_cast<size_t>(result);
     }
 
-    size_t TCPSocket::send(const ByteBuffer& buffer, size_t offset, int flags) const
+    size_t TCPSocket::send(const ByteBuffer& buffer, size_t amount, size_t offset, int flags) const
     {
         ssize_t result =  ::send(system::get_system_handle(this->handle),
                                  reinterpret_cast<const char*>(buffer.data() + offset),
-                                 static_cast<int>(buffer.size()),
+                                 static_cast<int>(amount),
                                  flags);
         if(result == SOCKET_ERROR)
             throw SocketWriteError("TCPSocket::send");

@@ -105,6 +105,6 @@ namespace sockets
         recv(ByteBuffer& buffer, size_t amount, size_t offset = 0, int flags = 0) const;
 
         size_t
-        send(const ByteBuffer& buffer, size_t offset = 0, int flags = 0) const;
+        send(const ByteBuffer& buffer, size_t amount, size_t offset = 0, int flags = 0) const;
     };
 }
