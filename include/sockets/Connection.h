@@ -196,7 +196,7 @@ namespace sockets {
 
             try {
                 std::copy(begin, end, _buffer.begin());
-                ssize_t bytes = _socket.send(_buffer, 0, 0);
+                ssize_t bytes = _socket.send(_buffer, distance, 0, 0);
                 return static_cast<size_t>(bytes);
             }
             catch (SocketWriteError& e)
