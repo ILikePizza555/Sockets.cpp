@@ -58,6 +58,8 @@ sockets::SocketWriteError::ErrorType sockets::SocketWriteError::map_error_type(i
             return ErrorType::NOT_CONNECTED;
         case WSAECONNRESET:
             return ErrorType::CONNECTION_RESET;
+        case WSAECONNABORTED:
+            return ErrorType::CONNECTION_ABORTED;
         default:
             return ErrorType::OTHER;
     }

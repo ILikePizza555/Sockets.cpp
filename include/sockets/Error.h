@@ -137,6 +137,7 @@ namespace sockets {
             NOT_CONNECTED,
             INTERRUPTED,
             CONNECTION_RESET,
+            CONNECTION_ABORTED,
             OTHER
         };
 

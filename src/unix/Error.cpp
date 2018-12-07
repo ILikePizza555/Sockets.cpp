@@ -57,6 +57,8 @@ namespace sockets {
                 return ErrorType::INTERRUPTED;
             case ECONNRESET:
                 return ErrorType::CONNECTION_RESET;
+            case ECONNABORTED:
+                return ErrorType::CONNECTION_ABORTED;
             default:
                 return ErrorType::OTHER;
         }
