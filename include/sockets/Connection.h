@@ -202,7 +202,8 @@ namespace sockets {
             catch (SocketWriteError& e)
             {
                 if (e.type == SocketWriteError::ErrorType::CONNECTION_RESET ||
-                    e.type == SocketWriteError::ErrorType::NOT_CONNECTED)
+                    e.type == SocketWriteError::ErrorType::NOT_CONNECTED    ||
+                    e.type == SocketWriteError::ErrorType::CONNECTION_ABORTED)
                 {
                     _closed = true;
                 }
